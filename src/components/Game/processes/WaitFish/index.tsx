@@ -20,6 +20,7 @@ const WaitFish: FC<Props> = ({
     setProcess,
     scrollToPlayer
 }) => {
+    useEffect(() => console.log('Cool'))
     // Go back to previous process (retry throwing line)
     const goBack = useCallback(
         (): void => {

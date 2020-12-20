@@ -39,12 +39,13 @@ const Game: React.FC<Props> = props => {
     const [process, setProcess] = useState(gameProcesses.INITIAL)
     const [map, setMap] = useState<Map>({
         width: 4200,
-        shoreHeight: 200,
-        lakeHeight: 3000
+        height: 3200,
+        shorePath: { from: { x: 0, y: 0 }, to: { x: 4200, y: 200 }},
+        lakePath: { from: { x: 0, y: 0 }, to: { x: 4200, y: 3000 }}
     })
     const [playerCoordinates, setPlayerCoordinates] = useState<Coordinates>({
         x: map.width / 2 - (50/*playerWidth*//2),
-        y: map.shoreHeight / 2,
+        y: map.shorePath.to.y / 2,
         width: 50
     })
 
@@ -61,8 +62,21 @@ const Game: React.FC<Props> = props => {
     }), [playerCoordinates])
     const [baitOffset, setBaitOffset] = useState<Coordinates>({ x: 0, y: -20, transition: '.2 all ease' })
     const baitDistance = useMemo(() => {
-        return Math.round(Math.abs(getVectorLength({ from: {x: 0, y: 0}, to: baitOffset })/10))
+        return Math.round(Math.abs(getVectorLength({ from: {x: 0, y: 0}, to: { x: Math.abs(baitOffset.x), y: Math.abs(baitOffset.y) } })/60))
     }, [baitOffset])
+
+    const baitOffsetLimit = useMemo(():Path => {
+        return ({
+            from: { // Min offset
+                x: -baitCoordinates.x, // Lake left border
+                y: 0 // Lake top border
+            },
+            to: { // Max offset
+                x: map.width - baitCoordinates.x - baitCoordinates.width, // Lake right border
+                y: map.lakePath.to.y // Lake bottom border
+            }
+        })
+    }, [map, baitCoordinates, playerCoordinates])
 
     const lineOrigin = useMemo((): Coordinates => ({
         x: playerCoordinates.x + playerCoordinates.width/2 + rodOffset.x - (Math.sin(rodAngle*Math.PI/180) * rodDimensions.height / 2),
@@ -128,6 +142,7 @@ const Game: React.FC<Props> = props => {
                     setRodOffset={setRodOffset}
                     baitOffset={baitOffset}
                     setBaitOffset={setBaitOffset}
+                    baitOffsetLimit={baitOffsetLimit}
                     baitDistance={baitDistance}
                     rodLevel={rodLevel}
                     baitRef={baitRef}
@@ -153,6 +168,7 @@ const Game: React.FC<Props> = props => {
         rodAngle,
         rodOffset,
         baitOffset,
+        baitOffsetLimit,
         baitDistance,
         rodLevel,
         map
@@ -163,7 +179,7 @@ const Game: React.FC<Props> = props => {
             className={styles.shore}
             style={{
                 width: `${map.width}px`,
-                height: `${map.shoreHeight}px`
+                height: `${map.shorePath.to.y}px`
             }}
             ref={shoreRef}
         >
@@ -196,7 +212,7 @@ const Game: React.FC<Props> = props => {
         <svg
             className={styles.line}
             ref={lineRef}
-            style={{ width: map.width, height: map.shoreHeight + map.lakeHeight }}
+            style={{ width: map.width, height: map.shorePath.to.y + map.lakePath.to.y }}
         >
             <line
                 x1={linePath.from.x}
@@ -223,7 +239,7 @@ const Game: React.FC<Props> = props => {
             className={styles.lake}
             style={{
                 width: `${map.width}px`,
-                height: `${map.lakeHeight}px`
+                height: `${map.lakePath.to.y}px`
             }}
             ref={lakeRef}
         >

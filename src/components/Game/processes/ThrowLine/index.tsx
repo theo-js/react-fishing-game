@@ -1,13 +1,12 @@
 import React, { Dispatch, SetStateAction, useCallback, useRef, useEffect, useState, useMemo } from 'react'
 import { gameProcesses } from '../../index'
-import { Coordinates } from '../../../../interfaces/position'
+import { Coordinates, Path } from '../../../../interfaces/position'
 import { FishRodLevel } from '../../../../interfaces/gameProgress'
 import { getVectorLength, getNextCoordinatesOfPath } from '../../../../utils/position.ts'
 import throttle from '../../../../utils/throttle.ts'
 import styles from './index.module.sass'
 
 // Audio
-import whooshSE from '../../../../audio/se/whip.wav'
 import baitDropSE from '../../../../audio/se/bait-drop.wav'
 
 interface Props {
@@ -17,8 +16,9 @@ interface Props {
     rodOffset: Coordinates,
     setRodOffset: Dispatch<SetStateAction<Coordinates>>,
     baitOffset: Coordinates,
-    baitDistance: number,
     setBaitOffset: Dispatch<SetStateAction<Coordinates>>,
+    baitDistance: number,
+    baitOffsetLimit: Path,
     baitRef: React.Ref<HTMLDivElement>,
     setBaitType: Dispatch<SetStateAction<string>>,
     playerCoordinates: Coordinates,
@@ -35,8 +35,9 @@ export default (({
     rodOffset,
     setRodOffset,
     baitOffset,
-    baitDistance,
     setBaitOffset,
+    baitDistance,
+    baitOffsetLimit,
     baitRef,
     setBaitType,
     playerCoordinates,
@@ -44,17 +45,17 @@ export default (({
  }) => {
     // State
     const [gaugeValue, setGaugeValue] = useState<number>(0)
+    const [spaceFired, setSpaceFired] = useState<boolean>(false)
     const [isPreparingThrow, setIsPreparingThrow] = useState<boolean>(false)
     const [isThrowing, setIsThrowing] = useState<boolean>(false)
-    const [spaceFired, setSpaceFired] = useState<boolean>(false)
+    const [hasThrown, setHasThrown] = useState<boolean>(false)
 
     // Refs
     const gaugeValueRef = useRef<number>(0)
     const requestRef = useRef<any>(null)
+    const directionRef = useRef<number>(rodAngle)
     const stepRef = useRef<number>(0)
     const remainingDistanceRef = useRef<number>(0)
-    const whooshSERef = useRef<HTMLAudioElement>(new Audio())
-    whooshSERef.current.src = whooshSE
     const baitDropSERef = useRef<HTMLAudioElement>(new Audio())
     baitDropSERef.current.src = baitDropSE
 
@@ -90,19 +91,35 @@ export default (({
     // Throw bait at the right distance and direction
     useEffect(() => {
         if (isThrowing) {
-            // Play whip SE
-            whooshSERef.current.play()
             // Initial throw speed
             stepRef.current = remainingDistanceRef.current / 15 // stepRef.current is the distance travelled in px / frame
 
             function move (timestamp: number): void {
                 if (remainingDistanceRef.current > 0) {
                     // Bait is still moving
-                    const nextCoords = getNextCoordinatesOfPath(rodAngle, stepRef.current)
+                    // Get next coordinates
+                    let nextCoords: Coordinates = getNextCoordinatesOfPath(directionRef.current, stepRef.current)
+                    let nextOffset: Coordinates = { x: baitOffset.x - nextCoords.x, y: baitOffset.y + Math.abs(nextCoords.y) }
                     remainingDistanceRef.current = Math.floor(remainingDistanceRef.current - stepRef.current)
+                    /*
+                        Detect collision against lake borders before it happens
+                        and change direction in that case
+                    */
+                    if (nextOffset.x > baitOffsetLimit.to.x) {
+                        // Handle right limit collision
+                        // Deviate
+                        directionRef.current *= -1
+                    } else if (nextOffset.y > baitOffsetLimit.to.y) {
+                        // Handle bottom limit collision
+                    } else if (nextOffset.x < baitOffsetLimit.from.x) {
+                        // Handle left limit collision
+                        directionRef.current *= -1
+                    } else if (nextOffset.y < baitOffsetLimit.from.y) {
+                        // Handle top limit collision
+                    }
 
                     // Apply translation and scroll
-                    setBaitOffset({ x: baitOffset.x - nextCoords.x, y: baitOffset.y + Math.abs(nextCoords.y) })
+                    setBaitOffset(nextOffset)
                     if (baitRef.current) baitRef.current.scrollIntoView({
                         behavior: 'auto',
                         block: 'center',
@@ -110,25 +127,28 @@ export default (({
                     })
 
                     // Ease-out
-                    stepRef.current *= .75
-
-                    window.setTimeout(move, 50)
+                    stepRef.current *= .999 // Deceleration coeff
+                    throttle(move, 100)
                 } else {
                     // Bait has reached the correct distance
                     console.log('reached !')
                     setIsThrowing(false)
                     setBaitType('immersed')
-                    remainingDistanceRef.current = 0
-                    // Play bait drop SE
-                    baitDropSERef.current.play()
+                    // Play bait drop sound effect
+                    const baitDropSEPromise = baitDropSERef.current.play()
+                    if (typeof baitDropSEPromise !== 'undefined') {
+                        baitDropSEPromise
+                        .then(() => null)
+                        .catch(err => console.log(err))
+                    }
                     // Wait for fish
                     setProcess(gameProcesses.WAIT_FISH)
+                    return
                 }
             }
             move()
         }
-    }, [isThrowing, rodLevel, rodAngle, baitOffset])
-    useEffect(() => console.log(baitOffset), [baitOffset])
+    }, [isThrowing, hasThrown, rodLevel, baitOffset, baitOffsetLimit])
 
     const confirmThrow = useCallback(
         (): void => {
@@ -137,11 +157,13 @@ export default (({
                 remainingDistanceRef.current = reach
                 setIsThrowing(true)
                 setBaitOffset({ x: 0, y: 0 })
+                // Initial direction
+                directionRef.current = rodAngle
             }
             setIsPreparingThrow(false)
             gaugeValueRef.current = 0
             setGaugeValue(0)
-        }, [rodLevel]
+        }, [rodLevel, rodAngle]
     )
 
     // Attach event listeners

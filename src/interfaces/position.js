@@ -18,6 +18,7 @@ export interface Path {
 
 export interface Map {
     width: number,
-    shoreHeight: number,
-    lakeHeight: number
+    height: number,
+    shorePath: Path,
+    lakePath: Path
 }
