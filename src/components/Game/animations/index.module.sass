@@ -1,0 +1,25 @@
+.splashAnimWave
+    position: absolute
+    border-radius: 100%
+    pointer-events: none
+    animation: splash ease-out 6s 1
+    filter: blur(1px)
+
+.takeBaitAnim
+    position: absolute
+    background: #FFF4
+    border-radius: 25% 25% 0 0
+    width: 1rem
+    height: .25rem
+
+@keyframes splash
+    from
+        opacity: .75
+        transform: scale(1)
+        background: radial-gradient(transparent, #c3fdff55, transparent)
+    20%
+        background: radial-gradient(transparent, #c3fdff44, transparent, #c3fdff22, transparent)
+    to
+        opacity: 0
+        transform: scale(8)
+        background: radial-gradient(transparent, #c3fdff33, transparent, #c3fdff20, transparent, #c3fdff10, transparent)

@@ -1,0 +1,129 @@
+.inventory
+    display: grid
+    grid-template-columns: repeat(2, 1fr)
+    grid-template-areas: "entries details"
+    padding: .5rem
+    grid-gap: .25rem
+    & > *
+        background: var(--black)
+        padding: .25rem
+    .entries
+        grid-area: entries
+        padding: 0
+        .entriesList
+            padding: 0
+            margin: 0
+            display: flex
+            flex-flow: row wrap
+            justify-content: space-evenly
+            align-items: flex-end
+            gap: .25rem
+            padding: .25rem
+            .entry
+                list-style: none
+                background: radial-gradient(circle at top left, transparent, #1A1A1A 50%, #1A1A1A)
+                display: inline-block
+                font-size: 1.25em
+                position: relative
+                padding: .125em .25em
+                min-width: 1em
+                min-height: 1.25em
+                border-radius: .125em
+                transition: all ease-in-out .3s
+                cursor: pointer
+                &:hover
+                    .image
+                        filter: brightness(1.2) drop-shadow(1px 2px 1px #0004)
+                    .amount
+                        filter: brightness(1.2)
+                &.selected
+                    .image
+                        top: -.25em
+                        filter: brightness(1.2) drop-shadow(1px 2px 1px #0004)
+                        svg
+                            font-size: 1.5em
+                    .amount
+                        filter: brightness(1.2)
+                &.empty
+                    cursor: default
+                .image
+                    display: inline-block
+                    position: absolute
+                    top: 0
+                    left: 0
+                    right: 0
+                    margin: 0 auto
+                    text-align: center
+                    filter: drop-shadow(1px 2px 1px #0004)
+                    transition: all ease-in-out .3s
+                    svg
+                        transition: all ease-in-out .3s
+                .amount
+                    font-size: .5em
+                    color: #FFF
+                    position: absolute
+                    bottom: 0
+                    right: .125rem
+    .details
+        grid-area: details
+        background: var(--darkgrey)
+        &.msg
+            p
+                font-size: .75em
+                .link
+                    text-decoration: underline
+                    color: var(--yellow)
+                    cursor: pointer
+                    &:hover, &:focus
+                        color: var(--orange)
+                    &:active
+                        filter: brightness(1.1)
+        h3
+            text-align: center
+            margin-top: 0
+            margin-bottom: .25em
+            -webkit-background-clip: text !important
+            background-clip: text !important
+            -webkit-text-fill-color: transparent
+        article
+            font-size: .75em
+        .description
+            font-style: italic
+            background: var(--black)
+            padding: .25rem
+            margin: 0
+        button
+            font-size: .75em
+            margin: 0 auto
+            white-space: nowrap
+        .actions
+            padding: 0
+            display: flex
+            flex-flow: row wrap
+            margin: .5em 0
+            gap: .25rem
+            li
+                list-style: none
+
+.modal
+    color: var(--lightblue)
+    h3
+        text-align: center
+    button
+        font-size: .875em
+        transition: all ease .3s
+        &:focus, &:hover
+            font-size: 1.25em
+    .actionsList
+        padding: 0
+        display: flex
+        justify-content: space-around
+        gap: .5rem
+        li
+            list-style: none
+
+
+
+@media screen and ( max-width: 450px )
+    .inventory
+        grid-template-areas: "entries entries" "details details"

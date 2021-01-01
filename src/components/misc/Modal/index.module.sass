@@ -1,0 +1,40 @@
+.modalWrapper
+    background: #113C
+    position: fixed
+    z-index: 99999999999
+    min-height: 100vh
+    min-width: 100vw
+    top: 0
+    left: 0
+    display: flex
+    justify-content: center
+    align-items: center
+    animation: fade-in .2s 1 ease-in
+
+    .modalWindow
+        background: var(--white)
+        padding: 1rem
+        border-radius: .25rem
+        margin: 1rem
+        min-width: 200px
+        max-width: 1200px !important
+        box-shadow: 0 .125rem 1rem 0 var(--broken-black)
+
+    &.closing
+        opacity: 0
+        // Reverse
+        transform: scale(.75) translateY(-1rem)
+        //transform: scale(1.25) translateY(1rem)
+        filter: blur(2px)
+        border-radius: 50%
+
+@keyframes fade-in
+    from
+        opacity: 0
+        transform: scale(1.25) translateY(1rem)
+        filter: blur(2px)
+        border-radius: 50%
+    to
+        opacity: 1
+        transform: scale(1)
+        border-radius: 0

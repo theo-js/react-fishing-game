@@ -1,0 +1,10 @@
+{
+    "Bait": {
+        "_id": "Bait",
+        "colors": ["var(--lightgreen)", "var(--green)"]
+    },
+    "Fish": {
+        "_id": "Fish",
+        "colors": ["var(--lightblue)", "var(--blue)"]
+    }
+}

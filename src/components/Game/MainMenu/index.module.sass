@@ -1,0 +1,148 @@
+
+.mainMenu
+    position: fixed
+    z-index: 10
+    opacity: .85
+    overflow: hidden
+    display: flex
+    flex-flow: row wrap
+    align-items: flex-end
+    bottom: 1rem
+    left: 1rem
+    right: 1rem
+    animation-name: stretch-width, stretch-height
+    animation-timing-function: ease, ease
+    animation-duration: .7s, .4s
+    animation-iteration-count: 1, 1
+    animation-delay: 0s, .7s
+    animation-fill-mode: forwards, forwards
+    transition: .7s ease all
+    .menuContent
+        background: var(--darkgrey)
+        color: var(--lightblue)
+        border: 1px solid var(--darkblue)
+        border-radius: .125rem
+        max-height: 0
+        animation: stretch-maxHeight .4s ease 1 forwards
+        animation-delay: .7s
+        width: 100%
+        max-width: 900px
+        margin: 0 auto
+        opacity: 0
+        overflow: hidden
+        h3
+            background: linear-gradient(var(--lightblue), var(--blue))
+            text-shadow: 2px 2px 1px #0004
+            background-clip: text
+            -webkit-text-fill-color: transparent
+    .menuNavigation
+        width: 100%
+        ul
+            display: flex
+            justify-content: stretch
+            padding: 0
+            margin: 0
+            &::after
+                content: ''
+                width: 3rem
+                margin-left: auto
+                flex-shrink: 0
+            li
+                list-style: none
+                white-space: nowrap
+                padding: calc(1rem - 1px) 1rem
+                border: 1px solid var(--darkblue)
+                //border-top: none
+                //border-bottom: none
+                border-left: none
+                opacity: 0
+                color: var(--lightgrey)
+                background: linear-gradient(var(--blue), var(--darkblue))
+                animation: fade-in .7s ease 1 forwards
+                transition: .3s color ease
+                &:first-child
+                    border-left: 1px solid var(--darkblue)
+                &:hover
+                    cursor: pointer
+                    color: #FFF
+                &.active
+                    background: linear-gradient(var(--yellow), var(--orange))
+                    color: var(--darkblue)
+                    border-color: orange
+                    &:hover
+                        cursor: default
+                svg
+                    vertical-align: middle
+                    margin-left: .25rem
+
+            @for $i from 1 to 10
+                li:nth-child(#{$i})
+                    animation-delay: $i * .125s
+    &.closing
+        height: calc(100% - 2rem)
+        animation: stretch-out .9s ease 1 forwards
+
+
+@media screen and (max-width: 600px)
+    .mainMenu
+        .menuNavigation
+            ul
+                li
+                    overflow: hidden !important
+                    text-overflow: ellipsis !important
+@media screen and (max-width: 500px)
+    .mainMenu
+        .menuNavigation
+            ul
+                justify-content: space-between
+                li
+                    padding-left: 1.25rem !important
+                    padding-right: 1.25rem !important
+                    text-overflow: unset !important
+                    .infoFacultative
+                        display: none
+                    svg
+                        margin-left: 0
+
+// Mobile
+@media screen and ( max-device-width: 1100px )
+    .mainMenu
+        .menuNavigation
+            ul
+                li
+                    padding: .625rem
+
+@keyframes stretch-width
+    0%
+        width: 0
+        opacity: 0
+    100%
+        width: calc(100% - 2rem)
+        opacity: 1
+
+@keyframes stretch-height
+    0%
+        height: 3rem
+    100%
+        height: calc(100% - 2rem)
+
+@keyframes stretch-maxHeight
+    0%
+        max-height: 0
+        opacity: 0
+    100%
+       max-height: 100%
+       opacity: 1
+
+@keyframes fade-in
+    from
+        opacity: 0
+    to
+        opacity: 1
+
+@keyframes stretch-out
+    0%
+    100%
+        right: calc(100% - 1rem)
+        height: 0
+        opacity: 0

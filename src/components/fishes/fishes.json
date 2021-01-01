@@ -1,0 +1,20 @@
+{
+    "Anchovy": {
+        "_id": "Anchovy",
+        "look": "default",
+        "minExp": 10,
+        "maxExp": 20,
+        "likes": [
+            "mushroom"
+        ]
+    },
+    "Sardine": {
+        "_id": "Sardine",
+        "look": "default",
+        "minExp": 15,
+        "maxExp": 25,
+        "likes": [
+            "mushroom"
+        ]
+    }
+}

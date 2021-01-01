@@ -1,0 +1,43 @@
+.progressCircle
+    margin: 0
+    padding: 0
+    border: none
+    // Hide default range input element
+    input[type="range"]
+        display: none
+        & + label
+            // Actual circular gauge
+            display: flex
+            position: relative
+            font-size: 4rem
+            width: 1em
+            height: 1em
+            border-radius: 50%
+            background-color: #FFF
+            .progressMask
+                position: absolute
+                width: 1em
+                height: 1em
+                overflow: hidden
+                z-index: -1
+                transform: scale(1.01)
+           
+            .progressBar, .progressInf50
+                position: absolute
+                background: #FFF
+                border-radius: 50%
+                width: 1em
+                height: 1em
+                clip-path: polygon(0 0, .5em 0, .5em 1em, 0 1em)
+            .center
+                font-size: .15em
+                height: 100%
+                display: flex
+                justify-content: center
+                align-items: center
+                z-index: 2
+                margin: auto
+                width: calc(100% - 1em)
+                height: calc(100% - 1em)
+                border-radius: 50%
+                background: #FFF

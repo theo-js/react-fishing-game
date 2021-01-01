@@ -5,16 +5,55 @@
         bottom: 1rem
     .gauge
         position: fixed
-        right: 1rem
-        bottom: 1rem
+        right: .5rem
+        bottom: 1.5rem
         width: 5rem
-        border: 1px solid red
-    .baitDistance
-        position: fixed
-        margin: 0
-        right: 1rem
-        bottom: 1rem
-        color: #ffffff
-        font-weight: bold
-        font-family: monospace
-        font-size: 2rem
+        transition: all ease .5s
+        & *
+            user-select: none
+        fieldset
+            &::before
+                content: ''
+                position: absolute
+                z-index: -2
+                background: var(--darkgrey)
+                border-radius: 50%
+                top: 0
+                left: 0
+                width: 90%
+                height: 100%
+            label
+                filter: drop-shadow(0px 2px 4px #222A)
+                background: conic-gradient(transparent, var(--lightblue), var(--lightgreen), var(--yellow), var(--orange), var(--red)) !important
+                box-shadow: 0 0 0 .125em var(--black)
+                .track
+                    background: var(--darkgrey)
+                .center
+                    background: var(--black)
+                    color: var(--lightblue)
+                    .gaugeMSG
+                        text-transform: uppercase
+                        &.pushHere
+                            display: none
+                        &.high
+                            color: var(--orange)
+                        &.optimal
+                            color: var(--red)
+                            filter: brightness(2)
+                            animation: grow .2s ease 1
+                            transform: scale(1.5)
+                        
+        &.userPush
+            transform: scale(1.25)
+            filter: brightness(1.375)
+                
+@media screen and (max-device-width: 1100px)
+    // Only show "push here" message on phones/tablets
+    .pushHere
+        display: inline !important
+
+@keyframes grow
+    0%
+        transform: scale(1)
+    100%
+        transform: scale(1.5)

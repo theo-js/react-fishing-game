@@ -1,9 +1,14 @@
-import React, { Dispatch, SetStateAction, useCallback, useEffect, useLayoutEffect, useState } from 'react'
-import { gameProcesses } from '../../index'
+import React, { Dispatch, SetStateAction, useCallback, useRef, useEffect, useLayoutEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import gameProcesses from '../index.json'
 import { Coordinates, Map } from '../../../../interfaces/position'
-import throttle from '../../../../utils/throttle.ts'
-import { FaFish } from 'react-icons/fa'
+import throttle from '../../../../utils/throttle'
+import { FaFish, IoClose, GiLightBackpack } from 'react-icons/all'
 import styles from './index.module.sass'
+
+// Redux
+import { isMainMenuOpenSelector, isMainMenuClosingSelector } from '../../../../store/selectors/game'
+import { openMainMenuAction, closeMainMenuAction } from '../../../../store/actions/game'
 
 interface Props {
     setProcess: Dispatch<SetStateAction<string>>,
@@ -11,7 +16,9 @@ interface Props {
     setPlayerCoordinates: Dispatch<SetStateAction<Coordinates>>,
     scrollToPlayer: (behavior?: 'smooth' | 'auto' | undefined) => void,
     shoreRef: any,
-    map: Map
+    map: Map,
+    setIsBarometerVisible: Dispatch<SetStateAction<boolean>>,
+    isBarometerVisible: boolean
 }
 
 enum Direction {
@@ -19,8 +26,21 @@ enum Direction {
     RIGHT = "RIGHT"
 }
 
-export default (({ setProcess, playerCoordinates, setPlayerCoordinates, scrollToPlayer, shoreRef, map }) => {
+export default (({ setProcess, playerCoordinates, setPlayerCoordinates, scrollToPlayer, shoreRef, map, isBarometerVisible, setIsBarometerVisible }) => {
+    // REDUX
+    const dispatch = useDispatch()
+    const openMainMenu = useCallback(
+        (): void => dispatch(openMainMenuAction()), []
+    )
+    const closeMainMenu = useCallback(
+        (): void => dispatch(closeMainMenuAction()), []
+    )
+    const isMainMenuOpen = useSelector(isMainMenuOpenSelector)
+    const isMainMenuClosing = useSelector(isMainMenuClosingSelector)
+
+    // STATE
     const [isPlayerMoving, setIsPlayerMoving] = useState<boolean>(false)
+    const lastTouchX = useRef<number>(null)
 
     const movePlayer = useCallback(
         (direction: Direction, value: number): void => {
@@ -49,6 +69,21 @@ export default (({ setProcess, playerCoordinates, setPlayerCoordinates, scrollTo
         scrollToPlayer('auto')
     }, [])
 
+    // Hide barometer
+        useEffect(() => {
+        if (isBarometerVisible) {
+            setIsBarometerVisible(false)
+        }
+    }, [])
+
+    const throwLine = useCallback(
+        (): void => {
+            if (!isPlayerMoving && !isMainMenuOpen) {
+                setProcess(gameProcesses.THROW_LINE)
+            }
+        }, [isPlayerMoving, isMainMenuOpen]
+    )
+
     // Attach event listeners
     useEffect(() => {
         function handleKeyDown (e: KeyboardEvent): void {
@@ -71,11 +106,11 @@ export default (({ setProcess, playerCoordinates, setPlayerCoordinates, scrollTo
                 case 32: // Space
                 case 13: // Enter
                     e.preventDefault()
-                    if (!isPlayerMoving) setProcess(gameProcesses.THROW_LINE)
+                    throwLine()
                     break
             }
         }
-        const handleKeyDownThrottle = throttle(handleKeyDown, 1000)
+        const handleKeyDownThrottle = throttle(handleKeyDown, 100)
         function preventVerticalScroll (e: KeyboardEvent): void {
             const { keyCode } = e
             switch (keyCode) {
@@ -90,17 +125,39 @@ export default (({ setProcess, playerCoordinates, setPlayerCoordinates, scrollTo
         function handleKeyUp (e: KeyboardEvent): void {
             setIsPlayerMoving(false)
         }
-        function handleClick (e: MouseEvent): void {
+        function handleClick (e: any): void {
             const { layerX } = e
             const difference = layerX - playerCoordinates.x
             movePlayer(difference >= 0 ? Direction.RIGHT : Direction.LEFT, Math.abs(difference))
             setIsPlayerMoving(false)
         }
-        document.addEventListener('keydown', handleKeyDownThrottle, false)
-        document.addEventListener('keydown', preventVerticalScroll, true)
-        document.addEventListener('keyup', handleKeyUp, false)
-        if (shoreRef && shoreRef.current) {
-            shoreRef.current.addEventListener('click', handleClick, false)
+        function handleTouchMove (e: TouchEvent) {
+            const currentTouchX = e.touches[0].clientX
+            if (lastTouchX.current !== null) {
+                if (currentTouchX < lastTouchX.current) {
+                    // Swipe left
+                    movePlayer(Direction.RIGHT, 20)
+                } else if (currentTouchX > lastTouchX.current) {
+                    // Swipe right
+                    movePlayer(Direction.LEFT, 20)
+                }
+            }
+            lastTouchX.current = currentTouchX
+        }
+        const handleTouchMoveThrottle = throttle(handleTouchMove, 100)
+        function handleTouchEnd (e: TouchEvent) {
+            setIsPlayerMoving(false)
+        }
+
+        if (!isMainMenuOpen) {
+            document.addEventListener('keydown', handleKeyDownThrottle, false)
+            document.addEventListener('keydown', preventVerticalScroll, true)
+            document.addEventListener('keyup', handleKeyUp, false)
+            if (shoreRef && shoreRef.current) {
+                shoreRef.current.addEventListener('click', handleClick, false)
+            }
+            document.addEventListener('touchmove', handleTouchMoveThrottle, false)
+            document.addEventListener('touchend', handleTouchEnd, false)
         }
 
         return (): void => {
@@ -110,14 +167,22 @@ export default (({ setProcess, playerCoordinates, setPlayerCoordinates, scrollTo
             if (shoreRef && shoreRef.current) {
                 shoreRef.current.removeEventListener('click', handleClick, false)
             }
+            document.removeEventListener('touchmove', handleTouchMoveThrottle, false)
+            document.removeEventListener('touchend', handleTouchEnd, false)
         }
-    }, [playerCoordinates])
+    }, [playerCoordinates, isMainMenuOpen])
 
     if (!isPlayerMoving) {
-        return <nav className={`${styles.navigation} menu`}>
+        return <nav className={`menu ${styles.navigation} ${isMainMenuOpen && !isMainMenuClosing ? styles.open : ''}`}>
+            <button
+                className={`btn ${styles.openMainMenuBTN}`}
+                onClick={isMainMenuOpen ? closeMainMenu : openMainMenu}
+            >
+                {isMainMenuOpen ? <IoClose /> : <GiLightBackpack />}
+            </button>
             <button 
-                className={`btn btn-primary`}
-                onClick={e => setProcess(gameProcesses.THROW_LINE)}
+                className={`btn btn-primary ${styles.fishBTN}`}
+                onClick={throwLine}
             >
                 Fish here ? <FaFish />
             </button>

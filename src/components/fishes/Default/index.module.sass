@@ -1,0 +1,58 @@
+$fishColor: #2228
+
+.defaultFish
+    position: absolute
+    background: $fishColor
+    width: 1em
+    height: .375em
+    pointer-events: none
+    animation: wriggle 1s linear infinite alternate
+    &::after
+        // Tail
+        content: ''
+        position: absolute
+        border: .25em solid $fishColor
+        border-left-color: transparent
+        right: 100%
+        box-sizing: border-box
+        clip-path: polygon(15% 6%, 100% 33%, 100% 66%, 15% 100%)
+        animation: inherit
+        animation-duration: inherit
+        animation-name: moveTail
+    &.struggling
+        animation: wriggle .125s linear infinite alternate !important
+
+.fishPath, .detectionPath
+    position: absolute
+    //border: 1px solid green
+    pointer-events: none
+.fishPath
+    border-color: orange
+    z-index: 15
+    .likeStatus
+        position: absolute
+        bottom: 100%
+        .heart, .times
+            color: var(--darkred)
+            animation: blink .5s ease infinite alternate
+            font-size: 1rem
+            transform: translate(-.25rem)
+
+@keyframes wriggle
+    0%
+        border-radius: 40% 100% 100% 100%
+    100%
+        border-radius: 100% 100% 100% 40%
+@keyframes moveTail
+    0%
+       transform: translate(5%, -30%) rotate(15deg) skew(15deg) 
+    50%
+        transform: translate(1%, -10%) rotate(0deg) skew(0)
+    100%
+        transform: translate(5%, 10%) rotate(-15deg) skew(-15deg)
+
+@keyframes blink
+    from
+        opacity: 0
+    to
+        opacity: 1

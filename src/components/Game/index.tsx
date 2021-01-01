@@ -1,32 +1,34 @@
 import React, { useState, useMemo, useCallback, useEffect, useLayoutEffect, useRef } from 'react'
 import styles from './index.module.sass'
+import gameProcesses from './processes/index.json'
 import Initial from './processes/Initial'
 import ThrowLine from './processes/ThrowLine'
 import WaitFish from './processes/WaitFish'
+import Barometer from './Barometer'
+import MainMenu from './MainMenu'
 import { Dimensions, Coordinates, Path, Map } from '../../interfaces/position'
-import { FishRodLevel } from '../../interfaces/gameProgress'
-import { GiFishingHook, GiFishingLure } from 'react-icons/all'
-import { getVectorLength } from '../../utils/position'
+import { GiFishingHook } from 'react-icons/all'
+import { getVectorLength, pxToM } from '../../utils/position'
+import BeginnerArea from './areas/Beginner'
+
+// Redux
+import { connect } from 'react-redux'
+import { isMainMenuOpenSelector } from '../../store/selectors/game'
+import { processSelector, rodLevelSelector } from '../../store/selectors/game'
+import { setGameProcessAction, setRodLevelAction } from '../../store/actions/game'
+import { updatePositionAction } from '../../store/actions/position'
 
 interface Props {
     [key: string]: any
 }
 
-export const gameProcesses = {
-    INITIAL: 'INITIAL',
-    THROW_LINE: 'THROW_LINE',
-    WAIT_FISH: 'WAIT_FISH'
-}
-
-const rodLevels: FishRodLevel[] = [
-    {
-        name: 'Default',
-        className: styles.default,
-        maxLength: 1500
-    }
-]
-
-const Game: React.FC<Props> = props => {
+const Game: React.FC<Props> = ({
+    process,
+    setProcess,
+    isMainMenuOpen,
+    updateGlobalPositionState,
+    rodLevel
+}) => {
     // Refs
     const playerRef = useRef<HTMLDivElement>(null)
     const playerPositionRef = useRef<HTMLDivElement>(null)
@@ -36,14 +38,13 @@ const Game: React.FC<Props> = props => {
     const lineRef = useRef(null)
 
     // State
-    const [process, setProcess] = useState(gameProcesses.INITIAL)
     const [map, setMap] = useState<Map>({
         width: 4200,
         height: 3200,
         shorePath: { from: { x: 0, y: 0 }, to: { x: 4200, y: 200 }},
         lakePath: { from: { x: 0, y: 0 }, to: { x: 4200, y: 3000 }}
     })
-    const [playerCoordinates, setPlayerCoordinates] = useState<Coordinates>({
+    const [playerCoordinates, setPlayerCoordinates] = useState<Coordinates | undefined>({
         x: map.width / 2 - (50/*playerWidth*//2),
         y: map.shorePath.to.y / 2,
         width: 50
@@ -61,9 +62,14 @@ const Game: React.FC<Props> = props => {
         height: 30
     }), [playerCoordinates])
     const [baitOffset, setBaitOffset] = useState<Coordinates>({ x: 0, y: -20, transition: '.2 all ease' })
-    const baitDistance = useMemo(() => {
-        return Math.round(Math.abs(getVectorLength({ from: {x: 0, y: 0}, to: { x: Math.abs(baitOffset.x), y: Math.abs(baitOffset.y) } })/60))
+    // Line length in px
+    const lineLength = useMemo(() => {
+        return getVectorLength({ from: {x: 0, y: 0}, to: { x: baitOffset.x, y: baitOffset.y } })
     }, [baitOffset])
+    // Display rounded line length in meters
+    const baitDistance = useMemo(() => {
+        return Math.round(pxToM(lineLength)*10)/10
+    }, [lineLength])
 
     const baitOffsetLimit = useMemo(():Path => {
         return ({
@@ -73,10 +79,20 @@ const Game: React.FC<Props> = props => {
             },
             to: { // Max offset
                 x: map.width - baitCoordinates.x - baitCoordinates.width, // Lake right border
-                y: map.lakePath.to.y // Lake bottom border
+                y: map.lakePath.to.y - rodDimensions.height // Lake bottom border
             }
         })
-    }, [map, baitCoordinates, playerCoordinates])
+    }, [map, baitCoordinates, playerCoordinates, rodDimensions])
+
+    // Coordinates of bait relative to lake
+    const baitLakeCoords = useMemo(
+        (): Coordinates => {
+            return ({
+                x: baitCoordinates.x + baitOffset.x,
+                y: baitCoordinates.y - map.shorePath.to.y + baitOffset.y
+            })
+        }, [baitOffset, baitCoordinates]
+    )
 
     const lineOrigin = useMemo((): Coordinates => ({
         x: playerCoordinates.x + playerCoordinates.width/2 + rodOffset.x - (Math.sin(rodAngle*Math.PI/180) * rodDimensions.height / 2),
@@ -93,9 +109,7 @@ const Game: React.FC<Props> = props => {
         to: lineEdge
     }), [lineOrigin, lineEdge])
 
-    const [isBaitVisible, setIsBaitVisible] = useState<boolean>(true)
-    const [rodLevelNum, setRodLevelNum] = useState<number>(0)
-    const rodLevel = useMemo(() => rodLevels[rodLevelNum], [rodLevelNum])
+    const [isBarometerVisible, setIsBarometerVisible] = useState<boolean>(false)
 
     // Scroll functions
     const scrollToPlayer = useCallback(
@@ -109,15 +123,54 @@ const Game: React.FC<Props> = props => {
             }
         }, []
     )
+    const scrollToBait = useCallback(
+        (behavior: 'smooth' | 'auto' | undefined = 'auto'): void => {
+            if (baitRef.current) {
+                baitRef.current.scrollIntoView({
+                    behavior,
+                    block: 'center',
+                    inline: 'center'
+                })
+            }
+        }, []
+    )
 
     // Disable scroll on mobile devices
     useEffect(() => {
-        function preventDefault (e: any) {
-            e.preventDefault()
+        const doc: any = document // Override type to use eventlistener 'passive' option
+        doc.addEventListener('touchstart', e => e.preventDefault())
+        doc.addEventListener('touchmove', e => e.preventDefault(), { passive: false })
+        doc.addEventListener('touchforcechange', e => e.preventDefault(), { passive: false })
+        return () => {
+            doc.removeEventListener('touchstart', e => e.preventDefault())
+            doc.removeEventListener('touchmove', e => e.preventDefault(), { passive: false })
+            doc.removeEventListener('touchforcechange', e => e.preventDefault(), { passive: false })
         }
-        window.addEventListener('touchstart', preventDefault, false)
-        return () => window.removeEventListener('touchstart', preventDefault, false)
     }, [])
+    // Disable default keyboard behaviour
+    useEffect(() => {
+        function preventDefault (e: any) {
+            switch(e.keyCode) {
+                case 32: // Space
+                case 13: // Enter
+                case 37: // Left
+                case 38: // Top
+                case 39: // Right
+                case 40: // Bottom
+                    e.preventDefault()
+                    break
+            }
+        }
+        window.addEventListener('keydown', preventDefault, false)
+        return () => window.removeEventListener('keydown', preventDefault, false)
+    }, [])
+
+    // Update global state
+    useEffect(() => {
+        updateGlobalPositionState({
+            baitLakeCoords
+        })
+    }, [baitLakeCoords])
 
     // Allow actions depending on game phase
     const currentProcess = useMemo(() => {
@@ -130,11 +183,15 @@ const Game: React.FC<Props> = props => {
                     scrollToPlayer={scrollToPlayer}
                     shoreRef={shoreRef}
                     map={map}
+                    isBarometerVisible={isBarometerVisible}
+                    setIsBarometerVisible={setIsBarometerVisible}
                  />
                 break
             case gameProcesses.THROW_LINE:
                 return <ThrowLine
                     setProcess={setProcess}
+                    scrollToBait={scrollToBait}
+                    scrollToPlayer={scrollToPlayer}
                     rodAngle={rodAngle}
                     setRodAngle={setRodAngle}
                     playerCoordinates={playerCoordinates}
@@ -143,20 +200,30 @@ const Game: React.FC<Props> = props => {
                     baitOffset={baitOffset}
                     setBaitOffset={setBaitOffset}
                     baitOffsetLimit={baitOffsetLimit}
+                    baitLakeCoords={baitLakeCoords}
                     baitDistance={baitDistance}
                     rodLevel={rodLevel}
                     baitRef={baitRef}
                     setBaitType={setBaitType}
+                    lakeRef={lakeRef}
+                    isBarometerVisible={isBarometerVisible}
+                    setIsBarometerVisible={setIsBarometerVisible}
                  />
                 break
             case gameProcesses.WAIT_FISH:
                 return <WaitFish
                     setProcess={setProcess}
                     scrollToPlayer={scrollToPlayer}
+                    scrollToBait={scrollToBait}
                     baitOffset={baitOffset}
                     setBaitOffset={setBaitOffset}
                     baitDistance={baitDistance}
+                    lineLength={lineLength}
                     setBaitType={setBaitType}
+                    setRodAngle={setRodAngle}
+                    baitRef={baitRef}
+                    isBarometerVisible={isBarometerVisible}
+                    setIsBarometerVisible={setIsBarometerVisible}
                  />
                 break
             default: return null
@@ -168,11 +235,16 @@ const Game: React.FC<Props> = props => {
         rodAngle,
         rodOffset,
         baitOffset,
+        baitLakeCoords,
         baitOffsetLimit,
         baitDistance,
+        lineLength,
         rodLevel,
+        setIsBarometerVisible,
         map
     ])
+    
+    const fishAreas = useMemo((): React.ReactNode => <BeginnerArea path={{ from: {x: 1700, y: 200}, to: {x: 2400, y: 400} }} />, [] )
     
     return <div className={styles.game}>
         <div
@@ -224,7 +296,6 @@ const Game: React.FC<Props> = props => {
         <div className={styles.bait}
             ref={baitRef}
             style={{
-                display: isBaitVisible ? 'block' : 'none',
                 left: baitCoordinates.x - baitCoordinates.width / 2,
                 top: baitCoordinates.y - baitCoordinates.height / 2,
                 width: baitCoordinates.width,
@@ -244,7 +315,13 @@ const Game: React.FC<Props> = props => {
             ref={lakeRef}
         >
             {currentProcess}
+            {fishAreas}
         </div>
+        {isBarometerVisible && <Barometer
+            rodLevel={rodLevel}
+            baitDistance={baitDistance}
+         />}
+        {isMainMenuOpen && <MainMenu />}
     </div>
 }
 
@@ -264,4 +341,19 @@ export const Bait: React.FC<BaitProps> = ({ type = 'default' }) => {
     return bait
 }
 
-export default Game
+const mapStateToProps = state => ({
+    process: processSelector(state),
+    rodLevel: rodLevelSelector(state),
+    isMainMenuOpen: isMainMenuOpenSelector(state)
+})
+const mapDispatchToProps = dispatch => ({
+    setProcess: (newProcess: string) => dispatch(setGameProcessAction(newProcess)),
+    setRodLevel: (fishrodID: string) => dispatch(setRodLevelAction(fishrodID)),
+    updateGlobalPositionState: (positionObject: any) => dispatch(updatePositionAction(positionObject))
+})
+const GameConnected = connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(Game)
+
+export default GameConnected

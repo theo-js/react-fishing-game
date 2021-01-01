@@ -1,7 +1,19 @@
 :root {
   font-size: 20px;
-  --green: #459900;
-  --red: rgb(167, 27, 27);
+  --black: #222;
+  --darkgrey: #444;
+  --grey: #929292;
+  --lightgrey: #cccccc;
+  --yellow: #ced110;
+  --red: #a71b1b;
+  --darkred: #411d1d;
+  --lightblue: #0da9dd;
+  --blue: #184fb4;
+  --darkblue:  #202433;
+  --orange: orange;
+  --lightgreen: #14f327;
+  --green: #12ad27;
+  --darkgreen: #223122;
 }
 
 body {
@@ -34,19 +46,29 @@ code {
   font-size: 2rem;
   font-weight: bold;
   cursor: pointer;
-  font-family: monospace;
+  font-family: 'Audiowide', cursive;
+  user-select: none;
+  z-index: 99;
 }
 .btn:hover, .btn:focus {
   outline: none;
   filter: brightness(1.1)
 }
 .btn-primary {
-  color: var(--green);
-  border-color: var(--green);
+  color: var(--yellow);
+  border-color: var(--yellow);
 }
 .btn-cancel {
   color: var(--red);
   border-color: var(--red);
+}
+
+
+/* Mobile */
+@media screen and (max-device-width: 1100px) {
+  .btn {
+    font-size: 1.5rem;
+  }
 }
 
 

@@ -1,0 +1,81 @@
+.shop
+    .seller
+        display: grid
+        grid-template-columns: 7em 1fr
+        .sellerFigure
+            text-align: center
+            margin: .5rem
+            vertical-align: middle
+            svg
+                border: 1px solid var(--lightblue)
+                border-radius: 50%
+                padding: .25em
+                background: var(--black)
+                font-size: 2rem
+                color: var(--red)
+            figcaption
+                font-size: .75em
+        .sellerPhrase
+            position: relative
+            background: var(--black)
+            margin: .5rem
+            margin-top: 0
+            font-size: .75em
+            padding: .25rem
+            border-radius: .125rem
+            &::before
+                content: ''
+                position: absolute
+                top: 1em
+                right: 100%
+                border: .5em solid transparent
+                border-right-color: var(--black)
+            .letter
+                animation-name: letter-fadein
+                animation-duration: .2s
+                animation-timing-function: ease
+                transition: .8s filter ease
+    .mainContent
+        margin: 0
+        padding: .5rem
+        .root
+            ul
+                display: flex
+                flex-direction: row
+                justify-content: space-evenly
+                align-items: center
+                gap: .5rem
+                margin: .5rem
+                padding: .25rem
+                border-radius: .125rem
+                li
+                    list-style: none
+                    button
+                        font-size: .875em
+
+@media screen and (max-width: 450px)
+    .shop
+        .seller
+            display: flex
+            flex-direction: column
+            .sellerPhrase
+                &::before
+                    top: calc(-1em + 2px)
+                    left: calc(50% - .5em)
+                    border-right-color: transparent
+                    border-bottom-color: var(--black)
+            .sellerFigure
+                margin: 0
+                svg
+                    font-size: 1.5em
+
+@keyframes letter-fadein
+    from
+        font-size: .75em
+        margin-left: 2em
+        opacity: 0
+    to
+        font-size: 1em
+        margin-left: 0
+        opacity: 1
+        filter: none !important

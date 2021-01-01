@@ -9,6 +9,7 @@ $ropeColor: #ddccb6
 
 body
     background: #F5eFe1
+    font-family: 'Audiowide', cursive
     &::-webkit-scrollbar
         display: none
 .game
@@ -27,7 +28,6 @@ body
             position: absolute
             width: $playerWidth
             height: $shoreHeight
-            border: 1px solid red
             transition: .2s all ease
             .player
                 position: absolute
@@ -38,7 +38,6 @@ body
                 width: $playerWidth
                 height: $playerWidth
                 border-radius: 100%
-                border: 1px solid green
                 border-left: none
                 border-right: none
                 margin: auto
@@ -46,26 +45,49 @@ body
             position: absolute
             z-index: 10
             transition: .05s all ease
-            &.default
-                background-image: linear-gradient(#33261a, #434621)
-                background-repeat: repeat
-                background-size: 100% 5px
-                border-radius: 3px
+            border-radius: 10px
             &::before
                 position: absolute
                 content: ''
                 height: 20px
                 width: 8px
                 background: linear-gradient(to right, $ropeColor, #777, $ropeColor, #777, $ropeColor, #777)
-                top: 10px
+                top: 15px
                 right: 100%
                 border-radius: 5px
                 border-right: 4px solid #222
                 border-left: 5px solid #222
+            &::after
+                position: absolute
+                content: ''
+                width: 100%
+                height: 30px
+                top: 10px
+                left: 0
+                background: #222
     .lake
-        background: linear-gradient(transparent, #8DF 10px, #47A, #258, #114, #002)
+        position: relative
+        background-image: linear-gradient(to right, #9002, transparent, #0F02), linear-gradient(transparent, #8DF 10px, #47A, #258, #114, #002)
+        background-repeat: no-repeat
         height: $lakeHeight
         width: 100%
+        overflow: hidden
+        &::before, &::after
+            content: ''
+            background-image: radial-gradient(#22224410, #44446605, transparent 66%)
+            background-size: 60px 30px
+            background-repeat: repeat
+            position: absolute
+            top: 0
+            right: 0
+            width: 200%
+            height: 200%
+            pointer-events: none
+        &::before
+            animation: loop-scroll 240s linear infinite reverse
+            background-image: radial-gradient(#AAAACC10, #8888AA05, transparent 66%)
+        &::after
+            animation: loop-scroll 240s linear infinite
 
     // Baits
     .bait
@@ -73,11 +95,16 @@ body
             border-radius: 100% 5px 25% 5px
             font-size: 2rem
             transition: all ease .2s
+            z-index: 9
             svg
                 position: absolute
                 left: calc(50% - 1rem)
                 fill: #333
+                filter: drop-shadow(2px 10px 2px #2223)
+                animation: hang 2s linear infinite
                 &.immersed
+                    filter: none
+                    animation: none
                     clip-path: polygon(0 0, 100% 0, 100% 50%, 0 50%)
     .line
         position: absolute
@@ -86,9 +113,29 @@ body
         top: 0
         left: 0
         pointer-events: none
+        z-index: 9
         transition: all ease .2s
         line, path
             stroke: #FFF
             stroke-width: 2
             fill: transparent
             transition: all ease .2s
+
+
+
+@keyframes loop-scroll
+    from
+        transform: translate(0, 0)
+    to
+        transform: translate(50%, -50%)
+@keyframes hang
+    from
+        transform: rotate(0)
+    25%
+        transform: rotate(5deg)
+    50%
+        transform: rotate(0)
+    75%
+        transform: rotate(-5deg)
+    to
+        transform: rotate(0)

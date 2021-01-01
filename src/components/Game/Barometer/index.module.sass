@@ -1,0 +1,122 @@
+@mixin gradient-text($colors...)
+    background: linear-gradient(to bottom, $colors)
+    background-clip: text
+    -webkit-text-fill-color: transparent
+    
+.barometer
+    position: fixed
+    bottom: 0
+    margin: 1rem
+    height: 2rem
+    right: 0
+    width: calc(100% - 2rem)
+    max-width: 1000px
+    z-index: 11
+    animation-name: fade-right
+    animation-duration: .5s
+    animation-timing-function: ease-out
+    animation-iteration-count: 1
+    nav
+        display: grid
+        grid-template-columns: 150px 1fr
+        .handle
+            grid-column: 1 / 2
+        .tip
+            grid-column: -2 / -1
+            .lineLengthScale
+                position: relative
+                display: flex
+                justify-content: space-between
+                align-items: center
+                .lengthLimit
+                    position: absolute
+                    meter
+                        display: none
+                        & + label
+                            position: absolute
+                            height: 2px
+                            background: #FFF
+                            left: 0
+                            transition: linear .05s width
+                            border-radius: 0 20px 20px 0
+                            filter: drop-shadow(1px 2px 1px #222A)
+                            .tooltip
+                                position: absolute
+                                bottom: calc(100% - .5rem)
+                                transform: translate(-50%)
+                                left: 100%
+                                bottom: calc(100% + 1rem)
+                                display: flex
+                                justify-content: center
+                                z-index: 2
+                                transition: linear .05s left
+                                span
+                                    @include gradient-text(var(--lightgreen), var(--green))
+                                    font-weight: bold
+                                &::after
+                                    content: ''
+                                    border: .25rem solid transparent
+                                    border-top-color: var(--green)
+                                    position: absolute
+                                    top: 100%
+                .step, .subStep
+                    display: flex
+                    justify-content: center
+                    align-items: center
+                    max-width: .5rem
+                    border-radius: 100%
+                    color: #FFF
+                    background: var(--black)
+                    font-size: .375rem
+                    box-shadow: 0 0 0 .5rem #222
+                    filter: drop-shadow(1px 2px 1px #222A)
+                    z-index: 1
+                    transition: .8s all ease
+                    &.origin
+                        background: var(--darkred) !important
+                        box-shadow: 0 0 0 .5rem var(--darkred) !important
+                        color:  #FFF !important
+                    &.reached
+                        background: var(--darkblue)
+                        box-shadow: 0 0 0 .5rem var(--darkblue)
+                        filter: brightness(1.25) drop-shadow(2px 3px 2px #222)
+                .subStep
+                    box-shadow: none !important
+                    color: #FFF !important
+                    width: .5rem
+                    height: .5rem
+                    background: radial-gradient(circle at top right, var(--darkgrey), var(--black))
+                    transform: translateY(1px)
+
+/* Mobile */
+@media screen and (max-device-width: 1100px)
+    .lineLengthScale
+        .step
+            box-shadow: 0 0 0 .25rem #222 !important
+            z-index: 2 !important
+            strong
+                font-weight: normal !important
+                font-size: .9em !important
+            &.origin
+                box-shadow: 0 0 0 .5rem var(--darkred) !important
+            &.reached
+                box-shadow: 0 0 0 .5rem var(--darkblue)
+        .subStep
+            width: .25rem !important
+            height: .5rem !important
+
+// Narrow screens
+@media screen and (max-width: 450px)
+    .barometer
+        nav
+            display: flex
+            flex-direction: column
+
+
+@keyframes fade-right
+    from
+        opacity: 0
+        transform: translateY(100%)
+    to
+        opacity: 1
+        transform: translateY(0)

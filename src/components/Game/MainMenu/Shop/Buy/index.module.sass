@@ -1,0 +1,60 @@
+.buy
+    .forSaleItems
+        padding: 0
+        display: flex
+        flex-direction: row-reverse
+        gap: .5rem
+        & > *
+            width: 50%
+            margin: 0
+            padding: 0
+            border-radius: .125rem
+        .forSaleItemsList
+            margin: 0
+            max-height: 6em
+            overflow-y: auto
+            &::-webkit-scrollbar
+                width: .5rem
+            &::-webkit-scrollbar-thumb
+                border-radius: .125rem
+                background: var(--grey)
+                &:active
+                    background: #1A1A1A
+            li
+                list-style: none
+                display: flex
+                align-items: center
+                gap: .5em
+                font-size: .75em
+                background: var(--black)
+                padding: .25rem
+                cursor: pointer
+                transition: .3s ease all
+                &:hover
+                    filter: brightness(1.2)
+                &.focused
+                    background: #1A1A1A
+                    &:hover
+                        filter: none
+                .itemImage
+                    display: inline-block
+                    margin: 0
+                .id
+                    background-clip: text !important
+                    -webkit-background-clip: text !important
+                    -webkit-text-fill-color: transparent
+                .price
+                    margin-left: auto
+                    strong
+                        font-size: .75em
+                        color: #FFF
+                    svg
+                        color: var(--yellow)
+                        vertical-align: middle
+                
+        .details
+            font-size: .75em
+            .description
+                margin: 0
+                background: var(--black)
+                padding: .25rem
