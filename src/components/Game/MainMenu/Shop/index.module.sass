@@ -13,6 +13,7 @@
                 background: var(--black)
                 font-size: 2rem
                 color: var(--red)
+                box-shadow: 0 1px 1px 1px #222D
             figcaption
                 font-size: .75em
         .sellerPhrase
@@ -21,13 +22,15 @@
             margin: .5rem
             margin-top: 0
             font-size: .75em
+            font-style: italic
             padding: .25rem
             border-radius: .125rem
+            min-height: 1.25em
             &::before
                 content: ''
                 position: absolute
-                top: 1em
-                right: 100%
+                top: calc(66% - 1em)
+                right: calc(100% - 1px)
                 border: .5em solid transparent
                 border-right-color: var(--black)
             .letter
@@ -52,6 +55,9 @@
                     list-style: none
                     button
                         font-size: .875em
+                        background: var(--black)
+                        em
+                            display: inline
 
 @media screen and (max-width: 450px)
     .shop
@@ -66,6 +72,7 @@
                     border-bottom-color: var(--black)
             .sellerFigure
                 margin: 0
+                margin-bottom: .5rem
                 svg
                     font-size: 1.5em
 

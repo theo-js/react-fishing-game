@@ -5,6 +5,6 @@ export interface FishRodLevel {
 }
 
 export interface GameStats {
-    coins: number,
+    doubloons: number,
     fishrodLevel: FishRodLevel
 }

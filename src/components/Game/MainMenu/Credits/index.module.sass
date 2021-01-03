@@ -1,0 +1,37 @@
+@mixin gradient-text($gradient)
+    -webkit-text-fill-color: transparent !important
+    background-clip: text !important
+    background: $gradient
+
+.credits
+    overflow-y: auto
+    max-height: 100%
+    padding: .5rem
+    h3, h4
+        margin-top: 0
+    h4
+        margin-bottom: .5em
+        
+    a
+        color: var(--yellow)
+        &:focus, &:hover
+            color: var(--orange)
+    main
+        & > section
+            box-shadow: 0 0 5px 1px var(--black)
+            padding: .25rem
+            padding-bottom: .5em
+        ul.creditList
+            margin-top: 0
+            h5
+                margin-bottom: .5em
+                margin-top: .5em
+                address
+                    display: inline-block
+            p
+                font-size: .75em
+                margin-top: 0
+        .audioSection
+            color: var(--red)
+            h4
+                @include gradient-text($gradient: linear-gradient(var(--red), var(--darkred)))

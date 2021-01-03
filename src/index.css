@@ -1,7 +1,7 @@
 :root {
   font-size: 20px;
-  --black: #222;
-  --darkgrey: #444;
+  --black: #1d1e1f;
+  --darkgrey: #434650;
   --grey: #929292;
   --lightgrey: #cccccc;
   --yellow: #ced110;
@@ -14,6 +14,11 @@
   --lightgreen: #14f327;
   --green: #12ad27;
   --darkgreen: #223122;
+}
+
+::selection {
+  background: var(--yellow);
+  color: var(--darkblue);
 }
 
 body {
@@ -53,6 +58,14 @@ code {
 .btn:hover, .btn:focus {
   outline: none;
   filter: brightness(1.1)
+}
+.btn:disabled {
+  opacity: .75;
+  cursor: default !important;
+}
+.btn:disabled:hover {
+  cursor: default !important;
+  filter: none !important;
 }
 .btn-primary {
   color: var(--yellow);

@@ -2,6 +2,7 @@
 .mainMenu
     position: fixed
     z-index: 10
+    filter: drop-shadow(0 .125rem 1rem #2228)
     opacity: .85
     overflow: hidden
     display: flex
@@ -83,14 +84,14 @@
         animation: stretch-out .9s ease 1 forwards
 
 
-@media screen and (max-width: 600px)
+@media screen and (max-width: 850px)
     .mainMenu
         .menuNavigation
             ul
                 li
                     overflow: hidden !important
                     text-overflow: ellipsis !important
-@media screen and (max-width: 500px)
+@media screen and (max-width: 650px)
     .mainMenu
         .menuNavigation
             ul

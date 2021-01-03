@@ -19,3 +19,8 @@ export const rodLevelSelector = createSelector(
     (state: any) => state,
     (state: any) => state.game.gameStats.fishrodLevel
 )
+
+export const doubloonsSelector = createSelector(
+    (state: any) => state,
+    (state: any) => state.game.gameStats.doubloons
+)

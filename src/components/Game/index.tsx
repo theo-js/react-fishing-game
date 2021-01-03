@@ -29,6 +29,46 @@ const Game: React.FC<Props> = ({
     updateGlobalPositionState,
     rodLevel
 }) => {
+    // Audio
+    const creekBE = useMemo((): HTMLAudioElement => {
+        const src = require('../../assets/audio/be/creek.mp3').default
+        const audio = new Audio()
+        audio.src = src
+        audio.loop = true
+        return audio
+    }, [])
+    const [audioEnabled, setAudioEnabled] = useState<boolean>(false)
+    useEffect(() => {
+        if (audioEnabled) {
+            const playPromise = creekBE.play()
+            if (typeof playPromise !== 'undefined') {
+                playPromise
+                    .then(() => null)
+                    .catch(() => console.log('Failed playing "creek" background effect'))
+            }
+        } else creekBE.pause()
+    }, [audioEnabled])
+    // Enable audio
+    useEffect(() => {
+        function handler (): void {
+            setAudioEnabled(true)
+        }
+        if (!audioEnabled) {
+            document.body.addEventListener('click', handler, false)
+            document.body.addEventListener('touchstart', handler, false)
+            document.body.addEventListener('keypress', handler, false)
+        } else {
+            document.body.removeEventListener('click', handler, false)
+            document.body.removeEventListener('touchstart', handler, false)
+            document.body.removeEventListener('keypress', handler, false)
+        }
+        return () => {
+            document.body.removeEventListener('click', handler, false)
+            document.body.removeEventListener('touchstart', handler, false)
+            document.body.removeEventListener('keypress', handler, false)
+        }
+    }, [audioEnabled])
+
     // Refs
     const playerRef = useRef<HTMLDivElement>(null)
     const playerPositionRef = useRef<HTMLDivElement>(null)

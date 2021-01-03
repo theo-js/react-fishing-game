@@ -9,26 +9,36 @@ interface Props {
     [key: string]: any
 }
 
-enum ContentID {
+export enum ContentID {
     ROOT = 'ROOT',
     BUY = 'BUY',
     SELL = 'SELL'
 }
 
+// Seller comments
+export const greetings: string[] = [
+    'Ahoy, Matey ! What brings you here ?',
+    'The better your fish rod, the bigger fishes you\'ll catch ! How convenient that I\'m selling some',
+    'Do you have some fish for me ?'
+]
+export const thanks: string[] = [
+    'Thank ya !',
+    'It\'s a pleasure doing business with ye',
+    'Don\'t ya lose it, mate !'
+]
+export const randomGreeting = (): string => greetings[randomIntFromInterval(0, greetings.length - 1)]
+export const randomThanks = (): string => thanks[randomIntFromInterval(0, thanks.length - 1)]
+
 const Shop: React.FC<Props> = () => {
     const [currentContentID, setCurrentContentID] = useState<ContentID>(ContentID.ROOT)
 
     // Seller comments
-    const greetings = useMemo(() => [
-        'Ahoy, Matey ! What brings you here ?',
-        'The better your fish rod, the bigger fishes you\'ll catch ! How convenient that I\'m selling some',
-        'Do you have some fish for me ?'
-    ], [])
-    const [sellerPhrase, setSellerPhrase] = useState<string>(greetings[randomIntFromInterval(0, greetings.length - 1)])
+    const [sellerPhrase, setSellerPhrase] = useState<string>(randomGreeting())
     const [sellerPhraseSpelled, setSellerPhraseSpelled] = useState<string>('')
     const sellerPhraseSpelledJSX = useMemo((): ReactNode[] => {
         return sellerPhraseSpelled.split('').map((letter: string, index: number) => (
             <span
+                key={index}
                 className={styles.letter}
                 style={{ filter: index >= sellerPhraseSpelled.length - 5 ? `hue-rotate(${index*360/sellerPhrase.length}deg)` : 'hue-rotate(0)' }}
             >{letter}</span>
@@ -69,12 +79,12 @@ const Shop: React.FC<Props> = () => {
                     <ul>
                         <li>
                             <button onClick={() => setCurrentContentID(ContentID.BUY)} className={`btn btn-primary`}>
-                                I want to&nbsp;<em>buy</em>
+                                I want to buy
                             </button>
                         </li>
                         <li>
                             <button onClick={() => setCurrentContentID(ContentID.SELL)} className={`btn btn-primary`}>
-                                I want to&nbsp;<em>sell</em>
+                                I have stuff for you
                             </button>
                         </li>
                     </ul>
@@ -83,11 +93,13 @@ const Shop: React.FC<Props> = () => {
             case ContentID.BUY:
                 return <Buy
                     setSellerPhrase={setSellerPhrase}
+                    setCurrentContentID={setCurrentContentID}
                  />
                 break
             case ContentID.SELL:
                 return <Sell
                     setSellerPhrase={setSellerPhrase}
+                    setCurrentContentID={setCurrentContentID}
                  />
                 break
             default: return null

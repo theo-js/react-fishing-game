@@ -1,5 +1,6 @@
 export interface Item {
     _id: string,
+    plural?: string,
     category: string,
     description?: string,
     image?: string,

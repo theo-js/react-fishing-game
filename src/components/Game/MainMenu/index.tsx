@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useMemo } from 'react'
 import Inventory from './Inventory'
 import Shop from './Shop'
+import Credits from './Credits'
 import styles from './index.module.sass'
-import { CgInbox, BiStats, AiTwotoneShop } from 'react-icons/all'
+import { CgInbox, BiStats, AiTwotoneShop, FaHandsHelping } from 'react-icons/all'
 
 // Redux
 import { connect } from 'react-redux'
@@ -17,7 +18,8 @@ interface Props {
 export enum SectionID {
     INVENTORY = 'INVENTORY',
     STATS = 'STATS',
-    SHOPPING = 'SHOPPING'
+    SHOPPING = 'SHOPPING',
+    CREDITS = 'CREDITS'
 }
 
 export const MainMenu: React.FC<Props> = ({ closeMenu, isMenuClosing }) => {
@@ -30,14 +32,13 @@ export const MainMenu: React.FC<Props> = ({ closeMenu, isMenuClosing }) => {
             switch(e.keyCode) {
                 case 8: // Backspace
                 case 46: // Delete
-                case 48: // 0
                     closeMenu()
                     break
             }
         }
 
-        document.addEventListener('keypress', handleKeyPress, true)
-        return () => document.removeEventListener('keypress', handleKeyPress, true)
+        document.addEventListener('keypress', handleKeyPress, false)
+        return () => document.removeEventListener('keypress', handleKeyPress, false)
     }, [])
 
     const currentSectionJSX = useMemo(() => {
@@ -46,8 +47,10 @@ export const MainMenu: React.FC<Props> = ({ closeMenu, isMenuClosing }) => {
                 return <Inventory setCurrentSection={setCurrentSection} />
                 break
             case SectionID.STATS:
-                return <p>Stats</p>
+                return <p>Status</p>
                 break
+            case SectionID.CREDITS:
+                return <Credits />
             default: return <Shop />
         }
     }, [currentSection])
@@ -63,22 +66,32 @@ export const MainMenu: React.FC<Props> = ({ closeMenu, isMenuClosing }) => {
             <nav className={styles.menuNavigation}>
                 <ul>
                     <li
+                        title="Inventory"
                         onClick={e => {e.stopPropagation(); setCurrentSection(SectionID.INVENTORY)}}
                         className={currentSection === SectionID.INVENTORY ? styles.active : ''}
                     >
                         <span className={styles.infoFacultative}>Inventory </span><CgInbox />
                     </li>
                     <li
+                        title="Status"
                         onClick={e => {e.stopPropagation(); setCurrentSection(SectionID.STATS)}}
                         className={currentSection === SectionID.STATS ? styles.active : ''}
                     >
-                        <span className={styles.infoFacultative}>Stats </span><BiStats />
+                        <span className={styles.infoFacultative}>Status </span><BiStats />
                     </li>
                     <li
+                        title="Shopping"
                         onClick={e => {e.stopPropagation(); setCurrentSection(SectionID.SHOPPING)}}
                         className={currentSection === SectionID.SHOPPING ? styles.active : ''}
                     >
                         <span className={styles.infoFacultative}>Shopping </span><AiTwotoneShop />
+                    </li>
+                    <li
+                        title="Credits"
+                        onClick={e => {e.stopPropagation(); setCurrentSection(SectionID.CREDITS)}}
+                        className={currentSection === SectionID.CREDITS ? styles.active : ''}
+                    >
+                        <span className={styles.infoFacultative}>Credits </span><FaHandsHelping />
                     </li>
                 </ul>
             </nav>

@@ -7,6 +7,8 @@ export const SET_FISHROD_LEVEL: string = 'SET_FISHROD_LEVEL'
 // Inventory
 export const ADD_INVENTORY_ENTRY: string = 'ADD_INVENTORY_ENTRY'
 export const REMOVE_INVENTORY_ENTRY: string = 'REMOVE_INVENTORY_ENTRY'
+export const EARN_MONEY: string = 'EARN_MONEY'
+export const SPEND_MONEY: string = 'SPEND_MONEY'
 
 // Fishing
 export const MAKE_BAIT_AVAILABLE: string = 'MAKE_BAIT_AVAILABLE'

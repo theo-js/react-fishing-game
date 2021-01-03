@@ -151,7 +151,7 @@ export const Inventory: React.FC<Props> = ({
         let remaining = []
         for (let i = 0; i < remainingEntries; i++) {
             remaining.push(
-                <li className={`${styles.entry} ${styles.empty}`}></li>
+                <li key={i} className={`${styles.entry} ${styles.empty}`}></li>
             )
         }
         return remaining
