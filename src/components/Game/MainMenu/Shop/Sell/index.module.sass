@@ -1,0 +1,218 @@
+.sell
+    .forSaleItems
+        padding: 0
+        display: flex
+        flex-direction: row
+        gap: .5rem
+        & > *
+            width: 50%
+            margin: 0
+            padding: 0
+            border-radius: .125rem
+        .forSaleItemsList
+            margin: 0
+            max-height: 6em
+            overflow-y: auto
+            &::-webkit-scrollbar
+                width: .5rem
+                height: .5rem
+            &::-webkit-scrollbar-thumb
+                border-radius: .125rem
+                background: var(--grey)
+                &:active
+                    background: #1A1A1A
+            .search
+                position: relative
+                background: transparent !important
+                input[type="text"]
+                    cursor: pointer
+                    border: none
+                    display: block
+                    width: 0
+                    padding: .25rem
+                    padding-right: 1.25rem
+                    color: #FFF
+                    background: var(--black)
+                    border-radius: .125rem .125rem 0 0
+                    transition: all ease .3s
+                    border-bottom: 1px solid var(--dargrey)
+                    margin-bottom: 1px
+                    &:hover
+                        svg
+                            color: var(--darkgrey)
+                    &:focus
+                        width: calc(100% - 1.5rem)
+                        outline: none
+                        filter: brightness(1.2)
+                        input[type="text"]
+                            cursor: text
+                        & + svg
+                            left: calc(100% - 1.25em)
+                            color: var(--grey) !important
+                svg
+                    position: absolute
+                    transition: .3s all ease
+                    pointer-events: none
+                    color: var(--darkgrey)
+                    left: .25rem
+                    bottom: .125rem
+                &.active
+                    input[type="text"]
+                        width: calc(100% - 1.5rem)
+                        cursor: text
+                    svg
+                         left: calc(100% - 1.25em)
+
+            li:not(.search)
+                list-style: none
+                display: flex
+                align-items: center
+                gap: .5em
+                font-size: .75em
+                background: var(--black)
+                padding: .25rem
+                cursor: pointer
+                transition: .3s ease all
+                &:hover
+                    filter: brightness(1.2)
+                &.focused
+                    background: #1A1A1A
+                    &:hover
+                        filter: none
+                &.tooExpensive
+                    opacity: .5
+                .itemImage
+                    display: inline-block
+                    margin: 0
+                .id
+                    background-clip: text !important
+                    -webkit-background-clip: text !important
+                    -webkit-text-fill-color: transparent
+                .amount
+                    color: #FFF
+                .price
+                    margin-left: auto
+                    strong
+                        font-size: .75em
+                        color: #FFF
+                    svg
+                        color: var(--yellow)
+                        vertical-align: middle
+                
+        .details
+            font-size: .75em
+            position: relative
+            .description
+                margin: 0
+                background: var(--black)
+                padding: .25rem
+                border-radius: .125rem
+            & > .myDoubloons
+                margin: 0
+                padding: .25rem 0 0 0
+                color: #FFF
+                text-align: right
+                .label
+                    color: var(--black)
+                svg
+                    color: var(--yellow)
+                    vertical-align: middle
+            .saleActions
+                .submit
+                    padding: 0
+                    margin: 0
+                    display: flex
+                    justify-content: center
+                    align-items: center
+                    gap: .5em
+                    border: none
+                    .cancelBTN
+                        font-size: .75rem
+                        background: var(--black)
+                        display: inline-block
+                    .saleBTN
+                        position: relative
+                        display: inline-block
+                        font-size: .75rem
+                        margin: .25rem 0
+                        background: var(--black)
+                        &.disabled
+                            cursor: default
+                            background: var(--darkred)
+                            opacity: .75
+                            overflow: hidden
+                            &::before, &::after
+                                content: ''
+                                position: absolute
+                                z-index: -1
+                                width: 100%
+                                height: .5rem
+                                background: var(--black)
+                            &::before
+                                left: 0
+                                transform: rotate(20deg)
+                            &::after
+                                right: 0
+                                transform: rotate(-20deg)
+                .amount
+                    display: flex
+                    justify-content: flex-end
+                    align-items: flex-start
+                    flex-flow: row wrap
+                    gap: .5rem
+                    margin: .25rem 0
+                    padding: 0
+                    color: var(--black)
+                    border: none
+                    input[type="number"]
+                        background: var(--black)
+                        color: #FFF
+                        border: none
+                        border-radius: .125rem
+                        text-align: center
+                    .totalPrice
+                        display: inline-block   
+                        margin: 0  
+                        color: #FFF
+                        svg
+                            vertical-align: middle
+                            color: var(--yellow) 
+                        .label
+                            color: var(--black)
+                            margin-right: .5rem                 
+                .myDoubloons
+                    text-align: right
+                    margin: 0
+                    padding: .25rem 0
+                    color: #FFF
+                    .label
+                        color: var(--black)
+                    svg
+                        color: var(--yellow)
+                        vertical-align: middle
+        
+    .footer
+        position: relative
+        .navigation
+            position: absolute
+            top: 0
+            left: 0
+            .previous
+                z-index: 5
+                font-size: .875em
+                background: var(--black)
+                box-shadow: 0 1px .25em 0 #222A
+                svg
+                    fill: var(--red)
+                    stroke: var(--red)
+
+@media screen and ( max-width: 600px )
+    .sell
+        .forSaleItems
+            flex-direction: column !important
+            & > *
+                width: 100% !important
+            .details
+                & > .myDoubloons
+                    .label
+                        display: none !important

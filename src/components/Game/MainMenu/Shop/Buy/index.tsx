@@ -3,13 +3,14 @@ import styles from './index.module.sass'
 import allItems from '../../../../items/items.json'
 import allCategories from '../../../../items/categories.json'
 import { ContentID, randomGreeting, randomThanks } from "../index"
-import { Item, ItemCategory } from '../../../../../interfaces/items'
+import { Item, ItemCategory, InventoryEntry } from '../../../../../interfaces/items'
 import { randomIntFromInterval } from '../../../../../utils/math'
 import { BiCoin } from 'react-icons/all'
 
 // Redux
-import { connect } from 'react-redux'
+import { connect, useSelector } from 'react-redux'
 import { doubloonsSelector } from '../../../../../store/selectors/game'
+import { inventoryEntriesSelector } from '../../../../../store/selectors/inventory'
 import { purchaseItemAction } from '../../../../../store/actions/inventory'
 
 // Seller dialogs
@@ -78,7 +79,7 @@ export const Buy: React.FC<Props> = ({ setSellerPhrase, setCurrentContentID, myD
             return <aside className={styles.details}>
                 <p className={styles.description}>Select an item to check its details</p>
                 <p className={styles.myDoubloons}>
-                    <span className={styles.label}>My wallet:&nbsp;&nbsp;</span>
+                    <span className={styles.label}>Wallet:&nbsp;&nbsp;</span>
                     {myDoubloons} <BiCoin />
                 </p>
             </aside>
@@ -94,7 +95,7 @@ export const Buy: React.FC<Props> = ({ setSellerPhrase, setCurrentContentID, myD
             purchaseSE={purchaseSE}
             thankYouSE={thankYouSE}
          />
-    }, [focusedItem, purchaseItem])
+    }, [focusedItem, purchaseItem, myDoubloons])
 
     return <div className={styles.buy}>
         <main className={styles.forSaleItems}>
@@ -125,7 +126,11 @@ interface DetailsProps {
     thankYouSE?: HTMLAudioElement
 }
 
-const PurchaseDetails: React.FC<any> = ({ setSellerPhrase, item, myDoubloons, purchaseItem, purchaseSE, thankYouSE }) => {
+const PurchaseDetails: React.FC<DetailsProps> = ({ setSellerPhrase, item, myDoubloons, purchaseItem, purchaseSE, thankYouSE }) => {
+    // Redux
+    const inventoryEntries = useSelector(inventoryEntriesSelector)
+
+    // State
     const { _id, plural, description, purchasePrice, isSellable } = item
     const [amount, setAmount] = useState<number>(1)
     const [isConfirmingPurchase, setIsConfirmingPurchase] = useState<boolean>(false)
@@ -136,6 +141,14 @@ const PurchaseDetails: React.FC<any> = ({ setSellerPhrase, item, myDoubloons, pu
         const hasPlayerEnoughMoney = myDoubloons >= totalPrice
         return hasPlayerEnoughMoney && isSellable && amount > 0
     }, [myDoubloons, totalPrice, isSellable, amount])
+
+    const amountInInventory = useMemo((): number => {
+        const inventoryEntry = inventoryEntries.find((entry: InventoryEntry) => entry.item._id === _id)
+        // Item is not in player's inventory
+        if (!inventoryEntry) return 0
+        // Item is already in inventory
+        else return inventoryEntry.amount
+    }, [inventoryEntries, _id])
 
     const purchaseBTN = useMemo((): ReactNode => {
         if (!canBuy) {
@@ -177,6 +190,7 @@ const PurchaseDetails: React.FC<any> = ({ setSellerPhrase, item, myDoubloons, pu
                     purchaseSE.play()
                     setSellerPhrase(randomThanks())
                     setIsConfirmingPurchase(false)
+                    setAmount(1)
                     // "Thank you !"
                     window.setTimeout(() => {
                         if (thankYouSE) thankYouSE.play()
@@ -232,7 +246,12 @@ const PurchaseDetails: React.FC<any> = ({ setSellerPhrase, item, myDoubloons, pu
                 </p>
             </fieldset>
             <p className={styles.myDoubloons}>
-                <span className={styles.label}>My wallet:&nbsp;&nbsp;</span>
+                <span className={styles.label}>Inventory:&nbsp;&nbsp;</span>
+                {amountInInventory} 
+                <span
+                    className={styles.label}
+                    style={{ marginLeft: '.5em' }}
+                >Wallet:&nbsp;&nbsp;</span>
                 {myDoubloons} <BiCoin />
             </p>
             <fieldset className={styles.submit}>{purchaseBTN}</fieldset>
@@ -273,9 +292,10 @@ function ForSaleItem ({ item, setFocusedItem, isFocused, myDoubloons }) {
 const mapStateToProps = state => ({
     myDoubloons: doubloonsSelector(state)
 })
+const mapDispatchToProps = dispatch => ({
+    purchaseItem: (itemID: string, amount: number, price: number) => dispatch(purchaseItemAction(itemID, amount, price))
+})
 export default connect(
     mapStateToProps,
-    dispatch => ({
-        purchaseItem: (itemID: string, amount: number, price: number) => purchaseItemAction(itemID, amount, price)
-    })
+    mapDispatchToProps
 )(Buy)

@@ -1,4 +1,5 @@
 import { createSelector } from 'reselect'
+import { InventoryEntry } from '../../interfaces/items'
 
 export const inventoryEntriesSelector = createSelector(
     (state: any) => state,
@@ -8,4 +9,13 @@ export const inventoryEntriesSelector = createSelector(
 export const maxEntriesSelector = createSelector(
     (state: any) => state,
     (state: any) => state.inventory.maxEntries
+)
+
+export const sellableEntriesSelector = createSelector(
+    inventoryEntriesSelector,
+    (entries: InventoryEntry[]): InventoryEntry[] => {
+        return entries.filter((entry: InventoryEntry) => {
+            return entry.item.isSellable
+        })
+    }
 )

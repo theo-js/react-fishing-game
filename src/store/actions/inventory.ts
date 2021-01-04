@@ -11,7 +11,11 @@ export const deleteItemAction = (itemID: string) => ({ type: REMOVE_INVENTORY_EN
 
 // Shopping
 export const purchaseItemAction = (itemID: string, amount: number, price: number) => dispatch => {
-    console.log('uygiuy')
     dispatch({ type: SPEND_MONEY, payload: price })
     dispatch(addInventoryEntryAction(itemID, amount))
+}
+
+export const sellItemAction = (itemID: string, amount: number, price: number) => dispatch => {
+    dispatch({ type: EARN_MONEY, payload: price })
+    dispatch(removeInventoryEntryAction(itemID, amount))
 }

@@ -6,7 +6,6 @@ import {
     EARN_MONEY,
     SPEND_MONEY
 } from '../actions/types'
-import { doubloonsSelector } from '../selectors/game'
 import gameProcesses from '../../components/Game/processes/index.json'
 import { GameStats } from '../../interfaces/evolution'
 import { rodLevels } from '../../components/Game/evolution'
@@ -54,7 +53,7 @@ export default function (state: State = initialState, action) {
         }
         case EARN_MONEY: {
             const maxDoubloons = 999999
-            const myDoubloons = doubloonsSelector(state)
+            const myDoubloons = state.gameStats.doubloons
             const canEarnMore = myDoubloons + action.payload < maxDoubloons
             let nextDoubloons = myDoubloons
             if (!canEarnMore) nextDoubloons = maxDoubloons
@@ -65,14 +64,14 @@ export default function (state: State = initialState, action) {
                 ...state.gameStats,
                 doubloons: nextDoubloons
             }
-            localStorage['gameStats'] = newStats
+            localStorage['gameStats'] = JSON.stringify(newStats)
 
             return { ...state, gameStats: newStats }
             break
         }
         case SPEND_MONEY: {
             const minDoubloons = 0
-            const myDoubloons = doubloonsSelector(state)
+            const myDoubloons = state.gameStats.doubloons
             const canSpendMore = myDoubloons - action.payload > minDoubloons
             let nextDoubloons = myDoubloons
             if (!canSpendMore) nextDoubloons = minDoubloons
@@ -83,7 +82,7 @@ export default function (state: State = initialState, action) {
                 ...state.gameStats,
                 doubloons: nextDoubloons
             }
-            localStorage['gameStats'] = newStats
+            localStorage['gameStats'] = JSON.stringify(newStats)
 
             return { ...state, gameStats: newStats }
             break

@@ -28,7 +28,6 @@ export const MainMenu: React.FC<Props> = ({ closeMenu, isMenuClosing }) => {
     // Keyboard events
     useEffect(() => {
         function handleKeyPress(e: KeyboardEvent): void {
-            e.preventDefault()
             switch(e.keyCode) {
                 case 8: // Backspace
                 case 46: // Delete
