@@ -6,5 +6,6 @@ export interface FishRodLevel {
 
 export interface GameStats {
     doubloons: number,
+    gameTimeSpent: number, // in minutes
     fishrodLevel: FishRodLevel
 }

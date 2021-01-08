@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react'
 import Inventory from './Inventory'
+import Status from './Status'
 import Shop from './Shop'
 import Credits from './Credits'
 import styles from './index.module.sass'
@@ -46,7 +47,7 @@ export const MainMenu: React.FC<Props> = ({ closeMenu, isMenuClosing }) => {
                 return <Inventory setCurrentSection={setCurrentSection} />
                 break
             case SectionID.STATS:
-                return <p>Status</p>
+                return <Status setCurrentSection={setCurrentSection} />
                 break
             case SectionID.CREDITS:
                 return <Credits />

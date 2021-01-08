@@ -1,5 +1,7 @@
 import {
     SET_GAME_PROCESS,
+    SPEND_ONE_MINUTE,
+    ENABLE_BGM,
     OPEN_MAIN_MENU,
     SET_IS_MAIN_MENU_CLOSING,
     SET_FISHROD_LEVEL,
@@ -14,10 +16,12 @@ export interface State {
     process: string,
     isMainMenuOpen: boolean,
     isMainMenuClosing: boolean,
+    isBGMEnabled: boolean,
     gameStats: GameStats
 }
 
 const initialGameStats: GameStats = {
+    gameTimeSpent: 0,
     doubloons: 50,
     fishrodLevel: rodLevels.find(lvl => lvl._id === 'Starter')
 }
@@ -26,6 +30,7 @@ const initialState: State = {
     process: gameProcesses.INITIAL,
     isMainMenuOpen: false,
     isMainMenuClosing: false,
+    isBGMEnabled: typeof localStorage['bgm_enabled'] !== 'undefined' ? JSON.parse(localStorage['bgm_enabled']) : true,
     gameStats: localStorage['gameStats'] ? JSON.parse(localStorage['gameStats']) : initialGameStats
 }
 
@@ -34,7 +39,14 @@ export default function (state: State = initialState, action) {
         case SET_GAME_PROCESS:
             return { ...state, process: action.payload }
             break
-        case OPEN_MAIN_MENU:
+        case SPEND_ONE_MINUTE: {
+            const newTime = state.gameStats.gameTimeSpent + 1
+            const newStats = { ...state.gameStats, gameTimeSpent: newTime }
+            
+            localStorage['gameStats'] = JSON.stringify(newStats)
+            return { ...state, gameStats: newStats }
+            break
+        } case OPEN_MAIN_MENU:
             return { ...state, isMainMenuOpen: action.payload }
             break
         case SET_IS_MAIN_MENU_CLOSING:
@@ -87,6 +99,13 @@ export default function (state: State = initialState, action) {
             return { ...state, gameStats: newStats }
             break
         }
+        case ENABLE_BGM:
+            localStorage['bgm_enabled'] = JSON.stringify(action.payload)
+            return {
+                ...state,
+                isBGMEnabled: action.payload
+            }
+            break
         default: return state
     }
 }

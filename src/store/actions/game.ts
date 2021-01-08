@@ -1,11 +1,13 @@
 import {
     SET_GAME_PROCESS,
+    ENABLE_BGM,
     OPEN_MAIN_MENU,
     SET_IS_MAIN_MENU_CLOSING,
     SET_FISHROD_LEVEL
 } from './types'
 
 export const setGameProcessAction = (process: string) => ({ type: SET_GAME_PROCESS, payload: process })
+export const enableBGMAction = (isEnabled: boolean) => ({ type: ENABLE_BGM, payload: isEnabled })
 export const openMainMenuAction = () => ({ type: OPEN_MAIN_MENU, payload: true })
 export const closeMainMenuAction = () => dispatch => {
     // Wait until closing animation is finished 

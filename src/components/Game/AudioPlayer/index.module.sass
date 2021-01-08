@@ -1,0 +1,133 @@
+.player
+    position: fixed
+    top: 1rem
+    left: 1rem
+    z-index: 15
+    border-radius: 9999px
+    .volume
+        padding: 0
+        border: none
+        display: flex
+        align-items: center
+        opacity: .5
+        transition: .3s all ease
+        .volumeSlider
+            margin: 8.35px 0
+            background-color: transparent
+            -webkit-appearance: none
+            display: none
+            &:focus
+                outline: none
+            &::-webkit-slider-runnable-track
+                background: var(--darkgrey)
+                border: 2.3px solid var(--grey)
+                border-radius: 25px
+                width: 0
+                height: 5px
+                cursor: pointer
+                transition: .2s all ease
+            &::-webkit-slider-thumb
+                margin-top: -15px
+                width: 30px
+                height: 30px
+                background: var(--grey)
+                border: 5px solid var(--lightgrey)
+                border-radius: 100%
+                cursor: pointer
+                -webkit-appearance: none
+                visibility: hidden
+                transform: scale(.5)
+                transition: .2s all ease
+            &:focus
+                filter: brightness(1.1)
+                &::-webkit-slider-runnable-track
+                    background: var(--darkblue)
+                    border-color: var(--lightblue)
+                    height: 13.3px
+                &::-webkit-slider-thumb
+                    background: radial-gradient(circle at top left, var(--lightblue), var(--lightblue) 50%, var(--blue) 51%, var(--blue))
+                    border: 5px solid #FFF
+                    margin-top: -10.65px
+                    filter: drop-shadow(0 0 4px var(--lightblue))
+                    transform: scale(1)
+            &::-moz-range-track
+                background: var(--darkgrey)
+                border: 2.3px solid var(--grey)
+                border-radius: 25px
+                width: 0
+                height: 13.3px
+                cursor: pointer
+            &::-moz-range-thumb
+                width: 30px
+                height: 30px
+                background: var(--grey)
+                border: 5px solid var(--lightgrey)
+                border-radius: 12px
+                cursor: pointer
+            &::-ms-track
+                background: transparent
+                border-color: transparent
+                border-width: 12.45px 0
+                color: transparent
+                width: 0
+                height: 13.3px
+                cursor: pointer
+            &::-ms-fill-lower
+                background: var(--grey)
+                border: 2.3px solid #dbd58f
+                border-radius: 50px
+            &::-ms-fill-upper
+                background: var(--darkgrey)
+                border: 2.3px solid var(--grey)
+                border-radius: 50px
+            &::-ms-thumb
+                width: 30px
+                height: 30px
+                background: var(--darkgrey)
+                border: 5px solid var(--grey)
+                border-radius: 12px
+                cursor: pointer
+                margin-top: 0px
+            /*Needed to keep the Edge thumb centred*/
+            &:focus::-ms-fill-lower
+                background: var(--darkgrey)
+            &:focus::-ms-fill-upper
+                background: var(--grey)
+
+        label.speaker
+            vertical-align: middle
+            transform: translateY(.125em)
+            margin-right: .125em
+            cursor: pointer
+            transition: .3s all ease
+            svg
+                color: var(--darkgrey)
+            & + .volumeSlider
+            
+        &:hover
+            opacity: 1
+            label.speaker
+                font-size: 1.125em
+            .volumeSlider
+                display: inline-block
+                &::-webkit-slider-runnable-track, &::-moz-range-track, &::-ms-track
+                    width: 100%
+                &::-webkit-slider-thumb
+                    visibility: visible
+        &.playing
+            // Song bpm: 111
+            animation: pulse .52s infinite ease-out
+
+@supports (-ms-ime-align:auto)
+    // Pre-Chromium Edge only styles, selector taken from hhttps://stackoverflow.com/a/32202953/7077589
+    .volumeSlider
+        margin: 0
+        // Edge starts the margin from the thumb, not the track as other browsers do
+
+@keyframes pulse
+    from
+        transform: scale(1)
+    50%
+        transform: scale(1.01)
+    to
+        transform: scale(1)

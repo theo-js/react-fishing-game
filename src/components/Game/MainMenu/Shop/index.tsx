@@ -5,9 +5,9 @@ import { randomIntFromInterval } from '../../../../utils/math'
 import { GiPirateCaptain } from 'react-icons/all'
 import styles from './index.module.sass'
 
-interface Props {
-    [key: string]: any
-}
+// Redux
+import { useSelector } from 'react-redux'
+import { inventoryLengthSelector } from '../../../../store/selectors/inventory'
 
 export enum ContentID {
     ROOT = 'ROOT',
@@ -29,7 +29,12 @@ export const thanks: string[] = [
 export const randomGreeting = (): string => greetings[randomIntFromInterval(0, greetings.length - 1)]
 export const randomThanks = (): string => thanks[randomIntFromInterval(0, thanks.length - 1)]
 
-const Shop: React.FC<Props> = () => {
+
+const Shop: React.FC = () => {
+    // REDUX
+    const inventoryLength = useSelector(inventoryLengthSelector)
+
+    // STATE
     const [currentContentID, setCurrentContentID] = useState<ContentID>(ContentID.ROOT)
 
     // Seller comments
@@ -82,11 +87,13 @@ const Shop: React.FC<Props> = () => {
                                 I want to buy
                             </button>
                         </li>
-                        <li>
-                            <button onClick={() => setCurrentContentID(ContentID.SELL)} className={`btn btn-primary`}>
-                                I have stuff for you
-                            </button>
-                        </li>
+                        {inventoryLength > 0 && (
+                            <li>
+                                <button onClick={() => setCurrentContentID(ContentID.SELL)} className={`btn btn-primary`}>
+                                    I have stuff for you
+                                </button>
+                            </li>
+                        )}
                     </ul>
                 </div>
                 break
@@ -104,7 +111,7 @@ const Shop: React.FC<Props> = () => {
                 break
             default: return null
         }
-    }, [currentContentID])
+    }, [currentContentID, inventoryLength])
  
     return <div className={styles.shop}>
         <main className={styles.mainContent}>

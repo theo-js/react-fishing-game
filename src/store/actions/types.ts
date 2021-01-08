@@ -1,5 +1,7 @@
 // Game
 export const SET_GAME_PROCESS: string = 'SET_GAME_PROCESS'
+export const SPEND_ONE_MINUTE: string = 'SPEND_ONE_MINUTE'
+export const ENABLE_BGM: string = 'ENABLE_BGM'
 export const OPEN_MAIN_MENU: string = 'OPEN_MAIN_MENU'
 export const SET_IS_MAIN_MENU_CLOSING = 'SET_IS_MAIN_MENU_CLOSING'
 export const SET_FISHROD_LEVEL: string = 'SET_FISHROD_LEVEL'

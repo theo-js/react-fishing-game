@@ -5,26 +5,39 @@ import Initial from './processes/Initial'
 import ThrowLine from './processes/ThrowLine'
 import WaitFish from './processes/WaitFish'
 import Barometer from './Barometer'
+import AudioPlayer from './AudioPlayer'
 import MainMenu from './MainMenu'
 import { Dimensions, Coordinates, Path, Map } from '../../interfaces/position'
+import { FishRodLevel } from '../../interfaces/evolution'
 import { GiFishingHook } from 'react-icons/all'
 import { getVectorLength, pxToM } from '../../utils/position'
 import BeginnerArea from './areas/Beginner'
 
 // Redux
 import { connect } from 'react-redux'
-import { isMainMenuOpenSelector } from '../../store/selectors/game'
+import { SPEND_ONE_MINUTE } from '../../store/actions/types'
+import { isMainMenuOpenSelector, isBGMEnabledSelector } from '../../store/selectors/game'
 import { processSelector, rodLevelSelector } from '../../store/selectors/game'
-import { setGameProcessAction, setRodLevelAction } from '../../store/actions/game'
+import { setGameProcessAction, setRodLevelAction, enableBGMAction } from '../../store/actions/game'
 import { updatePositionAction } from '../../store/actions/position'
 
 interface Props {
-    [key: string]: any
+    process?: string,
+    setProcess?: any,
+    spendOneMinute?: any,
+    isBGMEnabled?: boolean,
+    setIsBGMEnabled?: any,
+    isMainMenuOpen?: boolean,
+    updateGlobalPositionState?: any,
+    rodLevel?: FishRodLevel
 }
 
 const Game: React.FC<Props> = ({
     process,
     setProcess,
+    spendOneMinute,
+    isBGMEnabled,
+    setIsBGMEnabled,
     isMainMenuOpen,
     updateGlobalPositionState,
     rodLevel
@@ -68,6 +81,40 @@ const Game: React.FC<Props> = ({
             document.body.removeEventListener('keypress', handler, false)
         }
     }, [audioEnabled])
+
+    // Background music
+    const backgroundMusic = useMemo(() => {
+        const audio = new Audio()
+        const src = require('../../assets/audio/bgm/beach.mp3').default
+        audio.src = src
+        audio.preload = 'auto'
+        audio.onended = function () {
+            // Loop start
+            audio.pause()
+            audio.currentTime = 4.5
+            audio.play()
+        }
+        return audio
+    }, [])
+    useEffect(() => {
+        if (audioEnabled) {
+            if (isBGMEnabled) {
+                const promise = backgroundMusic.play()
+                if (typeof promise !== 'undefined') {
+                    promise
+                        .then(() => null)
+                        .catch(() => console.log('Failed to play background music'))
+                }
+            }
+            else backgroundMusic.pause()
+        }
+    }, [audioEnabled, isBGMEnabled])
+
+    // Game time
+    useEffect(() => {
+        const intervalID = window.setInterval(spendOneMinute, 60000)
+        return () => window.clearInterval(intervalID)
+    }, [])
 
     // Refs
     const playerRef = useRef<HTMLDivElement>(null)
@@ -362,6 +409,7 @@ const Game: React.FC<Props> = ({
             baitDistance={baitDistance}
          />}
         {isMainMenuOpen && <MainMenu />}
+        <AudioPlayer bgm={backgroundMusic} />
     </div>
 }
 
@@ -384,12 +432,15 @@ export const Bait: React.FC<BaitProps> = ({ type = 'default' }) => {
 const mapStateToProps = state => ({
     process: processSelector(state),
     rodLevel: rodLevelSelector(state),
-    isMainMenuOpen: isMainMenuOpenSelector(state)
+    isMainMenuOpen: isMainMenuOpenSelector(state),
+    isBGMEnabled: isBGMEnabledSelector(state)
 })
 const mapDispatchToProps = dispatch => ({
     setProcess: (newProcess: string) => dispatch(setGameProcessAction(newProcess)),
     setRodLevel: (fishrodID: string) => dispatch(setRodLevelAction(fishrodID)),
-    updateGlobalPositionState: (positionObject: any) => dispatch(updatePositionAction(positionObject))
+    updateGlobalPositionState: (positionObject: any) => dispatch(updatePositionAction(positionObject)),
+    spendOneMinute: () => dispatch({ type: SPEND_ONE_MINUTE }),
+    setIsBGMEnabled: (isEnabled: boolean) => dispatch(enableBGMAction(isEnabled))
 })
 const GameConnected = connect(
     mapStateToProps,
