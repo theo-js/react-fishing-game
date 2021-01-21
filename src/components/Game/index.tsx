@@ -9,6 +9,7 @@ import AudioPlayer from './AudioPlayer'
 import MainMenu from './MainMenu'
 import { Dimensions, Coordinates, Path, Map } from '../../interfaces/position'
 import { FishRodLevel } from '../../interfaces/evolution'
+import { Item } from '../../interfaces/items'
 import { GiFishingHook } from 'react-icons/all'
 import { getVectorLength, pxToM } from '../../utils/position'
 import BeginnerArea from './areas/Beginner'
@@ -18,6 +19,7 @@ import { connect } from 'react-redux'
 import { SPEND_ONE_MINUTE } from '../../store/actions/types'
 import { isMainMenuOpenSelector, isBGMEnabledSelector } from '../../store/selectors/game'
 import { processSelector, rodLevelSelector } from '../../store/selectors/game'
+import { baitFoodSelector } from '../../store/selectors/fishing'
 import { setGameProcessAction, setRodLevelAction, enableBGMAction } from '../../store/actions/game'
 import { updatePositionAction } from '../../store/actions/position'
 
@@ -29,7 +31,8 @@ interface Props {
     setIsBGMEnabled?: any,
     isMainMenuOpen?: boolean,
     updateGlobalPositionState?: any,
-    rodLevel?: FishRodLevel
+    rodLevel?: FishRodLevel,
+    baitFood?: Item
 }
 
 const Game: React.FC<Props> = ({
@@ -40,7 +43,8 @@ const Game: React.FC<Props> = ({
     setIsBGMEnabled,
     isMainMenuOpen,
     updateGlobalPositionState,
-    rodLevel
+    rodLevel,
+    baitFood
 }) => {
     // Audio
     const creekBE = useMemo((): HTMLAudioElement => {
@@ -331,7 +335,7 @@ const Game: React.FC<Props> = ({
         map
     ])
     
-    const fishAreas = useMemo((): React.ReactNode => <BeginnerArea path={{ from: {x: 1700, y: 200}, to: {x: 2400, y: 400} }} />, [] )
+    const fishAreas = useMemo((): React.ReactNode => /*<BeginnerArea path={{ from: {x: 1700, y: 200}, to: {x: 2400, y: 400} }} />*/ null, [] )
     
     return <div className={styles.game}>
         <div
@@ -371,7 +375,11 @@ const Game: React.FC<Props> = ({
         <svg
             className={styles.line}
             ref={lineRef}
-            style={{ width: map.width, height: map.shorePath.to.y + map.lakePath.to.y }}
+            style={{
+                width: map.width,
+                height: map.shorePath.to.y + map.lakePath.to.y,
+                opacity: baitFood ? 1 : 0
+            }}
         >
             <line
                 x1={linePath.from.x}
@@ -388,7 +396,8 @@ const Game: React.FC<Props> = ({
                 width: baitCoordinates.width,
                 height: baitCoordinates.height,
                 transform: `translate(${baitOffset.x}px, ${baitOffset.y}px)`,
-                transition: baitOffset.transition || 'none'
+                transition: baitOffset.transition || 'none',
+                opacity: baitFood ? 1 : 0
             }}
         >
             <Bait type={baitType} />
@@ -433,7 +442,8 @@ const mapStateToProps = state => ({
     process: processSelector(state),
     rodLevel: rodLevelSelector(state),
     isMainMenuOpen: isMainMenuOpenSelector(state),
-    isBGMEnabled: isBGMEnabledSelector(state)
+    isBGMEnabled: isBGMEnabledSelector(state),
+    baitFood: baitFoodSelector(state)
 })
 const mapDispatchToProps = dispatch => ({
     setProcess: (newProcess: string) => dispatch(setGameProcessAction(newProcess)),

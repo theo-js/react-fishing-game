@@ -4,13 +4,41 @@
         margin-top: 0
     .data
         color: #FFF
-        *
-            font-style: .75rem
+        font-size: .875em
+    .btn
+        font-size: .75em
+        padding: .25em .5em
+        background: var(--black)
+        display: inline-block
+    .statusSectionNav
+        ul
+            display: flex
+            padding: 0
+            margin: 0 0 .5rem 0
+            gap: 1rem
+            li
+                list-style: none
+                padding: 0
+                cursor: pointer
+                color: #1A1A1A
+                transition: .3s all ease
+                &.active
+                    color: var(--lightblue)
+                    cursor: default
     & > section
         padding: .25rem
     .general
         box-shadow: 0 0 5px 1px var(--black)
-        ul.gameStats
-            padding: 0
-            li
-                list-style: none
+    ul.gameStats, ul.gear
+        padding: 0
+        li
+            list-style: none
+
+    .time
+        animation: twinkle 1s infinite ease-out reverse
+
+@keyframes twinkle
+    0%
+        opacity: .5
+    100%
+        opacity: 1

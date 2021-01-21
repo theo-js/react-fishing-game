@@ -68,28 +68,28 @@ export const MainMenu: React.FC<Props> = ({ closeMenu, isMenuClosing }) => {
                     <li
                         title="Inventory"
                         onClick={e => {e.stopPropagation(); setCurrentSection(SectionID.INVENTORY)}}
-                        className={currentSection === SectionID.INVENTORY ? styles.active : ''}
+                        className={`${currentSection === SectionID.INVENTORY ? styles.active : ''} ${styles.inventory}`}
                     >
                         <span className={styles.infoFacultative}>Inventory </span><CgInbox />
                     </li>
                     <li
                         title="Status"
                         onClick={e => {e.stopPropagation(); setCurrentSection(SectionID.STATS)}}
-                        className={currentSection === SectionID.STATS ? styles.active : ''}
+                        className={`${currentSection === SectionID.STATS ? styles.active : ''} ${styles.stats}`}
                     >
                         <span className={styles.infoFacultative}>Status </span><BiStats />
                     </li>
                     <li
                         title="Shopping"
                         onClick={e => {e.stopPropagation(); setCurrentSection(SectionID.SHOPPING)}}
-                        className={currentSection === SectionID.SHOPPING ? styles.active : ''}
+                        className={`${currentSection === SectionID.SHOPPING ? styles.active : ''} ${styles.shopping}`}
                     >
                         <span className={styles.infoFacultative}>Shopping </span><AiTwotoneShop />
                     </li>
                     <li
                         title="Credits"
                         onClick={e => {e.stopPropagation(); setCurrentSection(SectionID.CREDITS)}}
-                        className={currentSection === SectionID.CREDITS ? styles.active : ''}
+                        className={`${currentSection === SectionID.CREDITS ? styles.active : ''} ${styles.credits}`}
                     >
                         <span className={styles.infoFacultative}>Credits </span><FaHandsHelping />
                     </li>

@@ -27,7 +27,7 @@
         animation: stretch-maxHeight .4s ease 1 forwards
         animation-delay: .7s
         width: 100%
-        max-width: 900px
+        max-width: 800px
         margin: 0 auto
         opacity: 0
         overflow: hidden
@@ -60,21 +60,46 @@
                 color: var(--lightgrey)
                 background: linear-gradient(var(--blue), var(--darkblue))
                 animation: fade-in .7s ease 1 forwards
-                transition: .3s color ease
+                transition: .3s all ease
                 &:first-child
                     border-left: 1px solid var(--darkblue)
                 &:hover
                     cursor: pointer
                     color: #FFF
                 &.active
-                    background: linear-gradient(var(--yellow), var(--orange))
+                    background: linear-gradient(var(--yellow), var(--orange)) !important
                     color: var(--darkblue)
-                    border-color: orange
+                    border-color: orange !important
+                    padding-left: 2rem !important
+                    padding-right: 2rem !important
                     &:hover
                         cursor: default
                 svg
                     vertical-align: middle
                     margin-left: .25rem
+
+                &.inventory
+                    background: linear-gradient(var(--green), var(--darkgreen))
+                    border-color: var(--darkgreen)
+                    &.active
+                        color: var(--darkgreen)
+                &.shopping
+                    background: linear-gradient(var(--purple), var(--darkpurple))
+                    border-color: var(--darkpurple)
+                    &.active
+                        color: var(--darkpurple)
+                &.stats
+                    // Default blue
+                &.credits
+                    background: linear-gradient(var(--red), var(--darkred))
+                    border-color: var(--darkred)
+                    &.active
+                        color: var(--darkred)
+                    
+                &:first-child
+                    border-radius: 999px 0 0 999px
+                &:last-child
+                    border-radius: 0 999px 999px 0
 
             @for $i from 1 to 10
                 li:nth-child(#{$i})
@@ -84,7 +109,7 @@
         animation: stretch-out .9s ease 1 forwards
 
 
-@media screen and (max-width: 850px)
+@media screen and (max-width: 875px)
     .mainMenu
         .menuNavigation
             ul
@@ -100,6 +125,9 @@
                     padding-left: 1.25rem !important
                     padding-right: 1.25rem !important
                     text-overflow: unset !important
+                    &.active
+                        padding-left: 1rem !important
+                        padding-right: 1rem !important
                     .infoFacultative
                         display: none
                     svg

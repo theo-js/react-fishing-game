@@ -21,6 +21,19 @@ const Credits = () => <div className={styles.credits}>
             <ul className={styles.creditList}>
                 <li>
                     <h5>
+                        Music theme composed by &nbsp;
+                        <address>
+                            <a
+                                href="https://soundcloud.com/coma8"
+                                target="_blank"
+                                title="See profile on soundcloud"
+                                rel="author"
+                            >dev.js.theo@gmail.com</a>
+                        </address>
+                    </h5>
+                </li>
+                <li>
+                    <h5>
                         "Coins Purchase 01"&nbsp;
                         <address>
                             by&nbsp;

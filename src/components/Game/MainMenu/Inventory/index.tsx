@@ -1,14 +1,16 @@
-import React, { Dispatch, SetStateAction, ReactNode, useMemo, useState, useCallback, useRef } from 'react'
-import { InventoryEntry, ItemCategory } from '../../../../interfaces/items'
+import React, { Dispatch, SetStateAction, ReactNode, Fragment, useMemo, useState, useCallback, useRef } from 'react'
+import { InventoryEntry, ItemCategory, Item } from '../../../../interfaces/items'
 import Modal from '../../../misc/Modal'
 import categories from '../../../items/categories.json'
 import { SectionID } from '../index'
 import styles from './index.module.sass'
 
 // Redux
-import { connect, useDispatch } from 'react-redux'
+import { connect, useDispatch, useSelector } from 'react-redux'
+import { baitFoodSelector } from '../../../../store/selectors/fishing'
 import { inventoryEntriesSelector, maxEntriesSelector } from '../../../../store/selectors/inventory'
 import { deleteItemAction, removeInventoryEntryAction } from '../../../../store/actions/inventory'
+import { putOnBaitItemAction, removeBaitItemAction } from '../../../../store/actions/fishing'
 
 interface Props {
     entries: InventoryEntry[],
@@ -23,7 +25,8 @@ interface EntryProps {
 }
 
 interface DetailsProps {
-    entry: InventoryEntry
+    entry: InventoryEntry,
+    setCurrentEntryNum: Dispatch<SetStateAction<number|ReactNode>>
 }
 
 export const Entry: React.FC<EntryProps> = ({ entry, handleSelect, isSelected }) => {
@@ -46,13 +49,22 @@ export const Entry: React.FC<EntryProps> = ({ entry, handleSelect, isSelected })
     </li>
 }
 
-export const Details: React.FC<DetailsProps> = ({ entry }) => {
-    const { item } = entry
-    const { _id, description, category } = item
+export const Details: React.FC<DetailsProps> = ({ entry, setCurrentEntryNum }) => {
+    const { item, amount } = entry
+    const { _id, plural, description, category } = item
     const itemCategory = useMemo((): ItemCategory => categories[category], [category])
 
     const [modal, setModal] = useState<ReactNode>(null)
     const modalRef = useRef<any>(null)
+    const [dropAmount, setDropAmount] = useState<number>(1)
+
+    // Redux
+    const dispatch = useDispatch()
+    const removeItem = useCallback((itemID: string, amount: number): void => dispatch(removeInventoryEntryAction(itemID, amount)), [])
+    const deleteEntry = useCallback((itemID: string): void => dispatch(deleteItemAction(itemID)), [])
+    const putOnBait = useCallback((item: Item): void => dispatch(putOnBaitItemAction(item)), [])
+    const removeBait = useCallback((): void => dispatch(removeBaitItemAction()), [])
+    const baitFood = useSelector(baitFoodSelector)
 
     const handleConfirm = useCallback(
         (onConfirm, msg = 'Are you sure ?'): void => {
@@ -85,10 +97,32 @@ export const Details: React.FC<DetailsProps> = ({ entry }) => {
         }, []
     )
 
-    // Redux
-    const dispatch = useDispatch()
-    const removeItem = useCallback((itemID: string, amount: number): void => dispatch(removeInventoryEntryAction(itemID, amount)), [])
-    const deleteEntry = useCallback((itemID: string): void => dispatch(deleteItemAction(itemID)), [])
+    const handleUseBait = useCallback(
+        (): void => {
+            putOnBait(item)
+            setCurrentEntryNum(
+                <p style={{ background: 'var(--black)', padding: '.25rem' }}>
+                    <strong style={{ color: itemCategory.colors[0] }}>
+                        {_id}
+                    </strong>&nbsp;
+                    is now on your fish pole
+                </p>
+            )
+        }, [item, putOnBait, setCurrentEntryNum, _id, itemCategory]
+    )
+
+    const handleUseItem = useCallback(
+        (): void => {
+            switch(category) {
+                case 'Fish':
+                    // Fishes can be used as baits
+                case 'Bait':
+                    handleUseBait()
+                    break
+                default: return null
+            }
+        }, [category, handleUseBait]
+    )
 
     return <aside className={styles.details}>
         <h3
@@ -103,16 +137,47 @@ export const Details: React.FC<DetailsProps> = ({ entry }) => {
         </article>
         <ul className={styles.actions}>
             <li>
-                <button
-                    className={`btn btn-primary`}
-                    title={`Try to use ${_id.toLowerCase()}`}
-                >Use</button>
+                {
+                category.match(/Bait|Fish/i) &&
+                baitFood &&
+                baitFood._id === _id ? (
+                    <button
+                        onClick={removeBait}
+                        className={`btn btn-primary`}
+                        title={`You are using some ${_id} as a bait. Remove it ?`}
+                    >
+                        Remove from fish pole
+                    </button>
+                ) : (
+                    <button
+                        onClick={handleUseItem}
+                        className={`btn btn-primary`}
+                        title={`Try to use ${_id.toLowerCase()}`}
+                    >Use</button>
+                )}
             </li>
-            <li>
+            <li style={{ display: 'flex', alignItems: 'center', gap: '.25rem', flexWrap: 'nowrap' }}>
                 <button
                     className={`btn btn-cancel`}
                     title={`Remove a chosen amount of ${_id.toLowerCase()} from the inventory`}
-                >Drop</button></li>
+                    onClick={() => handleConfirm(() => removeItem(_id, dropAmount), `Drop ${dropAmount} ${dropAmount > 1 ? plural.toLowerCase() : _id.toLowerCase()} ?`)}
+                >Drop</button>
+                <input
+                    title={`How many ${plural} should be thrown away ?`}
+                    className={styles.dropAmount}
+                    type="number"
+                    value={dropAmount}
+                    min={1}
+                    max={amount}
+                    step={1}
+                    onChange={e => {
+                        const newAmount = parseInt(e.target.value)
+                        if (newAmount < 1) setDropAmount(1)
+                        else if(newAmount > amount) setDropAmount(amount)
+                        else setDropAmount(newAmount)
+                    }}
+                 />
+            </li>
             <li>
                 <button
                     className={`btn btn-cancel`} 
@@ -132,7 +197,7 @@ export const Inventory: React.FC<Props> = ({
     maxEntries,
     setCurrentSection
 }) => {
-    const [currentEntryNum, setCurrentEntryNum] = useState<number>(null)
+    const [currentEntryNum, setCurrentEntryNum] = useState<number|ReactNode>(null)
     const remainingEntries = useMemo((): number => maxEntries - entries.length, [entries, maxEntries])
     const entriesJSX = useMemo((): (ReactNode[]) => {
         return entries.map((entry: InventoryEntry, index: number) => {
@@ -158,6 +223,7 @@ export const Inventory: React.FC<Props> = ({
     }, [remainingEntries])
 
     const detailsJSX = useMemo((): (ReactNode | null) => {
+        // Inventory is empty
         if (!entries || entries.length <= 0) {
             return <aside className={`${styles.details} ${styles.msg}`}>
                 <h3>Your inventory is empty ...</h3>
@@ -169,15 +235,25 @@ export const Inventory: React.FC<Props> = ({
                 </p>
             </aside>
         }
+
+        // No item selected
         if (currentEntryNum === null) {
             return <aside className={`${styles.details} ${styles.msg}`}>
                 <h3>Select an item</h3>
             </aside>
         }
+
+        // Display message
+        if (typeof currentEntryNum !== 'number') {
+            return <aside className={`${styles.details} ${styles.msg}`}>
+                {currentEntryNum}
+            </aside>
+        }
         
+        // Item selected: display its details
         const currentEntry = entries[currentEntryNum]
         if (!currentEntry) return null
-        return <Details entry={currentEntry} />
+        return <Details entry={currentEntry} setCurrentEntryNum={setCurrentEntryNum} />
     }, [entries, currentEntryNum])
 
     return <div className={styles.inventory}>

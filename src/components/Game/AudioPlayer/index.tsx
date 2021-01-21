@@ -23,7 +23,7 @@ export const AudioPlayer: React.FC<Props> = ({
     stopBGM,
     isBGMPaused
 }) => {
-    const [bgmVolume, setBgmVolume] = useState<number>(bgm ? bgm.volume : 1)
+    const [bgmVolume, setBgmVolume] = useState<number>(bgm ? bgm.volume : .5)
     const setVolume = useCallback(
         e => {
             const newVol = e.target.value
@@ -52,16 +52,20 @@ export const AudioPlayer: React.FC<Props> = ({
                 title={isBGMPaused ? 'Resume background music' : 'Pause background music'}
                 htmlFor={volumeSliderID}
                 onClick={togglePlay}
+                onMouseDown={e => e.stopPropagation()}
+                onTouchStart={e => e.stopPropagation()}
             >
                 {volumeSliderLabel}
             </label>
             <input
                 className={styles.volumeSlider}
-                title={`Volume: ${bgmVolume*100}%`}
+                title={`Volume: ${Math.round(bgmVolume*100)}%`}
                 id={volumeSliderID}
                 type="range"
                 defaultValue={bgm.volume}
                 onChange={throttle(setVolume, 50)}
+                onMouseDown={e => e.stopPropagation()}
+                onTouchStart={e => e.stopPropagation()}
                 min={0}
                 max={1}
                 step={.01}

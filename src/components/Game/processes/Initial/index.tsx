@@ -8,6 +8,7 @@ import styles from './index.module.sass'
 
 // Redux
 import { isMainMenuOpenSelector, isMainMenuClosingSelector } from '../../../../store/selectors/game'
+import { baitFoodSelector } from '../../../../store/selectors/fishing'
 import { openMainMenuAction, closeMainMenuAction } from '../../../../store/actions/game'
 
 interface Props {
@@ -37,6 +38,7 @@ export default (({ setProcess, playerCoordinates, setPlayerCoordinates, scrollTo
     )
     const isMainMenuOpen = useSelector(isMainMenuOpenSelector)
     const isMainMenuClosing = useSelector(isMainMenuClosingSelector)
+    const baitFood = useSelector(baitFoodSelector)
 
     // STATE
     const [isPlayerMoving, setIsPlayerMoving] = useState<boolean>(false)
@@ -78,10 +80,10 @@ export default (({ setProcess, playerCoordinates, setPlayerCoordinates, scrollTo
 
     const throwLine = useCallback(
         (): void => {
-            if (!isPlayerMoving && !isMainMenuOpen) {
+            if (!isPlayerMoving && !isMainMenuOpen && baitFood) {
                 setProcess(gameProcesses.THROW_LINE)
             }
-        }, [isPlayerMoving, isMainMenuOpen]
+        }, [isPlayerMoving, isMainMenuOpen, baitFood]
     )
 
     // Attach event listeners
@@ -180,12 +182,14 @@ export default (({ setProcess, playerCoordinates, setPlayerCoordinates, scrollTo
             >
                 {isMainMenuOpen ? <IoClose /> : <GiLightBackpack />}
             </button>
-            <button 
-                className={`btn btn-primary ${styles.fishBTN}`}
-                onClick={throwLine}
-            >
-                Fish here ? <FaFish />
-            </button>
+            {baitFood && (
+                <button 
+                    className={`btn btn-primary ${styles.fishBTN}`}
+                    onClick={throwLine}
+                >
+                    Fish here ? <FaFish />
+                </button>
+            )}
         </nav>
     }
 

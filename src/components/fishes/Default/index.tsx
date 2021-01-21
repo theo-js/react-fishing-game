@@ -1,5 +1,6 @@
-import React, { Fragment, useCallback, ReactNode, useState, useMemo, useEffect, useRef } from 'react'
+import React, { useCallback, ReactNode, useState, useMemo, useEffect, useRef } from 'react'
 import { Coordinates, Path, Map } from '../../../interfaces/position'
+import { Item } from '../../../interfaces/items'
 import { randomIntFromInterval, probability, toDeg } from '../../../utils/math'
 import { getNextCoordinatesOfPath, areCoordinatesInPath, getAngleFromVerticalAxis } from '../../../utils/position'
 import { takeBaitAnim } from '../../Game/animations'
@@ -37,7 +38,7 @@ const Fish: React.FC<Props> = ({
     detectionScope = 75,
     roamingInterval,
     roamingDistance,
-    edibleFoods = ['mushroom'],
+    edibleFoods = ['Mushroom'],
     biteChance = .75,
     catchTimeLapse =  [0, 1500],
     className = '',
@@ -47,7 +48,7 @@ const Fish: React.FC<Props> = ({
     const baitLakeCoords: Coordinates = useSelector(baitLakeCoordsSelector)
     const map: Map = useSelector(mapSelector)
     const isBaitAvailable: boolean = useSelector(isBaitAvailableSelector)
-    const baitFood: string = useSelector(baitFoodSelector)
+    const baitFood: Item = useSelector(baitFoodSelector)
     const dispatch = useDispatch()
     const makeBaitAvailable = useCallback((bool: boolean): void => dispatch(makeBaitAvailableAction(bool)), [])
     const setGameProcess = useCallback((newProcess: string): void => dispatch(setGameProcessAction(newProcess)), [])
@@ -108,7 +109,7 @@ const Fish: React.FC<Props> = ({
     }, [baitLakeCoords, detectionPath, isBaitAvailable])
 
     // Check whether fish likes the food on the fishing hook
-    const likesBait = useMemo(() => edibleFoods.includes(baitFood), [edibleFoods, baitFood])
+    const likesBait = useMemo(() => edibleFoods.includes(baitFood._id), [edibleFoods, baitFood])
 
     // FUNCTIONS
     const giveUpBait = useCallback(
