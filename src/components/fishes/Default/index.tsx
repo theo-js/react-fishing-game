@@ -116,7 +116,10 @@ const GeneralFish: React.FC<Props> = ({
     }, [baitLakeCoords, detectionPath, isBaitAvailable])
 
     // Check whether fish likes the food on the fishing hook
-    const likesBait = useMemo(() => edibleFoods.includes(baitFood._id), [edibleFoods, baitFood])
+    const likesBait = useMemo(() => {
+        if (!baitFood) return false
+        return edibleFoods.includes(baitFood._id)
+    }, [edibleFoods, baitFood])
 
     // FUNCTIONS
     const giveUpBait = useCallback(
