@@ -7,3 +7,8 @@ export interface Fish {
     maxExp: number,
     likes: string[]
 }
+
+export interface FishData {
+    _id: string,
+    fish?: Fish
+}

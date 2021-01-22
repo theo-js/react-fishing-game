@@ -353,7 +353,7 @@ const Game: React.FC<Props> = ({
         map
     ])
     
-    const fishAreas = useMemo((): React.ReactNode => /*<BeginnerArea path={{ from: {x: 1700, y: 200}, to: {x: 2400, y: 400} }} />*/ null, [] )
+    const fishAreas = useMemo((): React.ReactNode => <BeginnerArea path={{ from: {x: 0, y: 200}, to: {x: 4000, y: 400} }} />, [] )
 
     // Spawn mushroom on the shore when inventory is empty
     const [mushroom, setMushroom] = useState<Coordinates>(null)
@@ -467,7 +467,13 @@ const Game: React.FC<Props> = ({
                 onClick={() => {
                     addToInventory('Mushroom', 1)
                     setMushroom(null)
-                    gotItemSE.play()
+                    const playPromise = gotItemSE.play()
+
+                    if (typeof playPromise !== 'undefined') {
+                        playPromise
+                            .then(() => null)
+                            .catch(() => console.log('Failed to play "Got item" sound effect'))
+                    }
                 }}
                 style={{ left: mushroom.x, top: mushroom.y }}
             >

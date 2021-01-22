@@ -1,6 +1,7 @@
 import React, { useCallback, ReactNode, useState, useMemo, useEffect, useRef } from 'react'
 import { Coordinates, Path, Map } from '../../../interfaces/position'
 import { Item } from '../../../interfaces/items'
+import { Fish, FishData } from '../../../interfaces/fishes'
 import { randomIntFromInterval, probability, toDeg } from '../../../utils/math'
 import { getNextCoordinatesOfPath, areCoordinatesInPath, getAngleFromVerticalAxis } from '../../../utils/position'
 import { takeBaitAnim } from '../../Game/animations'
@@ -11,11 +12,13 @@ import gameProcesses from '../../Game/processes/index.json'
 // Redux
 import { useSelector, useDispatch } from 'react-redux'
 import { mapSelector, baitLakeCoordsSelector } from '../../../store/selectors/position'
-import { isBaitAvailableSelector, baitFoodSelector } from'../../../store/selectors/fishing'
-import { makeBaitAvailableAction } from '../../../store/actions/fishing'
+import { isBaitAvailableSelector, baitFoodSelector, hookedFishSelector } from'../../../store/selectors/fishing'
+import { makeBaitAvailableAction, setHookedFishAction } from '../../../store/actions/fishing'
 import { setGameProcessAction } from '../../../store/actions/game'
 
 interface Props {
+    fish?: Fish, // fish stats template from json file
+    _id: string, // fish id
     size?: number, // Size of the fish in px; width = 1em
     area?: Path, // Path of the area the fish belongs to
     detectionScope?: number, // Number of pixels around fish where it can detect the bait,
@@ -32,7 +35,9 @@ interface Props {
 }
 
 // Lake is the referential of fish coords
-const Fish: React.FC<Props> = ({
+const GeneralFish: React.FC<Props> = ({
+    fish = null,
+    _id,
     size = 20,
     area,
     detectionScope = 75,
@@ -40,17 +45,19 @@ const Fish: React.FC<Props> = ({
     roamingDistance,
     edibleFoods = ['Mushroom'],
     biteChance = .75,
-    catchTimeLapse =  [0, 1500],
+    catchTimeLapse =  [0, 2000],
     className = '',
     children,
 }) => {
     // REDUX
+    const hookedFish = useSelector(hookedFishSelector)
     const baitLakeCoords: Coordinates = useSelector(baitLakeCoordsSelector)
     const map: Map = useSelector(mapSelector)
     const isBaitAvailable: boolean = useSelector(isBaitAvailableSelector)
     const baitFood: Item = useSelector(baitFoodSelector)
     const dispatch = useDispatch()
     const makeBaitAvailable = useCallback((bool: boolean): void => dispatch(makeBaitAvailableAction(bool)), [])
+    const setHookedFish = useCallback((fish: FishData): void => dispatch(setHookedFishAction(fish)), [])
     const setGameProcess = useCallback((newProcess: string): void => dispatch(setGameProcessAction(newProcess)), [])
     
     // REFS
@@ -126,13 +133,17 @@ const Fish: React.FC<Props> = ({
     const handleHookFail = useCallback(
         (): void => {
             // Alert('Too late ... The fish went away with your bait !')
-            if (!inScopeRef.current) return giveUpBait()
-            console.log('Too late ...')
-            setWouldHookSuccessfully(false)
-            setCanTryToCatch(false)
-            setIsRoaming(true)
-            makeBaitAvailable(true)
-        }, []
+            console.log(isInScope)
+            if (!isInScope) return giveUpBait()
+            else {
+                giveUpBait()
+                console.log('Too late ...')
+                setWouldHookSuccessfully(false)
+                setCanTryToCatch(false)
+                setIsRoaming(true)
+                makeBaitAvailable(true)
+            }
+        }, [isInScope, giveUpBait]
     )
 
     const randomMove = useCallback(
@@ -159,7 +170,7 @@ const Fish: React.FC<Props> = ({
         (): void => {
             // Lean towards bait from current position
             const angle: number = toDeg(getAngleFromVerticalAxis({ from: baitLakeCoords, to: fishCoords }))
-            setMoveTransition('2s all ease-in-out')
+            setMoveTransition('2s transform ease-in-out, 0s background ease, 0s border-color ease')
             setFishDirection(angle)
             // Handle offset
             let offsetX: number = 0
@@ -204,7 +215,7 @@ const Fish: React.FC<Props> = ({
             hookSucceedTimerIDRef.current = window.setTimeout(() => {
                 if (!inScopeRef.current) return giveUpBait()
                 setWouldHookSuccessfully(true)
-                console.log('can catch fish !')
+                // Player would hook the fish successfully during this interval
             }, approachDuration + delay)
 
             // Fish will approach bait during x seconds before taking it
@@ -233,7 +244,7 @@ const Fish: React.FC<Props> = ({
             if (isBaitAvailable) {
                 if (wouldHookSuccessfully) {
                     //  Hooked successfully
-                    alert('Hooked !')
+                    setHookedFish({ _id, fish })
                     window.clearTimeout(hookFailTimerIDRef.current)
                     setIsStruggling(true)
                     setWouldHookSuccessfully(false)
@@ -281,7 +292,7 @@ const Fish: React.FC<Props> = ({
             document.body.removeEventListener('click', handleClick, true)
             document.body.removeEventListener('touchstart', handleTouch, true)
         }
-    }, [wouldHookSuccessfully, canTryToCatch, isBaitAvailable])
+    }, [wouldHookSuccessfully, canTryToCatch, isBaitAvailable, _id])
 
     // Default fish behaviour when it's roaming
     useEffect(() => {
@@ -296,7 +307,7 @@ const Fish: React.FC<Props> = ({
             }
         }
 
-        if (isRoaming) {
+        if (isRoaming && !hookedFish) {
             intervalID = window.setInterval(handleRoaming, roamingInterval || randomIntFromInterval(3000, 6000))
             setMoveTransition('1s all ease')
         } else {
@@ -313,11 +324,21 @@ const Fish: React.FC<Props> = ({
         likesBait,
         isInScope,
         biteChance,
-        takeBait
+        takeBait,
+        hookedFish
     ])
 
+    // All other fishes disappear when fish gets hooked
+    if (hookedFish && hookedFish._id !== _id) return null
+
     return <><div
-        className={`${styles.defaultFish} ${isStruggling ? styles.struggling : ''} ${className}`}
+        className={`
+            ${className} 
+            ${styles.defaultFish} 
+            ${isStruggling ? styles.struggling : ''} 
+            ${canTryToCatch ? styles.canTryToCatch : ''} 
+            ${wouldHookSuccessfully ? styles.wouldHookSuccessfully : ''}
+        `}
         style={{
             fontSize: `${size}px`,
             animationDelay: `${Math.random()}s`,
@@ -346,7 +367,7 @@ const Fish: React.FC<Props> = ({
             transition: moveTransition
         }}
     >
-        {isInScope && (
+        {isInScope && isRoaming && (
             /* Emoji indicating whether the fish is attracted by the bait */
             <div className={styles.likeStatus}>
                 {likesBait ? <FaHeart className={styles.heart} />
@@ -355,7 +376,10 @@ const Fish: React.FC<Props> = ({
         )}
     </div>
     <div
-        className={styles.detectionPath}
+        className={`
+            ${styles.detectionPath}
+            ${isStruggling ? styles.struggling : ''} 
+        `}
         style={{
             left: detectionPath.from.x,
             top: detectionPath.from.y,
@@ -363,7 +387,8 @@ const Fish: React.FC<Props> = ({
             height: detectionPath.to.y - detectionPath.from.y
         }}
     ></div>
+    {hookedFish && <div className={styles.focusBG}></div>}
     </>
 }
 
-export default React.memo(Fish)
+export default React.memo(GeneralFish)

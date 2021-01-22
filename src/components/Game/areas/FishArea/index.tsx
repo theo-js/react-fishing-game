@@ -25,9 +25,11 @@ const FishArea: FC<Props> = ({ path, fishes }) => {
             // Render "amount" times the provided component
             let result = []
             for (let i = 0; i < amount; i++) {
+                const fishID = uuid()
                 result.push(
                     <Fish
-                        key={uuid()}
+                        key={fishID}
+                        _id={fishID}
                         {...props}
                         {...groupProps}
                         area={groupProps.path}

@@ -1,17 +1,22 @@
-import { MAKE_BAIT_AVAILABLE, PUT_ON_BAIT_ITEM } from '../actions/types'
+import {
+    MAKE_BAIT_AVAILABLE,
+    PUT_ON_BAIT_ITEM,
+    SET_HOOKED_FISH
+} from '../actions/types'
+import { FishData } from '../../interfaces/fishes'
 import { Item } from '../../interfaces/items'
 import allItems from '../../components/items/items.json'
 
 export interface State {
     isBaitAvailable: boolean,
     baitFood: Item,
-    didFishBite: boolean
+    hookedFish: FishData // uuid of the fish that has taken the bait
 }
 
 const initialState: State = {
     isBaitAvailable: false,
     baitFood: localStorage['baitFood'] ? JSON.parse(localStorage['baitFood']) : allItems['Mushroom'],
-    didFishBite: false
+    hookedFish: null
 }
 
 export default function(state: State = initialState, action): State {
@@ -22,6 +27,10 @@ export default function(state: State = initialState, action): State {
         case PUT_ON_BAIT_ITEM:
             localStorage['baitFood'] = JSON.stringify(action.payload)
             return { ...state, baitFood: action.payload }
+            break
+        case SET_HOOKED_FISH:
+            return { ...state, hookedFish: action.payload }
+            break
         default: return state
     }
 }

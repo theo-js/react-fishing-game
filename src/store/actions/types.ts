@@ -15,6 +15,7 @@ export const SPEND_MONEY: string = 'SPEND_MONEY'
 // Fishing
 export const MAKE_BAIT_AVAILABLE: string = 'MAKE_BAIT_AVAILABLE'
 export const PUT_ON_BAIT_ITEM: string = 'PUT_ON_BAIT_ITEM'
+export const SET_HOOKED_FISH: string = 'SET_HOOKED_FISH'
 
 // Position
 export const UPDATE_POSITION: string = 'UPDATE_POSITION'

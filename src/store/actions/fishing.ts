@@ -1,5 +1,10 @@
-import { MAKE_BAIT_AVAILABLE, PUT_ON_BAIT_ITEM } from './types'
+import {
+    MAKE_BAIT_AVAILABLE,
+    PUT_ON_BAIT_ITEM,
+    SET_HOOKED_FISH
+} from './types'
 import { Item } from '../../interfaces/items'
+import { FishData } from '../../interfaces/fishes'
 import { removeInventoryEntryAction, addInventoryEntryAction } from './inventory'
 import { baitFoodSelector } from '../selectors/fishing'
 
@@ -42,3 +47,6 @@ export const catchNewFish = (fishID: string) => dispatch => {
     // Lose bait
     dispatch(loseBaitAction())
 }
+
+// One fish is took the bait, all the other fishes must disappear
+export const setHookedFishAction = (fish: FishData) => ({ type: SET_HOOKED_FISH, payload: fish })

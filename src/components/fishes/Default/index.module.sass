@@ -1,13 +1,16 @@
 $fishColor: #2228
+$wrong: crimson
+$correct: lightgreen
 
 .defaultFish
+    z-index: 1
     position: absolute
     background: $fishColor
     width: 1em
     height: .375em
     pointer-events: none
     animation: wriggle 1s linear infinite alternate
-    &::after
+    &::before
         // Tail
         content: ''
         position: absolute
@@ -16,11 +19,26 @@ $fishColor: #2228
         right: 100%
         box-sizing: border-box
         clip-path: polygon(15% 6%, 100% 33%, 100% 66%, 15% 100%)
+        transition: inherit
         animation: inherit
         animation-duration: inherit
         animation-name: moveTail
     &.struggling
-        animation: wriggle .125s linear infinite alternate !important
+        animation: wriggle-wider .125s linear infinite alternate !important
+        &::before
+            animation-name: moveTail-wider
+
+    &.canTryToCatch
+        background: $wrong
+        &::before
+            border-color: $wrong
+            border-left-color: transparent
+    &.wouldHookSuccessfully
+        background: $correct
+        &::before
+            border-color: $correct
+            border-left-color: transparent
+    
 
 .fishPath, .detectionPath
     position: absolute
@@ -37,6 +55,20 @@ $fishColor: #2228
             animation: blink .5s ease infinite alternate
             font-size: 1rem
             transform: translate(-.25rem)
+    
+.detectionPath
+    &.struggling
+        animation: wave infinite .5s ease
+        background: #FFFA
+
+.focusBG
+    position: fixed
+    top: 0
+    left: 0
+    right: 0
+    bottom: 0
+    background: radial-gradient(circle at center, transparent 66%, #111A)
+    pointer-events: none
 
 @keyframes wriggle
     0%
@@ -50,9 +82,33 @@ $fishColor: #2228
         transform: translate(1%, -10%) rotate(0deg) skew(0)
     100%
         transform: translate(5%, 10%) rotate(-15deg) skew(-15deg)
+@keyframes wriggle-wider
+    0%
+        border-radius: 20% 100% 100% 100%
+    100%
+        border-radius: 100% 100% 100% 20%
+@keyframes moveTail-wider
+    0%
+       transform: translate(10%, -35%) rotate(25deg) skew(25deg) 
+    50%
+        transform: translate(1%, -10%) rotate(0deg) skew(0)
+    100%
+        transform: translate(10%, 15%) rotate(-25deg) skew(-25deg)
 
 @keyframes blink
     from
         opacity: 0
     to
         opacity: 1
+
+@keyframes wave
+    from
+        transform: scale(0)
+        opacity: .5
+        border-radius: 50%
+        filter: blur(2px)
+    to
+        transform: scale(.5)
+        opacity: 0
+        border-radius: 50%
+        filter: blur(2px)
