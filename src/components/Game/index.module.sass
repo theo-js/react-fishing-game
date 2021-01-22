@@ -121,6 +121,25 @@ body
             fill: transparent
             transition: all ease .2s
 
+.mushroom
+    position: absolute
+    width: 10px
+    height: 25px
+    background: linear-gradient(to right, #cfcfba, #FFF, #cfcfba)
+    animation: grow 55s ease-out
+    &::after
+        content: ''
+        position: absolute
+        height: 30px
+        width: 30px
+        left: -10px
+        top: -10px
+        border-radius: 50%
+        background: #804e3f
+        clip-path: polygon(0 0, 100% 0, 100% 50%, 0 50%)
+    &:hover
+        filter: brightness(1.2)
+        cursor: pointer
 
 
 @keyframes loop-scroll
@@ -139,3 +158,8 @@ body
         transform: rotate(-5deg)
     to
         transform: rotate(0)
+@keyframes grow
+    from
+        transform: scale(0)
+    to
+        transform: scale(1)

@@ -7,6 +7,7 @@ import WaitFish from './processes/WaitFish'
 import Barometer from './Barometer'
 import AudioPlayer from './AudioPlayer'
 import MainMenu from './MainMenu'
+import { randomIntFromInterval } from '../../utils/math'
 import { Dimensions, Coordinates, Path, Map } from '../../interfaces/position'
 import { FishRodLevel } from '../../interfaces/evolution'
 import { Item } from '../../interfaces/items'
@@ -17,11 +18,17 @@ import BeginnerArea from './areas/Beginner'
 // Redux
 import { connect } from 'react-redux'
 import { SPEND_ONE_MINUTE } from '../../store/actions/types'
-import { isMainMenuOpenSelector, isBGMEnabledSelector } from '../../store/selectors/game'
-import { processSelector, rodLevelSelector } from '../../store/selectors/game'
+import {
+    isMainMenuOpenSelector,
+    isBGMEnabledSelector,
+    processSelector,
+    rodLevelSelector
+} from '../../store/selectors/game'
 import { baitFoodSelector } from '../../store/selectors/fishing'
+import { inventoryLengthSelector } from '../../store/selectors/inventory'
 import { setGameProcessAction, setRodLevelAction, enableBGMAction } from '../../store/actions/game'
 import { updatePositionAction } from '../../store/actions/position'
+import { addInventoryEntryAction } from '../../store/actions/inventory'
 
 interface Props {
     process?: string,
@@ -32,7 +39,9 @@ interface Props {
     isMainMenuOpen?: boolean,
     updateGlobalPositionState?: any,
     rodLevel?: FishRodLevel,
-    baitFood?: Item
+    baitFood?: Item,
+    inventoryLength?: number,
+    addToInventory?: any
 }
 
 const Game: React.FC<Props> = ({
@@ -44,7 +53,9 @@ const Game: React.FC<Props> = ({
     isMainMenuOpen,
     updateGlobalPositionState,
     rodLevel,
-    baitFood
+    baitFood,
+    inventoryLength,
+    addToInventory
 }) => {
     // Audio
     const creekBE = useMemo((): HTMLAudioElement => {
@@ -113,6 +124,13 @@ const Game: React.FC<Props> = ({
             else backgroundMusic.pause()
         }
     }, [audioEnabled, isBGMEnabled])
+
+    // Sounds effects
+    const gotItemSE = useMemo((): HTMLAudioElement => {
+        const audio = new Audio()
+        audio.src = require('../../assets/audio/se/got-item.mp3')
+        return audio
+    }, [])
 
     // Game time
     useEffect(() => {
@@ -336,6 +354,27 @@ const Game: React.FC<Props> = ({
     ])
     
     const fishAreas = useMemo((): React.ReactNode => /*<BeginnerArea path={{ from: {x: 1700, y: 200}, to: {x: 2400, y: 400} }} />*/ null, [] )
+
+    // Spawn mushroom on the shore when inventory is empty
+    const [mushroom, setMushroom] = useState<Coordinates>(null)
+    useEffect(() => {
+        let timerID = null
+        if (inventoryLength <= 0) {
+            // Spawn mushroom
+            timerID = window.setTimeout(() => {
+                setMushroom({
+                    x: randomIntFromInterval(map.shorePath.from.x, map.shorePath.to.x),
+                    y: randomIntFromInterval(map.shorePath.from.y, map.shorePath.to.y)
+                })
+            }, 5000)
+        } else {
+            // Clear interval
+            window.clearTimeout(timerID)
+        }
+        return () => {
+            window.clearTimeout(timerID)
+        }
+    }, [inventoryLength])
     
     return <div className={styles.game}>
         <div
@@ -413,12 +452,27 @@ const Game: React.FC<Props> = ({
             {currentProcess}
             {fishAreas}
         </div>
+
         {isBarometerVisible && <Barometer
             rodLevel={rodLevel}
             baitDistance={baitDistance}
          />}
+
         {isMainMenuOpen && <MainMenu />}
         <AudioPlayer bgm={backgroundMusic} />
+
+        {mushroom && (
+            <div
+                className={styles.mushroom}
+                onClick={() => {
+                    addToInventory('Mushroom', 1)
+                    setMushroom(null)
+                    gotItemSE.play()
+                }}
+                style={{ left: mushroom.x, top: mushroom.y }}
+            >
+            </div>
+        )}
     </div>
 }
 
@@ -443,14 +497,16 @@ const mapStateToProps = state => ({
     rodLevel: rodLevelSelector(state),
     isMainMenuOpen: isMainMenuOpenSelector(state),
     isBGMEnabled: isBGMEnabledSelector(state),
-    baitFood: baitFoodSelector(state)
+    baitFood: baitFoodSelector(state),
+    inventoryLength: inventoryLengthSelector(state)
 })
 const mapDispatchToProps = dispatch => ({
     setProcess: (newProcess: string) => dispatch(setGameProcessAction(newProcess)),
     setRodLevel: (fishrodID: string) => dispatch(setRodLevelAction(fishrodID)),
     updateGlobalPositionState: (positionObject: any) => dispatch(updatePositionAction(positionObject)),
     spendOneMinute: () => dispatch({ type: SPEND_ONE_MINUTE }),
-    setIsBGMEnabled: (isEnabled: boolean) => dispatch(enableBGMAction(isEnabled))
+    setIsBGMEnabled: (isEnabled: boolean) => dispatch(enableBGMAction(isEnabled)),
+    addToInventory: (itemID: string, amount: number) => dispatch(addInventoryEntryAction(itemID, amount))
 })
 const GameConnected = connect(
     mapStateToProps,
