@@ -19,7 +19,9 @@ interface Props {
     shoreRef: any,
     map: Map,
     setIsBarometerVisible: Dispatch<SetStateAction<boolean>>,
-    isBarometerVisible: boolean
+    isBarometerVisible: boolean,
+    setBaitOffset: Dispatch<SetStateAction<Coordinates>>,
+    setRodAngle: Dispatch<SetStateAction<number>>
 }
 
 enum Direction {
@@ -27,7 +29,18 @@ enum Direction {
     RIGHT = "RIGHT"
 }
 
-export default (({ setProcess, playerCoordinates, setPlayerCoordinates, scrollToPlayer, shoreRef, map, isBarometerVisible, setIsBarometerVisible }) => {
+export default (({
+    setProcess,
+    playerCoordinates,
+    setPlayerCoordinates,
+    scrollToPlayer,
+    shoreRef,
+    map,
+    isBarometerVisible,
+    setIsBarometerVisible,
+    setBaitOffset,
+    setRodAngle
+}) => {
     // REDUX
     const dispatch = useDispatch()
     const openMainMenu = useCallback(
@@ -66,13 +79,15 @@ export default (({ setProcess, playerCoordinates, setPlayerCoordinates, scrollTo
         }, [playerCoordinates]
     )
 
-    // Initialize scroll position at player's position
+    // Initialize scroll position at player's position and bait at 0,0
     useLayoutEffect(() => {
         scrollToPlayer('auto')
+        setBaitOffset({ x: 0, y: 0 })
+        setRodAngle(0)
     }, [])
 
     // Hide barometer
-        useEffect(() => {
+    useEffect(() => {
         if (isBarometerVisible) {
             setIsBarometerVisible(false)
         }

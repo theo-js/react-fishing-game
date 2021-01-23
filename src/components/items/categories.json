@@ -6,5 +6,9 @@
     "Fish": {
         "_id": "Fish",
         "colors": ["var(--lightblue)", "var(--blue)"]
+    },
+    "Fishing pole": {
+        "_id": "Fishing pole",
+        "colors": ["var(--yellow)", "var(--orange)"]
     }
 }

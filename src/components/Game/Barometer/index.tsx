@@ -1,11 +1,19 @@
 import React, { useMemo } from 'react'
+import ResistanceGauge from './ResistanceGauge'
 import { pxToM } from '../../../utils/position'
 import { FishRodLevel } from '../../../interfaces/evolution'
+import gameProcesses from '../processes/index.json'
 import styles from './index.module.sass'
+
+// Redux
+import { connect } from 'react-redux'
+import { processSelector } from '../../../store/selectors/game'
 
 interface Props {
     rodLevel: FishRodLevel,
-    baitDistance: number
+    baitDistance: number,
+    // Redux
+    gameProcess?: string
 }
 
 interface StepMatch {
@@ -15,7 +23,9 @@ interface StepMatch {
 
 export const Barometer: React.FC<Props> = ({
     rodLevel,
-    baitDistance
+    baitDistance,
+    // Redux
+    gameProcess
 }) => {
     const maxLength = useMemo((): number => pxToM(rodLevel.maxLength), [rodLevel])
     const lineStepLength = useMemo((): number => 10, [])
@@ -80,9 +90,20 @@ export const Barometer: React.FC<Props> = ({
                     </div>
                     {lineStepsJSX}
                 </div>
+                {gameProcess === gameProcesses.BATTLE && (
+                    // Resistance gauge
+                    <ResistanceGauge />
+                )}
             </div>
         </nav>
     </div>
 }
 
-export default Barometer
+// Redux connection
+const mapStateToProps = state => ({
+    gameProcess: processSelector(state)
+})
+export default connect(
+    mapStateToProps,
+    dispatch => ({})
+)(Barometer)

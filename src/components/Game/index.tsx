@@ -4,6 +4,7 @@ import gameProcesses from './processes/index.json'
 import Initial from './processes/Initial'
 import ThrowLine from './processes/ThrowLine'
 import WaitFish from './processes/WaitFish'
+import Battle from './processes/Battle'
 import Barometer from './Barometer'
 import AudioPlayer from './AudioPlayer'
 import MainMenu from './MainMenu'
@@ -294,6 +295,8 @@ const Game: React.FC<Props> = ({
                     map={map}
                     isBarometerVisible={isBarometerVisible}
                     setIsBarometerVisible={setIsBarometerVisible}
+                    setBaitOffset={setBaitOffset}
+                    setRodAngle={setRodAngle}
                  />
                 break
             case gameProcesses.THROW_LINE:
@@ -335,6 +338,8 @@ const Game: React.FC<Props> = ({
                     setIsBarometerVisible={setIsBarometerVisible}
                  />
                 break
+            case gameProcesses.BATTLE:
+                return <Battle />
             default: return null
         }
     }, [

@@ -5,6 +5,7 @@ export interface Item {
     description?: string,
     image?: string,
     isSellable: boolean,
+    isDisposable: boolean,
     purchasePrice?: number,
     salePrice?: number
 }

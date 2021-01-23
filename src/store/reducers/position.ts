@@ -3,7 +3,7 @@ import { UPDATE_POSITION } from '../actions/types'
 
 interface State {
     map: Map,
-    baitLakeCoords: Coordinates
+    baitLakeCoords: Coordinates // Read-only computed property in Game/index.tsx
 }
 
 const initialMap: Map = {

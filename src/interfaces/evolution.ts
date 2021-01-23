@@ -1,7 +1,9 @@
 export interface FishRodLevel {
-    _id?: string
+    _id: string
     className?: any, // Sass module
-    maxLength?: number
+    maxLength: number,
+    resistance: number, // Similar to Health Points
+    strength: number // 0 - 1 Capacity to reel back the fish
 }
 
 export interface GameStats {

@@ -58,12 +58,16 @@
                     transition: all ease-in-out .3s
                     svg
                         transition: all ease-in-out .3s
-                .amount
+                .amount, .equipped
                     font-size: .5em
                     color: #FFF
                     position: absolute
                     bottom: 0
                     right: .125rem
+                .equipped
+                    bottom: unset
+                    top: 0
+
     .details
         grid-area: details
         background: var(--darkgrey)
@@ -93,6 +97,15 @@
             background: var(--black)
             padding: .25rem
             margin: 0
+            .fishingPoleStats
+                color: #FFF
+                text-align: center
+                font-style: normal
+                p
+                    margin: .25rem
+                    strong
+                        color: var(--yellow)
+                        font-style: italic
         button
             font-size: .75em
             margin: 0 auto

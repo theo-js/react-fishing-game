@@ -35,7 +35,7 @@ export const putOnBaitItemAction = (item: Item) => dispatch => {
 }
 
 // Fish takes the bait away
-export const loseBaitAction = () => (dispatch, state) => {
+export const loseBaitAction = () => dispatch => {
     // Remove bait food
     dispatch(removeBaitItemAction())
 }

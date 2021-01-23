@@ -1,6 +1,6 @@
 import { createSelector } from 'reselect'
 import { State } from '../reducers/game'
-import { GameStats } from '../../interfaces/evolution'
+import { GameStats, FishRodLevel } from '../../interfaces/evolution'
 
 
 export const processSelector = createSelector(
@@ -31,7 +31,7 @@ export const gameStatsSelector = createSelector(
 
 export const rodLevelSelector = createSelector(
     (state: any): GameStats => state.game.gameStats,
-    (gameStats: GameStats) => gameStats.fishrodLevel
+    (gameStats: GameStats): FishRodLevel => gameStats.fishrodLevel
 )
 
 export const doubloonsSelector = createSelector(

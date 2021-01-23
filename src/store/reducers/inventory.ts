@@ -12,6 +12,38 @@ interface State {
 
 const initialEntries: InventoryEntry[] = [
     {
+        item: allItems['Starter'],
+        amount: 1
+    },
+    {
+        item: allItems['Beginner'],
+        amount: 1
+    },
+    {
+        item: allItems['Intermediate'],
+        amount: 1
+    },
+    {
+        item: allItems['Advanced'],
+        amount: 1
+    },
+    {
+        item: allItems['Expert'],
+        amount: 1
+    },
+    {
+        item: allItems['Sea king'],
+        amount: 1
+    },
+    {
+        item: allItems['Abyssal'],
+        amount: 1
+    },
+    {
+        item: allItems['Legendary'],
+        amount: 1
+    },
+    {
         item: allItems['Mushroom'],
         amount: 3
     },

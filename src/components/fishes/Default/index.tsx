@@ -35,7 +35,7 @@ interface Props {
 }
 
 // Lake is the referential of fish coords
-const GeneralFish: React.FC<Props> = ({
+const DefaultFish: React.FC<Props> = ({
     fish = null,
     _id,
     size = 20,
@@ -135,18 +135,17 @@ const GeneralFish: React.FC<Props> = ({
     // This function gets called when a fish takes the bait and the player reacted too late
     const handleHookFail = useCallback(
         (): void => {
-            // Alert('Too late ... The fish went away with your bait !')
-            console.log(isInScope)
-            if (!isInScope) return giveUpBait()
+            if (!isInScope || !!hookedFish) return giveUpBait()
             else {
                 giveUpBait()
-                console.log('Too late ...')
+                //console.log('Too late ... the fish went away with your bait !')
                 setWouldHookSuccessfully(false)
                 setCanTryToCatch(false)
                 setIsRoaming(true)
-                makeBaitAvailable(true)
+                // Go back to the shore automatically
+                setGameProcess(gameProcesses.INITIAL)
             }
-        }, [isInScope, giveUpBait]
+        }, [isInScope, giveUpBait, hookedFish]
     )
 
     const randomMove = useCallback(
@@ -209,7 +208,7 @@ const GeneralFish: React.FC<Props> = ({
             const [delay, duration] = catchTimeLapse
             const approachDuration = 4000
             approachBait()
-            console.log('approaching bait')
+            //console.log('approaching bait')
             
             hookFailTimerIDRef.current = window.setTimeout(
                 handleHookFail, approachDuration + delay + duration
@@ -246,12 +245,16 @@ const GeneralFish: React.FC<Props> = ({
         function handleHook (): void {
             if (isBaitAvailable) {
                 if (wouldHookSuccessfully) {
-                    //  Hooked successfully
+                    // Hooked successfully
                     setHookedFish({ _id, fish })
-                    window.clearTimeout(hookFailTimerIDRef.current)
-                    setIsStruggling(true)
+                    //setGameProcess(gameProcesses.BATTLE)
+
+                    window.clearTimeout(hookFailTimerIDRef.current)                    
                     setWouldHookSuccessfully(false)
                     setCanTryToCatch(false)
+
+                    setIsStruggling(true)
+                    setMoveTransition('none')
                 } else {
                     // Too early
                     alert('Too early !')
@@ -331,6 +334,13 @@ const GeneralFish: React.FC<Props> = ({
         hookedFish
     ])
 
+    // Make fish follow bait when it is hooked
+    useEffect(() => {
+        if (hookedFish && hookedFish._id === _id) {
+            setFishCoords(baitLakeCoords)
+        }
+    }, [hookedFish, _id, baitLakeCoords])
+
     // All other fishes disappear when fish gets hooked
     if (hookedFish && hookedFish._id !== _id) return null
 
@@ -394,4 +404,4 @@ const GeneralFish: React.FC<Props> = ({
     </>
 }
 
-export default React.memo(GeneralFish)
+export default React.memo(DefaultFish)
