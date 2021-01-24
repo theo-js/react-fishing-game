@@ -1,6 +1,7 @@
 import React from 'react'
 import FishArea from '../FishArea'
 import DefaultFish from '../../../fishes/Default'
+import allFishesData from '../../../fishes/fishes.json'
 import { Path } from '../../../../interfaces/position'
 
 interface Props {
@@ -12,17 +13,19 @@ const BeginnerArea: React.FC<Props> = ({ path }) => {
     path={path}
     fishes={[
         {
-            amount: 1,
+            amount: 5,
             component: DefaultFish,
+            fish: allFishesData['Anchovy'],
             props: {
-                size: 50
+                ...allFishesData['Anchovy']
             }
         },
         {
-            amount: 10,
+            amount: 5,
             component: DefaultFish,
+            fish: allFishesData['Sardine'],
             props: {
-                size: 10
+                ...allFishesData['Sardine']
             }
         }/*,
         {

@@ -2,7 +2,8 @@ import {
     MAKE_BAIT_AVAILABLE,
     PUT_ON_BAIT_ITEM,
     SET_HOOKED_FISH,
-    SET_LINE_TENSION
+    SET_LINE_TENSION,
+    SET_IS_PULLING
 } from './types'
 import { Item } from '../../interfaces/items'
 import { FishData } from '../../interfaces/fishes'
@@ -42,7 +43,7 @@ export const loseBaitAction = () => dispatch => {
 }
 
 // Player successfully caught a fish and receives an item
-export const catchNewFish = (fishID: string) => dispatch => {
+export const catchNewFishAction = (fishID: string) => dispatch => {
     // Get new item
     dispatch(addInventoryEntryAction(fishID, 1))
     // Lose bait
@@ -54,3 +55,6 @@ export const setHookedFishAction = (fish: FishData) => ({ type: SET_HOOKED_FISH,
 
 // Set line tension; if lower than -100 lose bait, if higher than 100 line breaks (=> lose bait)
 export const setLineTensionAction = (newTension: number) => ({ type: SET_LINE_TENSION, payload: newTension })
+
+// Set whether fishing is pulling on the line
+export const setIsPullingAction = (isPulling: boolean) => ({ type: SET_IS_PULLING, payload: isPulling })

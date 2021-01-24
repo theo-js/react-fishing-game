@@ -1,15 +1,35 @@
 import { Item } from './items'
 
 export interface Fish {
-    _id: string,
+    readonly _id: string,
     look?: string,
-    minExp: number,
-    maxExp: number,
-    likes: string[]
+    edibleFoods?: string[],
+    strength: number[], // [min, max]
+    size?: number[], // [min, max]
+    roamingDistance?: number,
+    roamingInterval?: number,
+    biteChance?: number,
+    catchTimeLapse?: number[],
+    className?: string,
+    detectionScope?: number
+}
+
+export interface UniqueFish {
+    readonly _id: string,
+    look?: string,
+    edibleFoods?: string[],
+    strength: number,
+    size: number,
+    roamingDistance?: number,
+    roamingInterval?: number,
+    biteChance?: number,
+    catchTimeLapse?: number[],
+    className?: string,
+    detectionScope?: number
 }
 
 export interface FishData {
-    _id: string,
+    fishID: string,
     groupID: string,
-    fish?: Fish
+    fish: UniqueFish
 }

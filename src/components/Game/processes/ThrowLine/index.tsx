@@ -272,6 +272,7 @@ export default (({
                 const { keyCode } = e
                 switch (keyCode) {
                     case 32:
+                    case 13:
                         setSpaceFired(false)
                         if (isPreparingThrow) {
                             confirmThrow()

@@ -120,6 +120,11 @@ body
             stroke-width: 2
             fill: transparent
             transition: all ease .2s
+        
+        &.danger
+            animation: blink .5s ease-in infinite
+        &.highDanger
+            animation: blink .3s ease-in infinite
 
 .mushroom
     position: absolute
@@ -163,3 +168,10 @@ body
         transform: scale(0)
     to
         transform: scale(1)
+@keyframes blink
+    from
+        opacity: 1
+        filter: brightness(1.5)
+    to
+        opacity: .25
+        filter: brightness(.5)

@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, useEffect, useLayoutEffect, useRef } from 'react'
+import React, { ReactNode, useState, useMemo, useCallback, useEffect, useRef } from 'react'
 import styles from './index.module.sass'
 import gameProcesses from './processes/index.json'
 import Initial from './processes/Initial'
@@ -17,7 +17,7 @@ import { getVectorLength, pxToM } from '../../utils/position'
 import BeginnerArea from './areas/Beginner'
 
 // Redux
-import { connect } from 'react-redux'
+import { connect, useSelector } from 'react-redux'
 import { SPEND_ONE_MINUTE } from '../../store/actions/types'
 import {
     isMainMenuOpenSelector,
@@ -25,7 +25,7 @@ import {
     processSelector,
     rodLevelSelector
 } from '../../store/selectors/game'
-import { baitFoodSelector } from '../../store/selectors/fishing'
+import { baitFoodSelector, lineTensionSelector } from '../../store/selectors/fishing'
 import { inventoryLengthSelector } from '../../store/selectors/inventory'
 import { setGameProcessAction, setRodLevelAction, enableBGMAction } from '../../store/actions/game'
 import { updatePositionAction } from '../../store/actions/position'
@@ -40,7 +40,6 @@ interface Props {
     isMainMenuOpen?: boolean,
     updateGlobalPositionState?: any,
     rodLevel?: FishRodLevel,
-    baitFood?: Item,
     inventoryLength?: number,
     addToInventory?: any
 }
@@ -54,7 +53,6 @@ const Game: React.FC<Props> = ({
     isMainMenuOpen,
     updateGlobalPositionState,
     rodLevel,
-    baitFood,
     inventoryLength,
     addToInventory
 }) => {
@@ -145,7 +143,6 @@ const Game: React.FC<Props> = ({
     const shoreRef = useRef<HTMLDivElement>(null)
     const lakeRef = useRef<HTMLDivElement>(null)
     const baitRef = useRef<HTMLDivElement>(null)
-    const lineRef = useRef(null)
 
     // State
     const [map, setMap] = useState<Map>({
@@ -430,36 +427,19 @@ const Game: React.FC<Props> = ({
                 </div>
             </div>
         </div>
-        <svg
-            className={styles.line}
-            ref={lineRef}
-            style={{
-                width: map.width,
-                height: map.shorePath.to.y + map.lakePath.to.y,
-                opacity: baitFood ? 1 : 0
-            }}
-        >
-            <line
-                x1={linePath.from.x}
-                y1={linePath.from.y}
-                x2={linePath.to.x}
-                y2={linePath.to.y}
-                 />
-        </svg>
-        <div className={styles.bait}
+
+        <Line
+            map={map}
+            linePath={linePath}
+        />
+
+        <Bait
             ref={baitRef}
-            style={{
-                left: baitCoordinates.x - baitCoordinates.width / 2,
-                top: baitCoordinates.y - baitCoordinates.height / 2,
-                width: baitCoordinates.width,
-                height: baitCoordinates.height,
-                transform: `translate(${baitOffset.x}px, ${baitOffset.y}px)`,
-                transition: baitOffset.transition || 'none',
-                opacity: baitFood ? 1 : 0
-            }}
-        >
-            <Bait type={baitType} />
-        </div>
+            type={baitType}
+            baitCoordinates={baitCoordinates}
+            baitOffset={baitOffset}
+         />
+
         <div
             className={styles.lake}
             style={{
@@ -502,19 +482,90 @@ const Game: React.FC<Props> = ({
 }
 
 interface BaitProps {
-    type: string
+    type?: string,
+    baitOffset: Coordinates,
+    baitCoordinates: Coordinates
 }
-export const Bait: React.FC<BaitProps> = ({ type = 'default' }) => {
-    let bait = null
-    switch (type) {
-        case 'immersed':
-            bait = <GiFishingHook className={styles.immersed} />
-            break
-        case 'default':
-        default:
-            bait = <GiFishingHook />
-    }
-    return bait
+export const Bait = React.forwardRef<HTMLDivElement, BaitProps>(
+    ({ type = 'default', baitOffset, baitCoordinates }, forwardedRef) => {
+    // Redux
+    const baitFood = useSelector(baitFoodSelector)
+
+    // Set bait look
+    const baitType = useMemo((): any => {
+        switch (type) {
+            case 'immersed':
+                return <GiFishingHook className={styles.immersed} />
+                break
+            case 'default':
+            default:
+                return <GiFishingHook />
+        }
+    }, [type])
+
+    return <div className={styles.bait}
+        ref={forwardedRef}
+        style={{
+            left: baitCoordinates.x - baitCoordinates.width / 2,
+            top: baitCoordinates.y - baitCoordinates.height / 2,
+            width: baitCoordinates.width,
+            height: baitCoordinates.height,
+            transform: `translate(${baitOffset.x}px, ${baitOffset.y}px)`,
+            transition: baitOffset.transition || 'none',
+            opacity: baitFood ? 1 : 0
+        }}
+    >
+        {baitType}
+    </div>
+})
+
+interface LineProps {
+    map: Map,
+    linePath: Path
+}
+
+export const Line: React.FC<LineProps> = ({ map, linePath }) => {
+    // Redux
+    const baitFood = useSelector<Item>(baitFoodSelector)
+    const lineTension = useSelector(lineTensionSelector)
+
+    // Change line color depending on its tension
+    const lineColor = useMemo((): string => {
+        if (lineTension > 0) {
+            // Line tension ranges from 1 to 100 here
+            const pctTo255 = lineTension*255/100
+            // The tighter the redder
+            return `rgb(255, ${255 - pctTo255}, ${255 - pctTo255})`
+        }
+        else if (lineTension === 0) return 'white'
+        else {
+            // Line tension ranges from -100 to -1 here
+            const pctTo255 = Math.abs(lineTension*255/100)
+            // The looser the bluer
+            return `rgb(${255 - pctTo255}, ${255 - pctTo255}, 255)`
+        }
+    }, [lineTension])
+
+    return <svg
+        className={`
+            ${styles.line} 
+            ${lineTension >= 75 || lineTension <= -75 ? styles.danger : ''} 
+            ${lineTension >= 90 || lineTension <= -90 ? styles.highDanger : ''}
+        `}
+        style={{
+            width: map.width,
+            height: map.shorePath.to.y + map.lakePath.to.y,
+            opacity: baitFood ? 1 : 0
+        }}
+    >
+        <line
+            x1={linePath.from.x}
+            y1={linePath.from.y}
+            x2={linePath.to.x}
+            y2={linePath.to.y}
+            style={{ stroke: lineColor }}
+            />
+    </svg>
 }
 
 const mapStateToProps = state => ({
@@ -522,7 +573,6 @@ const mapStateToProps = state => ({
     rodLevel: rodLevelSelector(state),
     isMainMenuOpen: isMainMenuOpenSelector(state),
     isBGMEnabled: isBGMEnabledSelector(state),
-    baitFood: baitFoodSelector(state),
     inventoryLength: inventoryLengthSelector(state)
 })
 const mapDispatchToProps = dispatch => ({

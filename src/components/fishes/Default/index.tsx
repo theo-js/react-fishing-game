@@ -18,16 +18,18 @@ import { setGameProcessAction } from '../../../store/actions/game'
 
 interface Props {
     fish?: Fish, // fish stats template from json file
-    groupID: string, // fish group id
-    _id: string, // fish id
-    size?: number, // Size of the fish in px; width = 1em
+    groupID: string, // fish group uuid
+    fishID: string, // fish uuid
+    _id: string, // fish name
+    size: number, // Size of the fish in px; width = 1em
+    strength: number,
     area?: Path, // Path of the area the fish belongs to
     detectionScope?: number, // Number of pixels around fish where it can detect the bait,
     roamingInterval?: number, // Interval in milliseconds between fish moves when it's roaming
     roamingDistance?: number, // Distance in px that fish travels when it's roaming
     edibleFoods?: string[], // What foods the fish likes
-    biteChance: number, // Probability that the fish will take the bait if it's attracted to it (min: 0; max: 1)
-    catchTimeLapse: number[] // Interval of time in which player is able to hook the fish after it took the bait; first n is the delay after the bait was taken, second is the duration
+    biteChance?: number, // Probability that the fish will take the bait if it's attracted to it (min: 0; max: 1)
+    catchTimeLapse?: number[] // Interval of time in which player is able to hook the fish after it took the bait; first n is the delay after the bait was taken, second is the duration
     className?: string,
     children?: ReactNode,
     // Redux
@@ -38,9 +40,11 @@ interface Props {
 // Lake is the referential of fish coords
 const DefaultFish: React.FC<Props> = ({
     fish = null,
-    _id,
+    fishID,
     groupID,
+    _id,
     size = 20,
+    strength = 10,
     area,
     detectionScope = 75,
     roamingInterval,
@@ -248,8 +252,16 @@ const DefaultFish: React.FC<Props> = ({
             if (isBaitAvailable) {
                 if (wouldHookSuccessfully) {
                     // Hooked successfully
-                    setHookedFish({ _id, fish, groupID })
-                    //setGameProcess(gameProcesses.BATTLE)
+                    setHookedFish({
+                        fishID,
+                        groupID,
+                        fish: {
+                            ...fish,
+                            strength,
+                            size
+                        }
+                    })
+                    setGameProcess(gameProcesses.BATTLE)
 
                     window.clearTimeout(hookFailTimerIDRef.current)                    
                     setWouldHookSuccessfully(false)
@@ -300,7 +312,7 @@ const DefaultFish: React.FC<Props> = ({
             document.body.removeEventListener('click', handleClick, true)
             document.body.removeEventListener('touchstart', handleTouch, true)
         }
-    }, [wouldHookSuccessfully, canTryToCatch, isBaitAvailable, _id, groupID])
+    }, [wouldHookSuccessfully, canTryToCatch, isBaitAvailable, fishID, groupID, strength, size])
 
     // Default fish behaviour when it's roaming
     useEffect(() => {
@@ -338,13 +350,13 @@ const DefaultFish: React.FC<Props> = ({
 
     // Make fish follow bait when it is hooked
     useEffect(() => {
-        if (hookedFish && hookedFish._id === _id) {
+        if (hookedFish && hookedFish.fishID === fishID) {
             setFishCoords(baitLakeCoords)
         }
-    }, [hookedFish, _id, baitLakeCoords])
+    }, [hookedFish, fishID, baitLakeCoords])
 
     // All other fishes disappear when fish gets hooked
-    if (hookedFish && hookedFish._id !== _id) return null
+    if (hookedFish && hookedFish.fishID !== fishID) return null
 
     return <><div
         className={`

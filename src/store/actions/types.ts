@@ -17,6 +17,7 @@ export const MAKE_BAIT_AVAILABLE: string = 'MAKE_BAIT_AVAILABLE'
 export const PUT_ON_BAIT_ITEM: string = 'PUT_ON_BAIT_ITEM'
 export const SET_HOOKED_FISH: string = 'SET_HOOKED_FISH'
 export const SET_LINE_TENSION: string = 'SET_LINE_TENSION'
+export const SET_IS_PULLING: string = 'SET_IS_PULLING'
 
 // Position
 export const UPDATE_POSITION: string = 'UPDATE_POSITION'

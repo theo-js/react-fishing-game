@@ -1,0 +1,41 @@
+.resistanceGauge
+    position: relative
+    display: grid
+    grid-template-columns: repeat(2, 1fr)
+    width: calc(100% - 30px)
+    height: 10px
+    margin: 15px 15px 0 9px
+    border-radius: 0 0 4px 4px
+    border: #FFF 1px solid
+    border-top: none
+    border-left-width: 6px
+    border-right-width: 6px
+    box-shadow: 1px 1px 2px 0 #2229
+
+    // Triangle at center
+    &::after
+        content: ''
+        position: absolute
+        left: calc(50% - 6px)
+        bottom: 0
+        border: 6px solid transparent
+        border-bottom-color: #FFF
+
+    label.lowTension
+        background: linear-gradient(to left, transparent, var(--lightblue), var(--blue))
+    label.highTension
+        background: linear-gradient(to right, transparent, var(--red), var(--lightred))
+    label.lowTension, label.highTension
+        &.danger
+            animation: blink .5s ease-in infinite
+
+    meter.lineTension
+        display: none
+    
+@keyframes blink
+    from
+        opacity: 1
+        filter: brightness(1.25)
+    to
+        opacity: .75
+        filter: brightness(.75)

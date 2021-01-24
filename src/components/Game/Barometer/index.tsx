@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react'
-import ResistanceGauge from './ResistanceGauge'
+import TensionGauge from './TensionGauge'
 import { pxToM } from '../../../utils/position'
 import { FishRodLevel } from '../../../interfaces/evolution'
 import gameProcesses from '../processes/index.json'
@@ -91,8 +91,8 @@ export const Barometer: React.FC<Props> = ({
                     {lineStepsJSX}
                 </div>
                 {gameProcess === gameProcesses.BATTLE && (
-                    // Resistance gauge
-                    <ResistanceGauge />
+                    // Line tension gauge
+                    <TensionGauge />
                 )}
             </div>
         </nav>

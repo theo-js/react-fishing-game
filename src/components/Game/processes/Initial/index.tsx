@@ -84,7 +84,7 @@ export default (({
     // Initialize scroll position at player's position and bait at 0,0
     useLayoutEffect(() => {
         scrollToPlayer('auto')
-        setBaitOffset({ x: 0, y: 0 })
+        setBaitOffset({ x: 0, y: -20, transition: '.2 all ease' })
         setRodAngle(0)
         setBaitType('default')
     }, [])
