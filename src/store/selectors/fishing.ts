@@ -16,3 +16,8 @@ export const hookedFishSelector = createSelector(
     (state: any): State => state.fishing,
     (fishing: State): FishData => fishing.hookedFish
 )
+
+export const lineTNesionSelector = createSelector(
+    (state: any): State => state.fishing,
+    (fishing: State): number => fishing.lineTension
+)

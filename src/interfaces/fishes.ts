@@ -10,5 +10,6 @@ export interface Fish {
 
 export interface FishData {
     _id: string,
+    groupID: string,
     fish?: Fish
 }

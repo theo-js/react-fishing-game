@@ -18,6 +18,7 @@ import { setGameProcessAction } from '../../../store/actions/game'
 
 interface Props {
     fish?: Fish, // fish stats template from json file
+    groupID: string, // fish group id
     _id: string, // fish id
     size?: number, // Size of the fish in px; width = 1em
     area?: Path, // Path of the area the fish belongs to
@@ -38,6 +39,7 @@ interface Props {
 const DefaultFish: React.FC<Props> = ({
     fish = null,
     _id,
+    groupID,
     size = 20,
     area,
     detectionScope = 75,
@@ -246,7 +248,7 @@ const DefaultFish: React.FC<Props> = ({
             if (isBaitAvailable) {
                 if (wouldHookSuccessfully) {
                     // Hooked successfully
-                    setHookedFish({ _id, fish })
+                    setHookedFish({ _id, fish, groupID })
                     //setGameProcess(gameProcesses.BATTLE)
 
                     window.clearTimeout(hookFailTimerIDRef.current)                    
@@ -298,7 +300,7 @@ const DefaultFish: React.FC<Props> = ({
             document.body.removeEventListener('click', handleClick, true)
             document.body.removeEventListener('touchstart', handleTouch, true)
         }
-    }, [wouldHookSuccessfully, canTryToCatch, isBaitAvailable, _id])
+    }, [wouldHookSuccessfully, canTryToCatch, isBaitAvailable, _id, groupID])
 
     // Default fish behaviour when it's roaming
     useEffect(() => {

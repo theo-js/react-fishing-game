@@ -1,4 +1,4 @@
-import React, { ReactNode, FC, useMemo } from 'react'
+import React, { FC, useRef } from 'react'
 import FishGroup from '../FishGroup'
 import { Path } from '../../../../interfaces/position'
 import { v4 as uuid } from 'uuid'
@@ -15,7 +15,9 @@ interface Props {
 }
 
 const FishArea: FC<Props> = ({ path, fishes }) => {
-    return <FishGroup path={path} render={groupProps => {
+    const fishGroupID = useRef<string>(uuid())
+
+    return <FishGroup groupID={fishGroupID} path={path} render={groupProps => {
         return (
          /* Pass props to each fish */
         fishes
@@ -26,10 +28,12 @@ const FishArea: FC<Props> = ({ path, fishes }) => {
             let result = []
             for (let i = 0; i < amount; i++) {
                 const fishID = uuid()
+
                 result.push(
                     <Fish
                         key={fishID}
                         _id={fishID}
+                        groupID={fishGroupID}
                         {...props}
                         {...groupProps}
                         area={groupProps.path}

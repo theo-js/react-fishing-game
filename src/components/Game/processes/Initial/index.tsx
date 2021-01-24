@@ -21,7 +21,8 @@ interface Props {
     setIsBarometerVisible: Dispatch<SetStateAction<boolean>>,
     isBarometerVisible: boolean,
     setBaitOffset: Dispatch<SetStateAction<Coordinates>>,
-    setRodAngle: Dispatch<SetStateAction<number>>
+    setRodAngle: Dispatch<SetStateAction<number>>,
+    setBaitType: Dispatch<SetStateAction<string>>
 }
 
 enum Direction {
@@ -39,7 +40,8 @@ export default (({
     isBarometerVisible,
     setIsBarometerVisible,
     setBaitOffset,
-    setRodAngle
+    setRodAngle,
+    setBaitType
 }) => {
     // REDUX
     const dispatch = useDispatch()
@@ -84,6 +86,7 @@ export default (({
         scrollToPlayer('auto')
         setBaitOffset({ x: 0, y: 0 })
         setRodAngle(0)
+        setBaitType('default')
     }, [])
 
     // Hide barometer

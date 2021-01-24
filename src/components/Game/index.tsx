@@ -297,6 +297,7 @@ const Game: React.FC<Props> = ({
                     setIsBarometerVisible={setIsBarometerVisible}
                     setBaitOffset={setBaitOffset}
                     setRodAngle={setRodAngle}
+                    setBaitType={setBaitType}
                  />
                 break
             case gameProcesses.THROW_LINE:
@@ -339,7 +340,20 @@ const Game: React.FC<Props> = ({
                  />
                 break
             case gameProcesses.BATTLE:
-                return <Battle />
+                return <Battle
+                    setProcess={setProcess}
+                    scrollToPlayer={scrollToPlayer}
+                    scrollToBait={scrollToBait}
+                    baitOffset={baitOffset}
+                    setBaitOffset={setBaitOffset}
+                    baitDistance={baitDistance}
+                    lineLength={lineLength}
+                    setBaitType={setBaitType}
+                    setRodAngle={setRodAngle}
+                    baitRef={baitRef}
+                    isBarometerVisible={isBarometerVisible}
+                    setIsBarometerVisible={setIsBarometerVisible}
+                 />
             default: return null
         }
     }, [

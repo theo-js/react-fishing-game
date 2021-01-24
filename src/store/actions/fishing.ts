@@ -1,7 +1,8 @@
 import {
     MAKE_BAIT_AVAILABLE,
     PUT_ON_BAIT_ITEM,
-    SET_HOOKED_FISH
+    SET_HOOKED_FISH,
+    SET_LINE_TENSION
 } from './types'
 import { Item } from '../../interfaces/items'
 import { FishData } from '../../interfaces/fishes'
@@ -48,5 +49,8 @@ export const catchNewFish = (fishID: string) => dispatch => {
     dispatch(loseBaitAction())
 }
 
-// One fish is took the bait, all the other fishes must disappear
+// One fish has taken the bait, all the other fishes must disappear
 export const setHookedFishAction = (fish: FishData) => ({ type: SET_HOOKED_FISH, payload: fish })
+
+// Set line tension; if lower than -100 lose bait, if higher than 100 line breaks (=> lose bait)
+export const setLineTensionAction = (newTension: number) => ({ type: SET_LINE_TENSION, payload: newTension })
