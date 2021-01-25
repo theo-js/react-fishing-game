@@ -5,10 +5,11 @@
         "edibleFoods": [
             "Mushroom"
         ],
-        "size": [10, 17],
-        "strength": [100, 125],
-        "roamingInterval": 500,
-        "roamingDistance": 100
+        "size": [7, 15],
+        "strength": [15, 25],
+        "roamingInterval": 1000,
+        "roamingDistance": 50,
+        "biteChance": 0.25
     },
     "Sardine": {
         "_id": "Sardine",
@@ -17,7 +18,7 @@
             "Fly"
         ],
         "size": [13, 20],
-        "strength": [125, 150]
+        "strength": [20, 35]
     },
     "Clown fish": {
         "_id": "Clown fish",
@@ -25,7 +26,7 @@
         "edibleFoods": [
             "Sardine"
         ],
-        "size": [21, 26],
+        "size": [30, 45],
         "strength": [200, 300]
     },
     "Angelfish": {
@@ -34,7 +35,7 @@
         "edibleFoods": [
             "Clownfish"
         ],
-        "size": [25, 30],
+        "size": [40, 55],
         "strength": [300, 400]
     },
     "Anglerfish": {
@@ -43,7 +44,7 @@
         "edibleFoods": [
             "Clown fish"
         ],
-        "size": [30, 50],
+        "size": [50, 65],
         "strength": [400, 450]
     },
     "Sea monster": {
@@ -53,6 +54,6 @@
             "Angelfish"
         ],
         "size": [500, 1000],
-        "strength": [1000, 1250]
+        "strength": [80, 90]
     }
 }

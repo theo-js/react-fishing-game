@@ -21,7 +21,7 @@ const BeginnerArea: React.FC<Props> = ({ path }) => {
             }
         },
         {
-            amount: 5,
+            amount: 4,
             component: DefaultFish,
             fish: allFishesData['Sardine'],
             props: {

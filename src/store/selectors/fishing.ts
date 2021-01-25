@@ -12,6 +12,11 @@ export const baitFoodSelector = createSelector(
     (fishing: State) => fishing.baitFood
 )
 
+export const hasBaitJustFallenSelector = createSelector(
+    (state: any): State => state.fishing,
+    (fishing: State): boolean => fishing.hasBaitJustFallen
+)
+
 export const hookedFishSelector = createSelector(
     (state: any): State => state.fishing,
     (fishing: State): FishData => fishing.hookedFish

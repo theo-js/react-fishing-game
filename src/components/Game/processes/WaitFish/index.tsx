@@ -16,7 +16,6 @@ interface Props {
     setBaitType: Dispatch<SetStateAction<string>>,
     setProcess: Dispatch<SetStateAction<string>>,
     setRodAngle: Dispatch<SetStateAction<number>>,
-    baitRef: any,
     scrollToPlayer: (behavior?: 'smooth' | 'auto' | undefined) => void,
     scrollToBait: (behavior?: 'smooth' | 'auto' | undefined) => void,
     setIsBarometerVisible: Dispatch<SetStateAction<boolean>>,
@@ -29,7 +28,6 @@ const WaitFish: FC<Props> = ({
     baitDistance,
     lineLength,
     setBaitType,
-    baitRef,
     setProcess,
     setRodAngle,
     scrollToPlayer,
@@ -51,9 +49,10 @@ const WaitFish: FC<Props> = ({
     )
     // Fishes can only detect/interact with the bait during this process
     useEffect(() => {
+        console.log('huigut')
         makeBaitAvailable(true)
         return () => makeBaitAvailable(false)
-    })
+    }, [])
 
     // State
     const [isReeling, setIsReeling] = useState<boolean>(false)

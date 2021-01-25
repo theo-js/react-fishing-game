@@ -1,8 +1,10 @@
 import {
     MAKE_BAIT_AVAILABLE,
     PUT_ON_BAIT_ITEM,
+    BAIT_FALL_IN_WATER,
     SET_HOOKED_FISH,
     SET_LINE_TENSION,
+    DECREMENT_LINE_TENSION,
     SET_IS_PULLING
 } from './types'
 import { Item } from '../../interfaces/items'
@@ -50,11 +52,21 @@ export const catchNewFishAction = (fishID: string) => dispatch => {
     dispatch(loseBaitAction())
 }
 
+// Detect when bait reaches water; if it falls on a fish, it flees
+export const emitBaitFallEventAction = () => dispatch => {
+    dispatch({ type: BAIT_FALL_IN_WATER, payload: true })
+    window.setTimeout(() => {
+        dispatch({ type: BAIT_FALL_IN_WATER, payload: false })
+    }, 20)
+}
+
 // One fish has taken the bait, all the other fishes must disappear
 export const setHookedFishAction = (fish: FishData) => ({ type: SET_HOOKED_FISH, payload: fish })
 
 // Set line tension; if lower than -100 lose bait, if higher than 100 line breaks (=> lose bait)
 export const setLineTensionAction = (newTension: number) => ({ type: SET_LINE_TENSION, payload: newTension })
+// Decrement
+export const decrementLineTensionAction = (step: number) => ({ type: DECREMENT_LINE_TENSION, payload: step })
 
-// Set whether fishing is pulling on the line
+// Set whether fish is pulling on the line
 export const setIsPullingAction = (isPulling: boolean) => ({ type: SET_IS_PULLING, payload: isPulling })

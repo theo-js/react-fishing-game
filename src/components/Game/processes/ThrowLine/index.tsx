@@ -8,6 +8,10 @@ import throttle from '../../../../utils/throttle'
 import { splashAnim } from '../../animations'
 import styles from './index.module.sass'
 
+// Redux
+import { useDispatch } from 'react-redux'
+import { emitBaitFallEventAction } from '../../../../store/actions/fishing'
+
 interface Props {
     setProcess: Dispatch<SetStateAction<string>>,
     scrollToBait: (behavior?: 'smooth' | 'auto' | undefined) => void,
@@ -66,6 +70,10 @@ export default (({
     const [isThrowing, setIsThrowing] = useState<boolean>(false)
     const [hasThrown, setHasThrown] = useState<boolean>(false)
 
+    // Redux
+    const dispatch = useDispatch()
+    const emitBaitFallEvent = useCallback(() => dispatch(emitBaitFallEventAction()), [])
+
     // Refs
     const lastTouchX = useRef<number>(null)
     const gaugeRef = useRef<any>(null)
@@ -78,6 +86,7 @@ export default (({
     baitDropSERef.current.src = baitDropSE
     const badassSERef = useRef<HTMLAudioElement>(new Audio())
     badassSERef.current.src = badassSE
+    badassSERef.current.volume = .75
 
     // Go back to initial process
     const goBack = useCallback(
@@ -161,6 +170,7 @@ export default (({
                     throttle(move, 100)
                 } else {
                     // Bait has reached the correct distance
+                    emitBaitFallEvent()
                     setIsThrowing(false)
                     setBaitType('immersed')
                     // Play bait drop sound effect

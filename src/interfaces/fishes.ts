@@ -9,9 +9,10 @@ export interface Fish {
     roamingDistance?: number,
     roamingInterval?: number,
     biteChance?: number,
+    pullChance?: number,
     catchTimeLapse?: number[],
     className?: string,
-    detectionScope?: number
+    detectionScope?: number,
 }
 
 export interface UniqueFish {
@@ -23,9 +24,10 @@ export interface UniqueFish {
     roamingDistance?: number,
     roamingInterval?: number,
     biteChance?: number,
+    pullChance?: number,
     catchTimeLapse?: number[],
     className?: string,
-    detectionScope?: number
+    detectionScope?: number,
 }
 
 export interface FishData {

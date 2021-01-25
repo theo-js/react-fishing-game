@@ -102,6 +102,7 @@ const Game: React.FC<Props> = ({
         const src = require('../../assets/audio/bgm/beach.mp3').default
         audio.src = src
         audio.preload = 'auto'
+        audio.volume = .5
         audio.onended = function () {
             // Loop start
             audio.pause()
@@ -331,7 +332,6 @@ const Game: React.FC<Props> = ({
                     lineLength={lineLength}
                     setBaitType={setBaitType}
                     setRodAngle={setRodAngle}
-                    baitRef={baitRef}
                     isBarometerVisible={isBarometerVisible}
                     setIsBarometerVisible={setIsBarometerVisible}
                  />
