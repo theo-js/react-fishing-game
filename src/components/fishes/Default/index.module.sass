@@ -1,6 +1,6 @@
 $fishColor: #2228
-$wrong: crimson
-$correct: lightgreen
+$wrong: var(--red)
+$correct: var(--green)
 
 .defaultFish
     z-index: 1
@@ -9,7 +9,7 @@ $correct: lightgreen
     width: 1em
     height: .375em
     pointer-events: none
-    animation: wriggle 1s linear infinite alternate
+    animation: wriggle 1s linear infinite alternate, blink 1s ease-in
     &::before
         // Tail
         content: ''

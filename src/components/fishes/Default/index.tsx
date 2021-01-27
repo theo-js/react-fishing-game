@@ -24,6 +24,14 @@ import { setGameNotificationAction } from '../../../store/actions/game'
 import { makeBaitAvailableAction, setHookedFishAction, loseBaitAction } from '../../../store/actions/fishing'
 import { setGameProcessAction } from '../../../store/actions/game'
 
+// Notif text when player hooks too soon
+const fleePhrases: string[] = [
+    'Fish goes away',
+    'Fish is afraid',
+    'You gotta hook the fish when it\'s green'
+]
+const getRandomFleePhrase = (): string => fleePhrases[randomIntFromInterval(0, fleePhrases.length - 1)]
+
 interface Props {
     fish?: Fish, // fish stats template from json file
     groupID: string, // fish group uuid
@@ -39,6 +47,7 @@ interface Props {
     biteChance?: number, // Probability that the fish will take the bait if it's attracted to it (min: 0; max: 1)
     pullChance?: number, // Probability that the fish will pull on the line at each time interval during battle process (min: 0; max: 1)
     catchTimeLapse?: number[] // Interval of time in which player is able to hook the fish after it took the bait; first n is the delay after the bait was taken, second is the duration
+    isBoss?: boolean,
     className?: string,
     children?: ReactNode,
     // Redux
@@ -62,6 +71,7 @@ const DefaultFish: React.FC<Props> = ({
     biteChance = .75,
     pullChance = .5,
     catchTimeLapse =  [0, 2000],
+    isBoss = false,
     className = '',
     children,
 }) => {
@@ -310,7 +320,8 @@ const DefaultFish: React.FC<Props> = ({
                             ...fish,
                             strength,
                             size,
-                            pullChance // Use DefaultFish's default value if not set in json
+                            pullChance, // Use DefaultFish's default value if not set in json
+                            isBoss
                         }
                     })
                     setGameProcess(gameProcesses.BATTLE)
@@ -325,9 +336,18 @@ const DefaultFish: React.FC<Props> = ({
                     makeBaitAvailable(false)
                 } else {
                     // Too soon
-                    //alert('Too soon !')
+                    // Fish flees
                     makeBaitAvailable(true)
                     goAway()
+                    // Notify
+                    setGameNotification({
+                    type: GameNotifType.FAIL,
+                    html: {
+                        header: `<h3>Too soon !</h3>`,
+                        body: `<p>${getRandomFleePhrase()}</p>`
+                    },
+                    duration: 5
+                })
                 }
             } else console.log('Tried to hook but bait is not available ...')
         }

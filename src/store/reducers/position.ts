@@ -1,7 +1,7 @@
 import { Map, Coordinates } from '../../interfaces/position'
 import { UPDATE_POSITION } from '../actions/types'
 
-interface State {
+export interface State {
     map: Map,
     baitLakeCoords: Coordinates // Read-only computed property in Game/index.tsx
 }

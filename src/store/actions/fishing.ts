@@ -50,21 +50,26 @@ export const loseBaitAction = () => dispatch => {
 }
 
 // Player successfully caught a fish and receives an item
-export const catchNewFishAction = (fish: UniqueFish) => (dispatch, getState) => {
+export const catchNewFishAction = (fish: UniqueFish) => dispatch => {
+    const { isBoss, size, strength } = fish
+    const _id = isBoss ? 'Alpha ' + fish._id : fish._id
+
     // Get new item
-    dispatch(addInventoryEntryAction(fish._id, 1))
+    dispatch(addInventoryEntryAction(_id, 1))
+
     // Lose bait
     dispatch({ type: PUT_ON_BAIT_ITEM, payload: null })
+    
     // Notify
-    const fishSize = fish.size
+    const alpha = isBoss ? '<em style="color: var(--yellow)">ALPHA</em> ' : ''
     dispatch(setGameNotificationAction({
-        type: getState().fishing.hookedFish.fish.isBoss ? GameNotifType.GREAT_SUCCESS : GameNotifType.SUCCESS,
+        type: isBoss ? GameNotifType.GREAT_SUCCESS : GameNotifType.SUCCESS,
         html: {
             header: `<h3>New fish !</h3>`,
             body: `
-                <p>Gained <strong style="color: var(--lightblue)">${fish._id}</strong></p>
-                <p>Size: <strong style="color: var(--lightblue)">${formatMeters(parseFloat(pxToM(fishSize/10).toFixed(2)))}</strong></p>
-                <p>Strength: <strong style="color: var(--lightblue)">${fish.strength}</strong></p>
+                <p>Gained <strong style="color: var(--lightblue)">${alpha}${fish._id}</strong></p>
+                <p>Size: <strong style="color: var(--lightblue)">${formatMeters(parseFloat(pxToM(size/5).toFixed(2)))}</strong></p>
+                <p>Strength: <strong style="color: var(--lightblue)">${strength}</strong></p>
             `
         },
         duration: 10

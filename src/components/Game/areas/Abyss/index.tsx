@@ -8,43 +8,43 @@ interface Props {
     path: Path
 }
 
-const BeginnerArea: React.FC<Props> = ({ path }) => {
+const Abyss: React.FC<Props> = ({ path }) => {
     return <FishArea
     path={path}
     fishes={[
         {
-            amount: 4,
+            amount: 5,
             component: DefaultFish,
-            fish: allFishesData['Anchovy'],
+            fish: allFishesData['Anglerfish'],
             props: {
-                ...allFishesData['Anchovy']
+                ...allFishesData['Anglerfish']
             }
         },
         {
-            amount: 5,
+            amount: 4,
             component: DefaultFish,
-            fish: allFishesData['Clown fish'],
+            fish: allFishesData['Sea monster'],
             props: {
-                ...allFishesData['Clown fish']
+                ...allFishesData['Sea monster']
             }
         },
         {
             // Boss
             amount: 1,
             component: DefaultFish,
-            fish: allFishesData['Clown fish'],
+            fish: allFishesData['Sea monster'],
             props: {
-                ...allFishesData['Clown fish'],
-                size: [50, 50],
-                strength: [60, 60],
+                ...allFishesData['Sea monster'],
+                size: [200, 200],
+                strength: [250, 250],
                 isBoss: true,
-                biteChance: .33,
+                biteChance: .125,
                 look: 'alpha',
-                catchTimeLapse: [750, 1250]
+                catchTimeLapse: [5000, 500]
             }
         }
     ]}
      />
 }
 
-export default React.memo(BeginnerArea)
+export default React.memo(Abyss)

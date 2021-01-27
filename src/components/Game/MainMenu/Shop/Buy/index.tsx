@@ -1,10 +1,12 @@
 import React, { ReactNode, Fragment, useState, useMemo, useCallback, useEffect } from 'react'
 import styles from './index.module.sass'
 import allItems from '../../../../items/items.json'
+import { rodLevels } from '../../../evolution'
 import allCategories from '../../../../items/categories.json'
 import { ContentID, randomGreeting, randomThanks } from "../index"
 import { Item, ItemCategory, InventoryEntry } from '../../../../../interfaces/items'
 import { randomIntFromInterval } from '../../../../../utils/math'
+import { pxToM } from '../../../../../utils/position'
 import { BiCoin } from 'react-icons/all'
 
 // Redux
@@ -36,6 +38,9 @@ interface Props {
 }
 
 export const Buy: React.FC<Props> = ({ setSellerPhrase, setCurrentContentID, myDoubloons, purchaseItem }) => {
+    // Redux
+    const inventoryEntries: InventoryEntry[] = useSelector(inventoryEntriesSelector)
+
     const purchaseSE = useMemo((): HTMLAudioElement => {
         const src = require('../../../../../assets/audio/se/purchase.mp3').default
         const audio = new Audio
@@ -56,7 +61,16 @@ export const Buy: React.FC<Props> = ({ setSellerPhrase, setCurrentContentID, myD
             'Butterfly',
             'Dragonfly'
         ]
-        return ids.map(id => {
+        // Add fishing poles that are not already in player's possession
+        const fishrodIDs: Array<string> = rodLevels.map(lvl => {
+            const fishrodID = lvl._id
+            // Add to available for purchase list if this id is not inventory yet
+            if (!inventoryEntries.find(entry => entry.item._id === fishrodID)) {
+                return fishrodID
+            }
+        }).filter(id => typeof id !== 'undefined')
+
+        return [...ids, ...fishrodIDs].map(id => {
             const item: Item = allItems[id]
             const isFocused = focusedItem === id
             return <ForSaleItem
@@ -67,7 +81,7 @@ export const Buy: React.FC<Props> = ({ setSellerPhrase, setCurrentContentID, myD
                 myDoubloons={myDoubloons}
              />
         })
-    }, [focusedItem, myDoubloons])
+    }, [focusedItem, myDoubloons, inventoryEntries])
 
     useEffect(() => {
         // Change seller's dialog
@@ -94,6 +108,7 @@ export const Buy: React.FC<Props> = ({ setSellerPhrase, setCurrentContentID, myD
             purchaseItem={purchaseItem}
             purchaseSE={purchaseSE}
             thankYouSE={thankYouSE}
+            inventoryEntries={inventoryEntries}
          />
     }, [focusedItem, purchaseItem, myDoubloons])
 
@@ -123,15 +138,13 @@ interface DetailsProps {
     myDoubloons?: number,
     purchaseItem?: any,
     purchaseSE?: HTMLAudioElement,
-    thankYouSE?: HTMLAudioElement
+    thankYouSE?: HTMLAudioElement,
+    inventoryEntries: InventoryEntry[]
 }
 
-const PurchaseDetails: React.FC<DetailsProps> = ({ setSellerPhrase, item, myDoubloons, purchaseItem, purchaseSE, thankYouSE }) => {
-    // Redux
-    const inventoryEntries = useSelector(inventoryEntriesSelector)
-
+const PurchaseDetails: React.FC<DetailsProps> = ({ setSellerPhrase, item, myDoubloons, purchaseItem, purchaseSE, thankYouSE, inventoryEntries }) => {
     // State
-    const { _id, plural, description, purchasePrice, isSellable } = item
+    const { _id, plural, description, purchasePrice, category } = item
     const [amount, setAmount] = useState<number>(1)
     const [isConfirmingPurchase, setIsConfirmingPurchase] = useState<boolean>(false)
     
@@ -139,8 +152,8 @@ const PurchaseDetails: React.FC<DetailsProps> = ({ setSellerPhrase, item, myDoub
 
     const canBuy = useMemo((): boolean => {
         const hasPlayerEnoughMoney = myDoubloons >= totalPrice
-        return hasPlayerEnoughMoney && isSellable && amount > 0
-    }, [myDoubloons, totalPrice, isSellable, amount])
+        return hasPlayerEnoughMoney && amount > 0
+    }, [myDoubloons, totalPrice, amount])
 
     const amountInInventory = useMemo((): number => {
         const inventoryEntry = inventoryEntries.find((entry: InventoryEntry) => entry.item._id === _id)
@@ -217,9 +230,27 @@ const PurchaseDetails: React.FC<DetailsProps> = ({ setSellerPhrase, item, myDoub
             setSellerPhrase(randomPurchaseIntroPhrase)
         }
     }, [])
+
+    // Display fishing pole stats
+    const fishingPoleStats = useMemo((): ReactNode => {
+        if (category !== 'Fishing pole') return null
+        
+        const lvl = rodLevels.find(level => level._id === _id)
+        if (!lvl) return null
+
+        return <section className={styles.fishingPoleStats}>
+            <br />
+            <p>Line length: <strong>{pxToM(lvl['maxLength'])}m</strong></p>
+            <p>Resistance: <strong>{lvl['resistance']*100}</strong></p>
+            <p>Strength: <strong>{lvl['strength']*5}</strong></p>
+        </section>
+    }, [_id, rodLevels])
     
     return <aside className={styles.details}>
-        <article className={styles.description}>{description}</article>
+        <article className={styles.description}>
+            {description}
+            {fishingPoleStats}
+        </article>
         <form className={styles.purchaseActions} onSubmit={confirmPurchase}>
             <fieldset className={styles.amount}>
                 <label htmlFor={`${_id}_amount`}>
@@ -234,6 +265,8 @@ const PurchaseDetails: React.FC<DetailsProps> = ({ setSellerPhrase, item, myDoub
                     min={1}
                     step={1}
                     onChange={e => {
+                        if (category === 'Fishing pole') return setAmount(1) // Can only buy 1 fishing pole
+                        
                         const newAmount = parseInt(e.target.value)
                         if (newAmount <= 0) setAmount(1)
                         else if (newAmount > 99) setAmount(99)

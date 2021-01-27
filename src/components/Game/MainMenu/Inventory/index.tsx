@@ -44,6 +44,7 @@ export const Entry: React.FC<EntryProps> = ({ entry, handleSelect, isSelected })
     const rodLevel = useSelector(rodLevelSelector)
     const baitFood = useSelector(baitFoodSelector)
 
+    // Computed
     const isEquipment = useMemo((): boolean => !!category.match(/Fishing pole/), [category])
     const isEquipped = useMemo((): boolean => {
         if (!isEquipment) return false
@@ -54,6 +55,8 @@ export const Entry: React.FC<EntryProps> = ({ entry, handleSelect, isSelected })
             default: return false
         }
     }, [rodLevel, category, _id])
+
+    const isAlpha = useMemo((): boolean => _id.startsWith('Alpha '), [_id])
 
     return <li
         className={`${styles.entry} ${isSelected ? styles.selected : ''}`}
@@ -67,6 +70,7 @@ export const Entry: React.FC<EntryProps> = ({ entry, handleSelect, isSelected })
         </figure>
         <span className={styles.amount}>&times;<strong>{amount}</strong></span>
         {(isEquipped || (baitFood && _id === baitFood._id)) && <span className={styles.equipped}>E</span>}
+        {isAlpha && <span className={styles.alpha}>A</span>}
     </li>
 }
 

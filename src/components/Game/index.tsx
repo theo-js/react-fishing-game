@@ -16,7 +16,7 @@ import { FishRodLevel } from '../../interfaces/evolution'
 import { Item } from '../../interfaces/items'
 import { GiFishingHook } from 'react-icons/all'
 import { getVectorLength, pxToM } from '../../utils/position'
-import BeginnerArea from './areas/Beginner'
+import FishingAreas from './areas'
 
 // Redux
 import { connect, useSelector } from 'react-redux'
@@ -374,8 +374,6 @@ const Game: React.FC<Props> = ({
         map
     ])
     
-    const fishAreas = useMemo((): React.ReactNode => <BeginnerArea path={{ from: {x: 0, y: 200}, to: {x: 4000, y: 400} }} />, [] )
-
     // Spawn mushroom on the shore when inventory is empty
     const [mushroom, setMushroom] = useState<Coordinates>(null)
     useEffect(() => {
@@ -454,7 +452,7 @@ const Game: React.FC<Props> = ({
             ref={lakeRef}
         >
             {currentProcess}
-            {fishAreas}
+            <FishingAreas />
         </div>
 
         {isBarometerVisible && <Barometer

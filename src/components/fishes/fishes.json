@@ -3,7 +3,7 @@
         "_id": "Anchovy",
         "look": "default",
         "edibleFoods": [
-            "Fly", "Sardine"
+            "Fly", "Sardine", "Alpha Sardine"
         ],
         "size": [7, 15],
         "strength": [15, 25],
@@ -24,7 +24,7 @@
         "_id": "Clown fish",
         "look": "default",
         "edibleFoods": [
-            "Sardine"
+            "Anchovy", "Alpha Anchovy", "Butterfly"
         ],
         "size": [30, 45],
         "strength": [200, 300]
@@ -33,7 +33,7 @@
         "_id": "Angelfish",
         "look": "default",
         "edibleFoods": [
-            "Clownfish"
+            "Clownfish", "Alpha Clown fish", "Dragonfly"
         ],
         "size": [40, 55],
         "strength": [300, 400]
@@ -42,7 +42,7 @@
         "_id": "Anglerfish",
         "look": "default",
         "edibleFoods": [
-            "Clown fish"
+            "Alpha Clown fish", "Angelfish", "Alpha Angelfish"
         ],
         "size": [50, 65],
         "strength": [400, 450]
@@ -51,7 +51,7 @@
         "_id": "Sea monster",
         "look": "default",
         "edibleFoods": [
-            "Angelfish"
+            "Anglerfish", "Alpha Anglerfish"
         ],
         "size": [500, 1000],
         "strength": [80, 90],
