@@ -13,6 +13,7 @@ export interface Fish {
     catchTimeLapse?: number[],
     className?: string,
     detectionScope?: number,
+    isBoss?: boolean
 }
 
 export interface UniqueFish {
@@ -28,6 +29,7 @@ export interface UniqueFish {
     catchTimeLapse?: number[],
     className?: string,
     detectionScope?: number,
+    isBoss?: boolean
 }
 
 export interface FishData {

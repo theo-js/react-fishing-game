@@ -6,10 +6,12 @@ import {
     SET_IS_MAIN_MENU_CLOSING,
     SET_FISHROD_LEVEL,
     EARN_MONEY,
-    SPEND_MONEY
+    SPEND_MONEY,
+    GAME_NOTIFICATION
 } from '../actions/types'
 import gameProcesses from '../../components/Game/processes/index.json'
 import { GameStats } from '../../interfaces/evolution'
+import { GameNotif } from '../../interfaces/game'
 import { rodLevels } from '../../components/Game/evolution'
 
 export interface State {
@@ -17,7 +19,8 @@ export interface State {
     isMainMenuOpen: boolean,
     isMainMenuClosing: boolean,
     isBGMEnabled: boolean,
-    gameStats: GameStats
+    gameStats: GameStats,
+    gameNotification: GameNotif|null
 }
 
 const initialGameStats: GameStats = {
@@ -31,7 +34,8 @@ const initialState: State = {
     isMainMenuOpen: false,
     isMainMenuClosing: false,
     isBGMEnabled: typeof localStorage['bgm_enabled'] !== 'undefined' ? JSON.parse(localStorage['bgm_enabled']) : true,
-    gameStats: localStorage['gameStats'] ? JSON.parse(localStorage['gameStats']) : initialGameStats
+    gameStats: localStorage['gameStats'] ? JSON.parse(localStorage['gameStats']) : initialGameStats,
+    gameNotification: null
 }
 
 export default function (state: State = initialState, action) {
@@ -105,6 +109,9 @@ export default function (state: State = initialState, action) {
                 ...state,
                 isBGMEnabled: action.payload
             }
+            break
+        case GAME_NOTIFICATION:
+            return { ...state, gameNotification: action.payload }
             break
         default: return state
     }

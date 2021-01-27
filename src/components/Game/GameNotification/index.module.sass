@@ -1,0 +1,126 @@
+$bg: #2222
+    
+.gameNotif
+    position: fixed
+    top: 1rem
+    right: 1rem
+    display: inline-block
+    max-width: calc(100% - 5rem)
+    color: #FFF
+    font-size: .75rem
+    text-align: right
+    padding: 0 .5rem
+    border-radius: 0 0 .25rem .25rem
+    transition-property: all
+    transition-timing-function: ease
+    
+    p
+        margin: .25rem 0
+    strong
+        font-style: italic
+
+    .notifHeader
+        animation-name: appear
+        animation-timing-function: ease-in-out
+        animation-iteration-count: 1
+
+        .notifIcon
+            display: inline-block
+            vertical-align: middle
+            filter: drop-shadow(1px 1px 0 #0003)
+            transform: translateY(-2px)
+
+        .headerContent
+            display: inline-block
+
+        h2, h3, h4, h5, h6
+            padding: .25rem 0
+            margin: 0 .5rem
+            text-shadow: 1px 1px 0 #0003
+            -webkit-background-clip: text !important
+            -webkit-text-fill-color: transparent
+            background: linear-gradient(to bottom, var(--lightblue), var(--blue))
+    .notifBody
+        display: inline-flex
+        justify-content: flex-end
+        flex-flow: row wrap
+        gap: 0 1rem
+        margin-left: auto
+        padding: .25rem
+        overflow-x: hidden
+        border-top: 1px solid #FFF
+        animation-name: slide-left, fade-in-bg
+        animation-timing-function: ease, ease
+        animation-iteration-count: 1, 1
+        animation-fill-mode: backwards, both
+
+        & > *
+            animation-name: fade-in
+            animation-fill-mode: both
+            animation-timing-function: ease-in
+            animation-duration: .8s
+            animation-delay: inherit
+    
+    // Notif type classes
+    //&.info
+    &.success, &.greatSuccess
+        .notifIcon
+            color: var(--orange)
+        h2, h3, h4, h5, h6
+            background: linear-gradient(to bottom, var(--yellow), var(--orange))
+    &.item
+        .notifIcon
+            color: var(--green)
+        h2, h3, h4, h5, h6
+            background: linear-gradient(to bottom, var(--lightgreen), var(--green))
+    &.fail
+        .notifIcon
+            color: var(--red)
+        h2, h3, h4, h5, h6
+            background: linear-gradient(to bottom, var(--lightred), var(--red))
+
+
+    // Close notif transition
+    &.closing
+        opacity: 0
+        .notifBody, .notifFooter
+            transition: inherit
+            max-width: 0
+            flex-wrap: nowrap
+            white-space: nowrap
+            padding: 0
+
+@keyframes appear
+    0%
+        opacity: 0
+        transform: translateY(-1rem)
+    90%
+        opacity: 1
+        filter: brightness(10)
+    100%
+        opacity: 1
+        filter: brightness(1)
+        transform: translateY(0)
+    
+@keyframes slide-left
+    from
+        max-width: 0
+        flex-wrap: nowrap
+        white-space: nowrap
+    to
+        max-width: 100%
+        flex-wrap: nowrap
+        white-space: nowrap
+
+@keyframes fade-in-bg
+    from
+        background: #2220
+    to
+        background: $bg
+        box-shadow: 0 0 0 .125rem #2222220A
+
+@keyframes fade-in
+    from
+        opacity: 0
+    to
+        opacity: 1

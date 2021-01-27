@@ -4,6 +4,14 @@ import { toRad } from './math'
 export const pxToM = (px: number): number => px/60
 export const mToPx = (m: number): number => m*60
 
+// Format
+export const formatMeters = (meters: number): string => {
+    if (meters < 1) return meters*100 + 'cm'
+
+    return meters + 'm'
+}
+
+// Geometry
 export const getVectorLength = (path: Path): number => {
     return Math.sqrt(
         (path.to.x - path.from.x)**2 + (path.to.y - path.from.y)**2

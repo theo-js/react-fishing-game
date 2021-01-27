@@ -6,7 +6,7 @@ import { SectionID } from '../index'
 import { GameStats } from '../../../../interfaces/evolution'
 import { Item, ItemCategory } from '../../../../interfaces/items'
 import styles from './index.module.sass'
-import { BiStats, BiCoin, GiFishingPole } from 'react-icons/all'
+import { BiStats, BiCoin, GiFishingPole, GiFishing } from 'react-icons/all'
 // Redux
 import { gameStatsSelector } from '../../../../store/selectors/game'
 import { baitFoodSelector } from '../../../../store/selectors/fishing'

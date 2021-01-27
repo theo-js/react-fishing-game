@@ -1,4 +1,5 @@
 import React, { useCallback, ReactNode, useState, useMemo, useEffect, useLayoutEffect, useRef } from 'react'
+import { GameNotif, GameNotifType } from '../../../interfaces/game'
 import { Coordinates, Path, Map } from '../../../interfaces/position'
 import { Item } from '../../../interfaces/items'
 import { Fish, FishData } from '../../../interfaces/fishes'
@@ -8,6 +9,7 @@ import { takeBaitAnim } from '../../Game/animations'
 import { FaHeart, FaTimes } from 'react-icons/fa'
 import styles from './index.module.sass'
 import gameProcesses from '../../Game/processes/index.json'
+import allCategories from '../../items/categories.json'
 
 // Redux
 import { useSelector, useDispatch } from 'react-redux'
@@ -18,7 +20,8 @@ import {
     hookedFishSelector,
     hasBaitJustFallenSelector
 } from'../../../store/selectors/fishing'
-import { makeBaitAvailableAction, setHookedFishAction } from '../../../store/actions/fishing'
+import { setGameNotificationAction } from '../../../store/actions/game'
+import { makeBaitAvailableAction, setHookedFishAction, loseBaitAction } from '../../../store/actions/fishing'
 import { setGameProcessAction } from '../../../store/actions/game'
 
 interface Props {
@@ -72,7 +75,9 @@ const DefaultFish: React.FC<Props> = ({
     const dispatch = useDispatch()
     const makeBaitAvailable = useCallback((bool: boolean): void => dispatch(makeBaitAvailableAction(bool)), [])
     const setHookedFish = useCallback((fish: FishData): void => dispatch(setHookedFishAction(fish)), [])
+    const loseBait = useCallback((): void => dispatch(loseBaitAction()), [])
     const setGameProcess = useCallback((newProcess: string): void => dispatch(setGameProcessAction(newProcess)), [])
+    const setGameNotification = useCallback((notif: GameNotif): void => dispatch(setGameNotificationAction(notif)), [])
     
     // REFS
     const fishPathRef = useRef<HTMLDivElement>(null)
@@ -168,14 +173,34 @@ const DefaultFish: React.FC<Props> = ({
         (): void => {
             if (!inScopeRef.current || !!hookedFish) return giveUpBait()
             else {
+                // Reinitialize fish behaviour
                 giveUpBait()
-                alert('too late')
-                //console.log('Too late ... the fish went away with your bait !')
                 setWouldHookSuccessfully(false)
                 setCanTryToCatch(false)
                 setIsRoaming(true)
-                // Lose baitDistance
+
                 // Display notification
+                const baitColor = allCategories[baitFood.category]['colors'][1]
+                setGameNotification({
+                    type: GameNotifType.FAIL,
+                    html: {
+                        header: `<h3>Too late !</h3>`,
+                        body: `
+                            <p>A fish went away with your bait ...</p>
+                            <p>
+                                You lost 
+                                <strong style="color: ${baitColor}">
+                                    1 ${baitFood._id}
+                                </strong>
+                            </p>
+                        `
+                    },
+                    duration: 10
+                })
+
+                // Lose bait
+                loseBait()
+
                 // Go back to the shore automatically
                 setGameProcess(gameProcesses.INITIAL)
             }

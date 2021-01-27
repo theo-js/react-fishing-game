@@ -1,4 +1,4 @@
-import React, { ReactNode, useState, useMemo, useCallback, useEffect, useRef } from 'react'
+import React, { Dispatch, SetStateAction, ReactNode, useState, useMemo, useCallback, useEffect, useRef } from 'react'
 import styles from './index.module.sass'
 import gameProcesses from './processes/index.json'
 import Initial from './processes/Initial'
@@ -8,8 +8,10 @@ import Battle from './processes/Battle'
 import Barometer from './Barometer'
 import AudioPlayer from './AudioPlayer'
 import MainMenu from './MainMenu'
+import GameNotification from './GameNotification'
 import { randomIntFromInterval } from '../../utils/math'
 import { Dimensions, Coordinates, Path, Map } from '../../interfaces/position'
+import { GameNotif, GameNotifType } from '../../interfaces/game'
 import { FishRodLevel } from '../../interfaces/evolution'
 import { Item } from '../../interfaces/items'
 import { GiFishingHook } from 'react-icons/all'
@@ -26,22 +28,30 @@ import {
     rodLevelSelector
 } from '../../store/selectors/game'
 import { baitFoodSelector, lineTensionSelector } from '../../store/selectors/fishing'
-import { inventoryLengthSelector } from '../../store/selectors/inventory'
-import { setGameProcessAction, setRodLevelAction, enableBGMAction } from '../../store/actions/game'
+import { gameNotificationSelector } from '../../store/selectors/game'
+import { isPlayerOutOfBaitsSelector } from '../../store/selectors/inventory'
+import {
+    setGameProcessAction,
+    setRodLevelAction,
+    enableBGMAction,
+    setGameNotificationAction
+} from '../../store/actions/game'
 import { updatePositionAction } from '../../store/actions/position'
 import { addInventoryEntryAction } from '../../store/actions/inventory'
 
 interface Props {
     process?: string,
-    setProcess?: any,
+    setProcess?: Dispatch<SetStateAction<string>>,
     spendOneMinute?: any,
     isBGMEnabled?: boolean,
-    setIsBGMEnabled?: any,
+    setIsBGMEnabled?: Dispatch<SetStateAction<boolean>>,
     isMainMenuOpen?: boolean,
     updateGlobalPositionState?: any,
     rodLevel?: FishRodLevel,
-    inventoryLength?: number,
-    addToInventory?: any
+    isPlayerOutOfBaits?: boolean,
+    addToInventory?: any,
+    gameNotification?: GameNotif,
+    setGameNotification?: Dispatch<SetStateAction<GameNotif>>
 }
 
 const Game: React.FC<Props> = ({
@@ -53,8 +63,10 @@ const Game: React.FC<Props> = ({
     isMainMenuOpen,
     updateGlobalPositionState,
     rodLevel,
-    inventoryLength,
-    addToInventory
+    isPlayerOutOfBaits,
+    addToInventory,
+    gameNotification,
+    setGameNotification
 }) => {
     // Audio
     const creekBE = useMemo((): HTMLAudioElement => {
@@ -124,13 +136,6 @@ const Game: React.FC<Props> = ({
             else backgroundMusic.pause()
         }
     }, [audioEnabled, isBGMEnabled])
-
-    // Sounds effects
-    const gotItemSE = useMemo((): HTMLAudioElement => {
-        const audio = new Audio()
-        audio.src = require('../../assets/audio/se/got-item.mp3')
-        return audio
-    }, [])
 
     // Game time
     useEffect(() => {
@@ -375,7 +380,7 @@ const Game: React.FC<Props> = ({
     const [mushroom, setMushroom] = useState<Coordinates>(null)
     useEffect(() => {
         let timerID = null
-        if (inventoryLength <= 0) {
+        if (isPlayerOutOfBaits) {
             // Spawn mushroom
             timerID = window.setTimeout(() => {
                 setMushroom({
@@ -390,7 +395,7 @@ const Game: React.FC<Props> = ({
         return () => {
             window.clearTimeout(timerID)
         }
-    }, [inventoryLength])
+    }, [isPlayerOutOfBaits])
     
     return <div className={styles.game}>
         <div
@@ -464,23 +469,30 @@ const Game: React.FC<Props> = ({
             <div
                 className={styles.mushroom}
                 onClick={() => {
+                    // Add item
                     addToInventory('Mushroom', 1)
                     setMushroom(null)
-                    const playPromise = gotItemSE.play()
-
-                    if (typeof playPromise !== 'undefined') {
-                        playPromise
-                            .then(() => null)
-                            .catch(() => console.log('Failed to play "Got item" sound effect'))
-                    }
+                    
+                    // Notify
+                    setGameNotification({
+                        type: GameNotifType.ITEM,
+                        html: {
+                            header: '<h3>New item</h3>',
+                            body: '<p>Gained <strong style="color: var(--lightgreen)">1 Mushroom</strong></p>'
+                        },
+                        duration: 10
+                    })
                 }}
                 style={{ left: mushroom.x, top: mushroom.y }}
             >
             </div>
         )}
+
+        {gameNotification && <GameNotification />}
     </div>
 }
 
+// Bait component
 interface BaitProps {
     type?: string,
     baitOffset: Coordinates,
@@ -519,6 +531,7 @@ export const Bait = React.forwardRef<HTMLDivElement, BaitProps>(
     </div>
 })
 
+// Line component
 interface LineProps {
     map: Map,
     linePath: Path
@@ -568,12 +581,14 @@ export const Line: React.FC<LineProps> = ({ map, linePath }) => {
     </svg>
 }
 
+// Connect Game component to Redux
 const mapStateToProps = state => ({
     process: processSelector(state),
     rodLevel: rodLevelSelector(state),
     isMainMenuOpen: isMainMenuOpenSelector(state),
     isBGMEnabled: isBGMEnabledSelector(state),
-    inventoryLength: inventoryLengthSelector(state)
+    isPlayerOutOfBaits: isPlayerOutOfBaitsSelector(state),
+    gameNotification: gameNotificationSelector(state)
 })
 const mapDispatchToProps = dispatch => ({
     setProcess: (newProcess: string) => dispatch(setGameProcessAction(newProcess)),
@@ -581,7 +596,8 @@ const mapDispatchToProps = dispatch => ({
     updateGlobalPositionState: (positionObject: any) => dispatch(updatePositionAction(positionObject)),
     spendOneMinute: () => dispatch({ type: SPEND_ONE_MINUTE }),
     setIsBGMEnabled: (isEnabled: boolean) => dispatch(enableBGMAction(isEnabled)),
-    addToInventory: (itemID: string, amount: number) => dispatch(addInventoryEntryAction(itemID, amount))
+    addToInventory: (itemID: string, amount: number) => dispatch(addInventoryEntryAction(itemID, amount)),
+    setGameNotification: (notif: GameNotif) => dispatch(setGameNotificationAction(notif))
 })
 const GameConnected = connect(
     mapStateToProps,

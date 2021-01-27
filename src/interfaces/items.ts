@@ -7,7 +7,8 @@ export interface Item {
     isSellable: boolean,
     isDisposable: boolean,
     purchasePrice?: number,
-    salePrice?: number
+    salePrice?: number,
+    requiredLevel?: string
 }
 
 export interface InventoryEntry {

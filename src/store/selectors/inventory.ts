@@ -16,6 +16,11 @@ export const inventoryLengthSelector = createSelector(
     (entries: InventoryEntry[]): number => entries.length
 )
 
+export const isPlayerOutOfBaitsSelector = createSelector(
+    inventoryEntriesSelector,
+    (entries: InventoryEntry[]): boolean => entries.filter(entry => entry.item.category === 'Bait' || entry.item.category === 'Fish').length <= 0
+)
+
 export const sellableEntriesSelector = createSelector(
     inventoryEntriesSelector,
     (entries: InventoryEntry[]): InventoryEntry[] => {

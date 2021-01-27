@@ -11,14 +11,16 @@ import styles from './index.module.sass'
 import { connect, useDispatch, useSelector } from 'react-redux'
 import { baitFoodSelector } from '../../../../store/selectors/fishing'
 import { rodLevelSelector } from '../../../../store/selectors/game'
-import { inventoryEntriesSelector, maxEntriesSelector } from '../../../../store/selectors/inventory'
+import { inventoryEntriesSelector, maxEntriesSelector, isPlayerOutOfBaitsSelector } from '../../../../store/selectors/inventory'
 import { deleteItemAction, removeInventoryEntryAction, equipItemAction } from '../../../../store/actions/inventory'
 import { putOnBaitItemAction, removeBaitItemAction } from '../../../../store/actions/fishing'
 
 interface Props {
+    setCurrentSection: Dispatch<SetStateAction<SectionID>>,
+    // Redux
+    isPlayerOutOfBaits: boolean,
     entries: InventoryEntry[],
-    maxEntries: number,
-    setCurrentSection: Dispatch<SetStateAction<SectionID>>
+    maxEntries: number
 }
 
 interface EntryProps {
@@ -186,8 +188,8 @@ export const Details: React.FC<DetailsProps> = ({ entry, setCurrentEntryNum }) =
         return <section className={styles.fishingPoleStats}>
             <br />
             <p>Line length: <strong>{pxToM(lvl['maxLength'])}m</strong></p>
-            <p>Resistance: <strong>{lvl['resistance']/10}</strong></p>
-            <p>Strength: <strong>{lvl['strength']*100}</strong></p>
+            <p>Resistance: <strong>{lvl['resistance']*100}</strong></p>
+            <p>Strength: <strong>{lvl['strength']*5}</strong></p>
         </section>
     }, [_id, rodLevels])
 
@@ -248,9 +250,11 @@ export const Details: React.FC<DetailsProps> = ({ entry, setCurrentEntryNum }) =
 }
 
 export const Inventory: React.FC<Props> = ({
+    setCurrentSection,
+    // Redux
     entries = [],
     maxEntries,
-    setCurrentSection
+    isPlayerOutOfBaits
 }) => {
     const [currentEntryNum, setCurrentEntryNum] = useState<number|ReactNode>(null)
     const remainingEntries = useMemo((): number => maxEntries - entries.length, [entries, maxEntries])
@@ -291,6 +295,19 @@ export const Inventory: React.FC<Props> = ({
             </aside>
         }
 
+        // Player does not have baits and no fishing pole is selected
+        if (isPlayerOutOfBaits) {
+            return <aside className={`${styles.details} ${styles.msg}`}>
+                <h3>Your inventory is empty ...</h3>
+                <p>Lost all your <em>baits</em> ?</p>
+                <p>
+                    You can buy new ones at the&nbsp;
+                    <span className={styles.link} onClick={() => setCurrentSection(SectionID.SHOPPING)}>fishing shop</span>
+                    ; otherwise, you might as well look after something edible for fish consumption somewhere on the shore.
+                </p>
+            </aside>
+        }
+
         // No item selected
         if (currentEntryNum === null) {
             return <aside className={`${styles.details} ${styles.msg}`}>
@@ -309,7 +326,7 @@ export const Inventory: React.FC<Props> = ({
         const currentEntry = entries[currentEntryNum]
         if (!currentEntry) return null
         return <Details entry={currentEntry} setCurrentEntryNum={setCurrentEntryNum} />
-    }, [entries, currentEntryNum])
+    }, [entries, currentEntryNum, isPlayerOutOfBaits])
 
     return <div className={styles.inventory}>
         <main className={styles.entries}>
@@ -325,7 +342,8 @@ export const Inventory: React.FC<Props> = ({
 // Connect to Redux
 const mapStateToProps = state => ({
     entries: inventoryEntriesSelector(state),
-    maxEntries: maxEntriesSelector(state)
+    maxEntries: maxEntriesSelector(state),
+    isPlayerOutOfBaits: isPlayerOutOfBaitsSelector(state)
 })
 const mapDispatchToProps = dispatch => ({})
 export default connect(

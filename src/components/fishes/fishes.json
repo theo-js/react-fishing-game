@@ -3,7 +3,7 @@
         "_id": "Anchovy",
         "look": "default",
         "edibleFoods": [
-            "Mushroom"
+            "Fly", "Sardine"
         ],
         "size": [7, 15],
         "strength": [15, 25],
@@ -15,7 +15,7 @@
         "_id": "Sardine",
         "look": "default",
         "edibleFoods": [
-            "Fly"
+            "Mushroom"
         ],
         "size": [13, 20],
         "strength": [20, 35]
@@ -54,6 +54,7 @@
             "Angelfish"
         ],
         "size": [500, 1000],
-        "strength": [80, 90]
+        "strength": [80, 90],
+        "isBoss": true
     }
 }

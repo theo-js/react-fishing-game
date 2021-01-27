@@ -4,6 +4,7 @@ import {
     BAIT_FALL_IN_WATER,
     SET_HOOKED_FISH,
     SET_LINE_TENSION,
+    INCREMENT_LINE_TENSION,
     DECREMENT_LINE_TENSION,
     SET_IS_PULLING
 } from '../actions/types'
@@ -46,6 +47,9 @@ export default function(state: State = initialState, action): State {
             break
         case SET_LINE_TENSION:
             return { ...state, lineTension: action.payload }
+            break
+        case INCREMENT_LINE_TENSION:
+            return { ...state, lineTension: state.lineTension + action.payload }
             break
         case DECREMENT_LINE_TENSION:
             return { ...state, lineTension: state.lineTension - action.payload }
