@@ -39,11 +39,11 @@ export const getAngleFromVerticalAxis = (
     }
     const oppositeLength = getVectorLength(opposite)
     const sin: number = oppositeLength / hypotenuseLength
-    const angle = Math.asin(sin)
+    const angle: number = Math.asin(sin)
     let result = angle
     
     // Find out direction
-    if (hypotenuse.from.y < hypotenuse.to.y) result += Math.PI/2
+    //if (hypotenuse.from.y < hypotenuse.to.y) result += Math.PI/2
     if (hypotenuse.from.x > hypotenuse.to.x) result *= -1
 
     return result
