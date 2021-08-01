@@ -16,6 +16,7 @@ import { FishRodLevel } from '../../interfaces/evolution'
 import { Item } from '../../interfaces/items'
 import { GiFishingHook } from 'react-icons/all'
 import { getVectorLength, pxToM } from '../../utils/position'
+import useLazyAudio from '../../hooks/useLazyAudio'
 import FishingAreas from './areas'
 
 // Redux
@@ -69,26 +70,24 @@ const Game: React.FC<Props> = ({
     setGameNotification
 }) => {
     // Audio
-    const creekBE = useMemo((): HTMLAudioElement => {
-        const src = require('../../assets/audio/be/creek.mp3').default
-        const audio = new Audio()
-        audio.src = src
-        audio.loop = true
-        return audio
-    }, [])
+    const creekBE = useLazyAudio({
+        src: 'be/creek.mp3',
+        loop: true
+    })
     const [audioEnabled, setAudioEnabled] = useState<boolean>(false)
     useEffect(() => {
+        // Play game background effect as soon as audio is enabled
         if (audioEnabled) {
-            const playPromise = creekBE.play()
-            if (typeof playPromise !== 'undefined') {
-                playPromise
-                    .then(() => null)
-                    .catch(() => console.log('Failed playing "creek" background effect'))
+            try {
+                creekBE.play()
+            } catch (err) {
+                console.log('Failed playing "creek" background effect')
             }
         } else creekBE.pause()
     }, [audioEnabled])
     // Enable audio
     useEffect(() => {
+        // User must to interact with the page first to enable audio
         function handler (): void {
             setAudioEnabled(true)
         }
@@ -109,28 +108,29 @@ const Game: React.FC<Props> = ({
     }, [audioEnabled])
 
     // Background music
-    const backgroundMusic = useMemo(() => {
-        const audio = new Audio()
-        const src = require('../../assets/audio/bgm/beach.mp3').default
-        audio.src = src
-        audio.preload = 'auto'
-        audio.volume = .5
-        audio.onended = function () {
+    const backgroundMusic = useLazyAudio({
+        src: 'bgm/beach.mp3',
+        preload: 'auto',
+        volume: .25,
+        onended: e => {
             // Loop start
-            audio.pause()
-            audio.currentTime = 4.5
-            audio.play()
+            try {
+                const audio = e.path[0]
+                audio.pause()
+                audio.currentTime = 4.5
+                audio.play()
+            } catch (err) {}
         }
-        return audio
-    }, [])
+    })
+
     useEffect(() => {
         if (audioEnabled) {
+            // Play bg music as soon as audio is enabled (if not muted)
             if (isBGMEnabled) {
-                const promise = backgroundMusic.play()
-                if (typeof promise !== 'undefined') {
-                    promise
-                        .then(() => null)
-                        .catch(() => console.log('Failed to play background music'))
+                try {
+                    backgroundMusic.play()
+                } catch (err) {
+                    console.log('Failed to play background music')
                 }
             }
             else backgroundMusic.pause()

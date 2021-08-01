@@ -1,5 +1,6 @@
 import React, { useMemo, useEffect,useState } from 'react'
 import { GameNotif, GameNotifType } from '../../../interfaces/game'
+import useLazyAudio from '../../../hooks/useLazyAudio'
 import { MdMoodBad, GiTrophyCup, GiTrophy, BsInfoCircleFill, FaPlus } from 'react-icons/all'
 import styles from './index.module.sass'
 
@@ -50,10 +51,7 @@ const GameNotification: React.FC<Props> = ({
             default: return ''
         }
     }, [type])
-    const soundEffect = useMemo((): HTMLAudioElement => {
-        const audio = new Audio(require(`../../../assets/audio/se/${SEPath}`).default)
-        return audio
-    }, [SEPath])
+    const soundEffect = useLazyAudio({ src: `se/${SEPath}` }, [SEPath])
     
     // Play audio after mount
     useEffect(() => {

@@ -23,7 +23,7 @@ export const AudioPlayer: React.FC<Props> = ({
     stopBGM,
     isBGMPaused
 }) => {
-    const [bgmVolume, setBgmVolume] = useState<number>(bgm ? bgm.volume : .5)
+    const [bgmVolume, setBgmVolume] = useState<number>(bgm ? bgm.volume : .25)
     const setVolume = useCallback(
         e => {
             const newVol = e.target.value

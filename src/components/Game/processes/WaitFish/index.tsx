@@ -2,6 +2,7 @@ import React, { FC, useState, useEffect, useMemo, useCallback, Dispatch, SetStat
 import gameProcesses from '../index.json'
 import { Coordinates } from '../../../../interfaces/position'
 import throttle from '../../../../utils/throttle'
+import useLazyAudio from '../../../../hooks/useLazyAudio'
 import { BsArrowRepeat } from 'react-icons/bs'
 import styles from './index.module.sass'
 
@@ -36,11 +37,7 @@ const WaitFish: FC<Props> = ({
     setIsBarometerVisible
 }) => {
     // Audio
-    const reelingSE = useMemo((): HTMLAudioElement => {
-        const se = new Audio(require('../../../../assets/audio/se/reeling.mp3').default)
-        se.loop = true
-        return se
-    }, [])
+    const reelingSE = useLazyAudio({ src: 'se/reeling.mp3', loop: true })
 
     // Redux
     const dispatch = useDispatch()
@@ -49,7 +46,6 @@ const WaitFish: FC<Props> = ({
     )
     // Fishes can only detect/interact with the bait during this process
     useEffect(() => {
-        console.log('huigut')
         makeBaitAvailable(true)
         return () => makeBaitAvailable(false)
     }, [])

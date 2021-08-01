@@ -6,6 +6,7 @@ import { FishRodLevel } from '../../../../interfaces/evolution'
 import { getVectorLength, getNextCoordinatesOfPath } from '../../../../utils/position'
 import throttle from '../../../../utils/throttle'
 import { splashAnim } from '../../animations'
+import useLazyAudio from '../../../../hooks/useLazyAudio'
 import styles from './index.module.sass'
 
 // Redux
@@ -58,10 +59,6 @@ export default (({
     isBarometerVisible,
     setIsBarometerVisible
  }) => {
-     // Audio
-    const baitDropSE = useMemo(() => require('../../../../assets/audio/se/bait-drop.mp3').default, [])
-    const badassSE = useMemo(() => require('../../../../assets/audio/se/badass.mp3').default, [])
-
     // State
     const [gaugeValue, setGaugeValue] = useState<number>(0)
     const [spaceFired, setSpaceFired] = useState<boolean>(false)
@@ -82,11 +79,10 @@ export default (({
     const directionRef = useRef<number>(rodAngle)
     const stepRef = useRef<number>(0)
     const remainingDistanceRef = useRef<number>(0)
-    const baitDropSERef = useRef<HTMLAudioElement>(new Audio())
-    baitDropSERef.current.src = baitDropSE
-    const badassSERef = useRef<HTMLAudioElement>(new Audio())
-    badassSERef.current.src = badassSE
-    badassSERef.current.volume = .75
+
+    // Audio
+    const baitDropSE = useLazyAudio({ src: 'se/bait-drop.mp3' })
+    const badassSE = useLazyAudio({ src: 'se/badass.mp3', volume: .75 })
 
     // Go back to initial process
     const goBack = useCallback(
@@ -174,20 +170,18 @@ export default (({
                     setIsThrowing(false)
                     setBaitType('immersed')
                     // Play bait drop sound effect
-                    const baitDropSEPromise = baitDropSERef.current.play()
-                    if (typeof baitDropSEPromise !== 'undefined') {
-                        baitDropSEPromise
-                        .then(() => null)
-                        .catch(err => console.log(err))
+                    try {
+                        baitDropSE.play()
+                    } catch (err) {
+                        console.log(err)
                     }
                     // Play "badass"" sound effect if throw was particularly high
                     if (gaugeValueRef.current >= 90) {
                         window.setTimeout(() => {
-                            const badassSEPromise = badassSERef.current.play()
-                            if (typeof badassSEPromise !== 'undefined') {
-                                badassSEPromise
-                                .then(() => null)
-                                .catch(() => console.log('Failed to play "badass" sound effect'))
+                            try {
+                                badassSE.play()
+                            } catch (err) {
+                                console.log('Failed to play "badass" sound effect')
                             }
                         }, 1000)
                     }

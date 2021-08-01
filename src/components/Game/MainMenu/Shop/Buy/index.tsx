@@ -7,6 +7,7 @@ import { ContentID, randomGreeting, randomThanks } from "../index"
 import { Item, ItemCategory, InventoryEntry } from '../../../../../interfaces/items'
 import { randomIntFromInterval } from '../../../../../utils/math'
 import { pxToM } from '../../../../../utils/position'
+import useLazyAudio from '../../../../../hooks/useLazyAudio'
 import { BiCoin } from 'react-icons/all'
 
 // Redux
@@ -41,18 +42,11 @@ export const Buy: React.FC<Props> = ({ setSellerPhrase, setCurrentContentID, myD
     // Redux
     const inventoryEntries: InventoryEntry[] = useSelector(inventoryEntriesSelector)
 
-    const purchaseSE = useMemo((): HTMLAudioElement => {
-        const src = require('../../../../../assets/audio/se/purchase.mp3').default
-        const audio = new Audio
-        audio.src = src
-        return audio
-    }, [])
-    const thankYouSE = useMemo((): HTMLAudioElement => {
-        const src = require('../../../../../assets/audio/se/thank-you-for-the-doubloons.mp3').default
-        const audio = new Audio
-        audio.src = src
-        return audio
-    }, [])
+    // Audio
+    const purchaseSE = useLazyAudio({ src: 'se/purchase.mp3' })
+    const thankYouSE = useLazyAudio({ src: 'se/thank-you-for-the-doubloons.mp3' })
+
+    // Items
     const [focusedItem, setFocusedItem] = useState<string>(null)
     const forSaleItems = useMemo(() => {
         const ids: string[] = [
@@ -88,6 +82,7 @@ export const Buy: React.FC<Props> = ({ setSellerPhrase, setCurrentContentID, myD
         if (!focusedItem) setSellerPhrase(randomPurchaseIntroPhrase())
     }, [focusedItem])
 
+    // JSX
     const detailsJSX = useMemo((): ReactNode => {
         if (!focusedItem) {
             return <aside className={styles.details}>

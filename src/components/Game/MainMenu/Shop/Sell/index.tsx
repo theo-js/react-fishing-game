@@ -4,6 +4,7 @@ import allCategories from '../../../../items/categories.json'
 import { ContentID, randomGreeting, randomThanks } from "../index"
 import { ItemCategory, InventoryEntry } from '../../../../../interfaces/items'
 import { randomIntFromInterval } from '../../../../../utils/math'
+import useLazyAudio from '../../../../../hooks/useLazyAudio'
 import { BiCoin, GiMagnifyingGlass } from 'react-icons/all'
 
 // Redux
@@ -30,16 +31,14 @@ interface Props {
 }
 
 export const Sell: React.FC<Props> = ({ setSellerPhrase, setCurrentContentID, myDoubloons, sellItem, sellableEntries }) => {
-    const saleSE = useMemo((): HTMLAudioElement => {
-        const src = require('../../../../../assets/audio/se/sale.mp3').default
-        const audio = new Audio
-        audio.src = src
-        return audio
-    }, [])
+    // Audio
+    const saleSE = useLazyAudio({ src: 'se/sale.mp3' })
     
+    // State
     const [focusedItem, setFocusedItem] = useState<string>(null)
     const [searchFilter, setSearchFilter] = useState<string>('')
 
+    // Items
     const forSaleItems = useMemo(() => {
         // Figure out which entries to render
         let entries = sellableEntries
@@ -65,6 +64,7 @@ export const Sell: React.FC<Props> = ({ setSellerPhrase, setCurrentContentID, my
         if (!focusedItem) setSellerPhrase(randomSaleIntroPhrase())
     }, [focusedItem])
 
+    // JSX
     const detailsJSX = useMemo((): ReactNode => {
         const fallback = <aside className={styles.details}>
             <p className={styles.description}>Select an item from your inventory</p>

@@ -4,6 +4,7 @@ import { FishData, UniqueFish } from '../../../../interfaces/fishes'
 import { FishRodLevel } from '../../../../interfaces/evolution'
 import { Coordinates } from '../../../../interfaces/position'
 import { probability } from '../../../../utils/math'
+import useLazyAudio from '../../../../hooks/useLazyAudio'
 import { BsArrowRepeat } from 'react-icons/bs'
 import styles from './index.module.sass'
 
@@ -68,13 +69,7 @@ const BattleProcess: React.FC<Props> = ({
     catchNewFish
 }) => {
     // Audio
-    const reelingSE = useMemo((): HTMLAudioElement => {
-        const audio = new Audio()
-        const src = require('../../../../assets/audio/se/reeling.mp3').default
-        audio.src = src
-        audio.loop = true
-        return audio
-    }, [])
+    const reelingSE = useLazyAudio({ src: 'se/reeling.mp3'})
 
     // State
     const [isPlayerReeling, setIsPlayerReeling] = useState<boolean>(false)
