@@ -82,7 +82,7 @@ export default (({
 
     // Audio
     const baitDropSE = useLazyAudio({ src: 'se/bait-drop.mp3' })
-    const badassSE = useLazyAudio({ src: 'se/badass.mp3', volume: .75 })
+    const badassSE = useLazyAudio({ src: 'se/badass.mp3', volume: .5 })
 
     // Go back to initial process
     const goBack = useCallback(

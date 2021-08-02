@@ -7,7 +7,7 @@
         ],
         "size": [7, 15],
         "strength": [15, 25],
-        "roamingInterval": 1000,
+        "roamingInterval": [1000, 2000],
         "roamingDistance": 50,
         "biteChance": 0.25
     },
@@ -27,7 +27,8 @@
             "Anchovy", "Alpha Anchovy", "Butterfly"
         ],
         "size": [30, 45],
-        "strength": [200, 300]
+        "strength": [200, 300],
+        "roamingDistance": [30, 200]
     },
     "Angelfish": {
         "_id": "Angelfish",

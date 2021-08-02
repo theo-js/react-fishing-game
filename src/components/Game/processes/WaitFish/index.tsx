@@ -37,7 +37,7 @@ const WaitFish: FC<Props> = ({
     setIsBarometerVisible
 }) => {
     // Audio
-    const reelingSE = useLazyAudio({ src: 'se/reeling.mp3', loop: true })
+    const reelingSE = useLazyAudio({ src: 'se/reeling.mp3', volume: 1/16, loop: true })
 
     // Redux
     const dispatch = useDispatch()

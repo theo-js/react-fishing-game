@@ -14,7 +14,7 @@ const initialEntries: InventoryEntry[] = [
     {
         item: allItems['Starter'],
         amount: 1
-    },
+    },/*
     {
         item: allItems['Beginner'],
         amount: 1
@@ -42,7 +42,7 @@ const initialEntries: InventoryEntry[] = [
     {
         item: allItems['Legendary'],
         amount: 1
-    },
+    },*/
     {
         item: allItems['Mushroom'],
         amount: 3
@@ -50,11 +50,11 @@ const initialEntries: InventoryEntry[] = [
     {
         item: allItems['Fly'],
         amount: 1
-    },
+    }/*,
     {
         item: allItems['Angelfish'],
         amount: 1
-    }
+    }*/
 ]
 
 const initialState = localStorage['inventory'] ?

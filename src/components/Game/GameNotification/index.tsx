@@ -12,7 +12,7 @@ import { setGameNotificationAction } from '../../../store/actions/game'
 interface Props {
     // Redux
     gameNotification: GameNotif,
-    destroyNotification: any
+    destroyNotification: () => void
 }
 
 const GameNotification: React.FC<Props> = ({

@@ -16,14 +16,14 @@ export interface State {
     isBaitAvailable: boolean,
     baitFood: Item,
     hasBaitJustFallen: boolean, // Use this as an event for fishes to detect when and bait falls, go away and set back to false if it falls at their position
-    hookedFish: FishData, // uuid of the fish that has taken the bait
+    hookedFish: FishData, // Data of the fish that has taken the bait
     lineTension: number, // Min: -100; max: 100,
     isPulling: boolean // Whether fish is pulling on the line
 }
 
 const initialState: State = {
     isBaitAvailable: false,
-    baitFood: localStorage['baitFood'] ? JSON.parse(localStorage['baitFood']) : allItems['Mushroom'],
+    baitFood: localStorage['baitFood'] ? JSON.parse(localStorage['baitFood']) : allItems['Fly'],
     hasBaitJustFallen: false,
     hookedFish: null,
     lineTension: 0,

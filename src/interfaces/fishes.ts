@@ -6,8 +6,8 @@ export interface Fish {
     edibleFoods?: string[],
     strength: number[], // [min, max]
     size?: number[], // [min, max]
-    roamingDistance?: number,
-    roamingInterval?: number,
+    roamingDistance?: number|number[],
+    roamingInterval?: number|number[],
     biteChance?: number,
     pullChance?: number,
     catchTimeLapse?: number[],
@@ -22,8 +22,8 @@ export interface UniqueFish {
     edibleFoods?: string[],
     strength: number,
     size: number,
-    roamingDistance?: number,
-    roamingInterval?: number,
+    roamingDistance?: number|number[],
+    roamingInterval?: number|number[],
     biteChance?: number,
     pullChance?: number,
     catchTimeLapse?: number[],

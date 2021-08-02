@@ -348,6 +348,7 @@ const Game: React.FC<Props> = ({
                     scrollToBait={scrollToBait}
                     baitOffset={baitOffset}
                     setBaitOffset={setBaitOffset}
+                    baitOffsetLimit={baitOffsetLimit}
                     baitDistance={baitDistance}
                     lineLength={lineLength}
                     setBaitType={setBaitType}

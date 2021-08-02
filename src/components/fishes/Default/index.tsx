@@ -41,8 +41,8 @@ interface Props {
     strength: number,
     area?: Path, // Path of the area the fish belongs to
     detectionScope?: number, // Number of pixels around fish where it can detect the bait,
-    roamingInterval?: number, // Interval in milliseconds between fish moves when it's roaming
-    roamingDistance?: number, // Distance in px that fish travels when it's roaming
+    roamingInterval?: number|number[], // Interval in milliseconds between fish moves when it's roaming
+    roamingDistance?: number|number[], // Distance in px that fish travels when it's roaming
     edibleFoods?: string[], // What foods the fish likes
     biteChance?: number, // Probability that the fish will take the bait if it's attracted to it (min: 0; max: 1)
     pullChance?: number, // Probability that the fish will pull on the line at each time interval during battle process (min: 0; max: 1)
@@ -65,8 +65,8 @@ const DefaultFish: React.FC<Props> = ({
     strength = 10,
     area,
     detectionScope = 75,
-    roamingInterval,
-    roamingDistance,
+    roamingInterval = [1000, 5000],
+    roamingDistance = 20,
     edibleFoods = ['Mushroom'],
     biteChance = .75,
     pullChance = .5,
@@ -221,7 +221,7 @@ const DefaultFish: React.FC<Props> = ({
         (): void => {
             if (typeof document.hidden === "undefined" || document.hidden === false) {
                 const newAngle: number = randomIntFromInterval(-180, 180)
-                const distance: number = roamingDistance || fishWidth
+                const distance: number = roamingDistance ? Array.isArray(roamingDistance) ? randomIntFromInterval(roamingDistance[0], roamingDistance[1]) : roamingDistance : fishWidth
                 const offsetCoords: Coordinates = getNextCoordinatesOfPath(newAngle, distance)
                 const newCoords: Coordinates = {
                     x: fishCoords.x + offsetCoords.x,
@@ -321,7 +321,8 @@ const DefaultFish: React.FC<Props> = ({
                             strength,
                             size,
                             pullChance, // Use DefaultFish's default value if not set in json
-                            isBoss
+                            isBoss,
+                            roamingInterval
                         }
                     })
                     setGameProcess(gameProcesses.BATTLE)
@@ -362,7 +363,6 @@ const DefaultFish: React.FC<Props> = ({
             }
         }
         function handleClick (e: MouseEvent): void {
-            console.log('mouse downn')
             e.preventDefault()
             e.stopPropagation()
             handleHook()
@@ -404,7 +404,8 @@ const DefaultFish: React.FC<Props> = ({
         }
 
         if (isRoaming && !hookedFish) {
-            intervalID = window.setInterval(handleRoaming, roamingInterval || randomIntFromInterval(3000, 6000))
+            const intervalDuration = Array.isArray(roamingInterval) ? randomIntFromInterval(roamingInterval[0], roamingInterval[1]) : roamingInterval
+            intervalID = window.setInterval(handleRoaming, intervalDuration)
             setMoveTransition('1s all ease')
         } else {
             window.clearInterval(intervalID)

@@ -256,6 +256,7 @@ function ForSaleItem ({ entry, setFocusedItem, isFocused, myDoubloons }) {
 
     return <li
         className={`${styles.forSaleItem} ${isFocused ? styles.focused : ''}`}
+        style={{ boxShadow: isFocused ? `0 0 1px 1px inset ${itemCategory.colors[0]}` : 'none' }}
         onClick={() => isFocused ? setFocusedItem(null) : setFocusedItem(_id)}
     >
         <figure className={styles.itemImage} style={{ color: itemCategory.colors[1] }} dangerouslySetInnerHTML={{ __html: image }}></figure>

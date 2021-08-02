@@ -28,7 +28,7 @@ export const splashAnim = (
     }
 }
 
-// Plays when a fiish takes the bait
+// Plays when a fish takes the bait
 export const takeBaitAnim = async (fishPath: HTMLElement = document.body): Promise<any> => {
     try {
         console.log('Try playing take bait anim')
@@ -41,7 +41,6 @@ export const takeBaitAnim = async (fishPath: HTMLElement = document.body): Promi
             console.log('Failed to play "take bait" sound effect')
         }
         
-        console.log('ici')
         const animated: HTMLDivElement = document.createElement('div')
         animated.className = styles.takeBaitAnim
         

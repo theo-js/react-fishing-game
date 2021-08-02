@@ -76,6 +76,30 @@ export const catchNewFishAction = (fish: UniqueFish) => dispatch => {
     }))
 }
 
+export const breakLineAction = (broke: boolean) => dispatch => {
+    // Different behaviour if this happened for the first time
+    const isFirstTime = broke ? !localStorage['wasLineEverBroken'] : !localStorage['wasLineEverTooLoose']
+    if (broke) {
+        localStorage['wasLineEverBroken'] = true
+    } else {
+        localStorage['wasLineEverTooLoose'] = true
+    }
+
+    // Lose bait
+    dispatch({ type: PUT_ON_BAIT_ITEM, payload: null })
+
+    // Notify
+    dispatch(setGameNotificationAction({
+        type: GameNotifType.FAIL,
+        html: {
+            header: `<h3>${broke ? 'Your line broke !' : 'Your line was too loose !'}</h3>`, 
+            body: '<p>The fish got away with the bait</p>',
+            footer: isFirstTime ? broke ? '<p style="color: var(--darkred);"><strong>Advice:</strong> don\'t let the line tension exceed the max (line turns red)</p>' : '<p><strong>Advice:</strong> don\'t let the line tension go under the min (line turns blue)</p>' : null
+        },
+        duration: isFirstTime ? 15 : 5
+    }))
+}
+
 // Detect when bait reaches water; if it falls on a fish, it flees
 export const emitBaitFallEventAction = () => dispatch => {
     dispatch({ type: BAIT_FALL_IN_WATER, payload: true })

@@ -28,7 +28,7 @@ const Credits = () => <div className={styles.credits}>
                                 target="_blank"
                                 title="See profile on soundcloud"
                                 rel="author"
-                            >dev.js.theo@gmail.com</a>
+                            >coma8</a>
                         </address>
                     </h5>
                 </li>
@@ -46,6 +46,21 @@ const Credits = () => <div className={styles.credits}>
                         </address>
                     </h5>
                     <p>Modified from .wav to .mp3</p>
+                </li>
+                <li>
+                    <h5>
+                        "snapping-chain"&nbsp;
+                        <address>
+                            by&nbsp;
+                            <a
+                                href="https://www.youtube.com/cosmicembers"
+                                title="Cosmic embers' YouTube channel"
+                                target="_blank"
+                                rel="author"
+                            >Cosmic Embers</a>
+                        </address>
+                    </h5>
+                    <p>Renamed to <em>line-snap.mp3</em></p>
                 </li>
             </ul>
         </section>

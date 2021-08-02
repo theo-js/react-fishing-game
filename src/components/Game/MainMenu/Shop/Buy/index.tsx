@@ -305,9 +305,14 @@ function ForSaleItem ({ item, setFocusedItem, isFocused, myDoubloons }) {
              ${isFocused ? styles.focused : ''}
              ${purchasePrice > myDoubloons ? styles.tooExpensive : ''}
         `}
+        style={{ boxShadow: isFocused ? `0 0 1px 1px inset ${itemCategory.colors[0]}` : 'none' }}
         onClick={() => isFocused ? setFocusedItem(null) : setFocusedItem(_id)}
     >
-        <figure className={styles.itemImage} style={{ color: itemCategory.colors[1] }} dangerouslySetInnerHTML={{ __html: image }}></figure>
+        <figure
+            className={styles.itemImage} 
+            style={{ color: itemCategory.colors[1] }} 
+            dangerouslySetInnerHTML={{ __html: image }}
+        ></figure>
         <span
             className={styles.id}
             style={textStyle}

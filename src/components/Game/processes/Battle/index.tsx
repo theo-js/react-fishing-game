@@ -2,8 +2,9 @@ import React, { Dispatch, SetStateAction, useRef, useEffect, useState, useCallba
 import gameProcesses from '../index.json'
 import { FishData, UniqueFish } from '../../../../interfaces/fishes'
 import { FishRodLevel } from '../../../../interfaces/evolution'
-import { Coordinates } from '../../../../interfaces/position'
-import { probability } from '../../../../utils/math'
+import { Coordinates, Path } from '../../../../interfaces/position'
+import { probability, randomIntFromInterval } from '../../../../utils/math'
+import { setVariableInterval } from '../../../../utils/time'
 import useLazyAudio from '../../../../hooks/useLazyAudio'
 import { BsArrowRepeat } from 'react-icons/bs'
 import styles from './index.module.sass'
@@ -22,7 +23,8 @@ import {
     incrementLineTensionAction,
     decrementLineTensionAction,
     setIsPullingAction,
-    catchNewFishAction
+    catchNewFishAction,
+    breakLineAction
 } from '../../../../store/actions/fishing'
 import { setGameProcessAction } from '../../../../store/actions/game'
 
@@ -30,6 +32,7 @@ interface Props {
     baitDistance: number,
     baitOffset: Coordinates,
     setBaitOffset: Dispatch<SetStateAction<Coordinates>>,
+    baitOffsetLimit: Path,
     lineLength: number,
     scrollToBait: () => void,
     setRodAngle: Dispatch<SetStateAction<number>>,
@@ -44,7 +47,9 @@ interface Props {
     setIsFishPulling?: Dispatch<SetStateAction<boolean>>,
     fishRodLevel?: FishRodLevel,
     setGameProcess?: Dispatch<SetStateAction<string>>,
-    catchNewFish?: Dispatch<SetStateAction<UniqueFish>>
+    catchNewFish?: Dispatch<SetStateAction<UniqueFish>>,
+    loseLineBreak?: () => void,
+    loseLineLoose?: () => void
 }
 
 
@@ -52,6 +57,7 @@ const BattleProcess: React.FC<Props> = ({
     baitDistance,
     baitOffset,
     setBaitOffset,
+    baitOffsetLimit,
     lineLength,
     scrollToBait,
     setRodAngle,
@@ -66,10 +72,13 @@ const BattleProcess: React.FC<Props> = ({
     setIsFishPulling,
     fishRodLevel,
     setGameProcess,
-    catchNewFish
+    catchNewFish,
+    loseLineBreak,
+    loseLineLoose
 }) => {
     // Audio
-    const reelingSE = useLazyAudio({ src: 'se/reeling.mp3'})
+    const reelingSE = useLazyAudio({ src: 'se/reeling.mp3', volume: 1/16, loop: true })
+    const lineBreakSE = useLazyAudio({ src: 'se/line-snap.wav', volume: .5 })
 
     // State
     const [isPlayerReeling, setIsPlayerReeling] = useState<boolean>(false)
@@ -181,7 +190,7 @@ const BattleProcess: React.FC<Props> = ({
                 const angleRadians: number = Math.atan(baitOffset.x/baitOffset.y)
                 const angleDegrees: number = angleRadians*180/Math.PI
                 // Find out next offset coords from angle and hypotenuse
-                const hypotenuse: number = lineLength - moveDistance
+                const hypotenuse: number = lineLength - (moveDistance/2)
                 const opposite: number = Math.sin(angleRadians) * hypotenuse
                 const adjacent: number = Math.cos(angleRadians) * hypotenuse
                 // Apply translation and lean fishrod towards target
@@ -191,13 +200,16 @@ const BattleProcess: React.FC<Props> = ({
                 scrollToBait()
             } else {
                 // Go away from the shore
+                if (baitOffset.x < baitOffsetLimit.to.y) {
+                    setBaitOffset({ ...baitOffset, y: baitOffset.y - (moveDistance/4) })
+                    scrollToBait()
+                }
             }
         }, [baitOffset, setBaitOffset, lineLength]
     )
 
     // Handle reeling and fish pulling interactions
     useEffect(() => {
-        console.log('inside useffect')
         // Find out where the bait will move and how it affects line tension
         let intervalID = null
         const step = 10 // move length const in pixels
@@ -240,7 +252,6 @@ const BattleProcess: React.FC<Props> = ({
         }  else {
             // Apply new distance and tension periodically
             intervalID = window.setInterval(() => {
-                console.log(addedTension)
                 if (addedTension > 0) incrementLineTension(addedTension)
                 if (moveDistance > 0 || moveDistance < 0) move(moveDistance)
             }, intervalDuration)
@@ -263,14 +274,36 @@ const BattleProcess: React.FC<Props> = ({
 
     // Success if player managed to reel in the fish to the shore
     useEffect(() => {
-        if (baitDistance <= 0) {
+        if (baitDistance <= 0.1) {
             catchNewFish(hookedFish.fish)
             goBack()
             setGameProcess(gameProcesses.INITIAL)            
         }
     }, [baitDistance])
 
-    // Cancel catching fish and keep bait
+    // Fail if line reached point of breaking / was too loose
+    useEffect(() => {
+        if (lineTension >= 100) {
+            // Line broke
+            goBack()
+            setGameProcess(gameProcesses.INITIAL)
+            loseLineBreak() 
+
+            // Play sound effect
+            try {
+                lineBreakSE.play()
+            } catch (err) {
+                console.log('Failed to play \'line-snap.mp3\' sound effect')
+            }
+        } else if (lineTension <= -100) {
+            // Line was too loose
+            goBack()
+            setGameProcess(gameProcesses.INITIAL)
+            loseLineLoose()    
+        }
+    }, [lineTension])
+
+    // Cancel catching fish
     const goBack = useCallback(
         (): void => {
             setLineTension(0)
@@ -282,13 +315,25 @@ const BattleProcess: React.FC<Props> = ({
 
     // Decide whether fish is pulling
     useEffect(() => {
-        const pullIntervalID = window.setInterval(() => {
+        function pullHandler () {
             const willPull = probability(hookedFish.fish.pullChance)
             if (willPull) setIsFishPulling(true)
             else setIsFishPulling(false)
-        }, hookedFish.fish.roamingInterval)
-
-        return () => window.clearInterval(pullIntervalID)
+        }
+        
+        // Repeat pullHandler
+        const { roamingInterval } = hookedFish.fish
+        if (Array.isArray(roamingInterval)) {
+            // Interval duration is variable
+            return setVariableInterval(
+                pullHandler,
+                () => randomIntFromInterval(roamingInterval[0], roamingInterval[1])/2
+            )
+        } else {
+            // Interval duration is constant
+            const pullIntervalID = window.setInterval(pullHandler, roamingInterval/2)
+            return () => window.clearInterval(pullIntervalID)
+        }
     }, [])
 
     // Player controls
@@ -389,7 +434,9 @@ const mapDispatchToProps = dispatch => ({
     decrementLineTension: (step: number) => dispatch(decrementLineTensionAction(step)),
     setIsFishPulling: (isPulling: boolean) => dispatch(setIsPullingAction(isPulling)),
     setGameProcess: (nextProcess: string) => dispatch(setGameProcessAction(nextProcess)),
-    catchNewFish: (fish: UniqueFish) => dispatch(catchNewFishAction(fish))
+    catchNewFish: (fish: UniqueFish) => dispatch(catchNewFishAction(fish)),
+    loseLineBreak: () => dispatch(breakLineAction(true)),
+    loseLineLoose: () => dispatch(breakLineAction(false))
 })
 export default connect(
     mapStateToProps,
