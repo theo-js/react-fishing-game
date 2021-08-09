@@ -6,6 +6,7 @@ export const OPEN_MAIN_MENU: string = 'OPEN_MAIN_MENU'
 export const SET_IS_MAIN_MENU_CLOSING: string = 'SET_IS_MAIN_MENU_CLOSING'
 export const GAME_NOTIFICATION: string = 'GAME_NOTIFICATION'
 export const SET_FISHROD_LEVEL: string = 'SET_FISHROD_LEVEL'
+export const COMPLETED_TUTORIAL_ENTRY: string = 'COMPLETED_TUTORIAL_ENTRY'
 
 // Inventory
 export const ADD_INVENTORY_ENTRY: string = 'ADD_INVENTORY_ENTRY'

@@ -7,20 +7,22 @@ import {
     SET_FISHROD_LEVEL,
     EARN_MONEY,
     SPEND_MONEY,
-    GAME_NOTIFICATION
+    GAME_NOTIFICATION,
+    COMPLETED_TUTORIAL_ENTRY
 } from '../actions/types'
-import gameProcesses from '../../components/Game/processes/index.json'
+import { GameProcess } from '../../interfaces/game'
 import { GameStats } from '../../interfaces/evolution'
-import { GameNotif } from '../../interfaces/game'
+import { GameNotif, Tutorial, TutorialEntry } from '../../interfaces/game'
 import { rodLevels } from '../../components/Game/evolution'
 
 export interface State {
-    process: string,
+    process: GameProcess,
     isMainMenuOpen: boolean,
     isMainMenuClosing: boolean,
     isBGMEnabled: boolean,
     gameStats: GameStats,
-    gameNotification: GameNotif|null
+    gameNotification: GameNotif|null,
+    tutorial: Tutorial
 }
 
 const initialGameStats: GameStats = {
@@ -29,13 +31,22 @@ const initialGameStats: GameStats = {
     fishrodLevel: rodLevels.find(lvl => lvl._id === 'Starter')
 }
 
+let initialTutorial: any
+try {
+    initialTutorial = JSON.parse(localStorage['tutorial'])
+} catch (err) {
+    initialTutorial = {}
+    Object.values(TutorialEntry).forEach((entry: string) => initialTutorial[entry] = false)
+}
+
 const initialState: State = {
-    process: gameProcesses.INITIAL,
+    process: GameProcess.INITIAL,
     isMainMenuOpen: false,
     isMainMenuClosing: false,
     isBGMEnabled: typeof localStorage['bgm_enabled'] !== 'undefined' ? JSON.parse(localStorage['bgm_enabled']) : true,
     gameStats: localStorage['gameStats'] ? JSON.parse(localStorage['gameStats']) : initialGameStats,
-    gameNotification: null
+    gameNotification: null,
+    tutorial: initialTutorial
 }
 
 export default function (state: State = initialState, action) {
@@ -113,6 +124,15 @@ export default function (state: State = initialState, action) {
         case GAME_NOTIFICATION:
             return { ...state, gameNotification: action.payload }
             break
+        case COMPLETED_TUTORIAL_ENTRY:
+            const completedEntry: TutorialEntry = action.payload
+            const tutorial: Tutorial = { 
+                ...state.tutorial, 
+                [completedEntry]: true
+            }
+
+            localStorage['tutorial'] = JSON.stringify(tutorial)
+            return { ...state, tutorial }
         default: return state
     }
 }

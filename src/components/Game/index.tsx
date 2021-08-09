@@ -1,6 +1,5 @@
-import React, { Dispatch, SetStateAction, ReactNode, useState, useMemo, useCallback, useEffect, useRef } from 'react'
+import React, { Dispatch, SetStateAction, useState, useMemo, useCallback, useEffect, useRef } from 'react'
 import styles from './index.module.sass'
-import gameProcesses from './processes/index.json'
 import Initial from './processes/Initial'
 import ThrowLine from './processes/ThrowLine'
 import WaitFish from './processes/WaitFish'
@@ -11,7 +10,7 @@ import MainMenu from './MainMenu'
 import GameNotification from './GameNotification'
 import { randomIntFromInterval } from '../../utils/math'
 import { Dimensions, Coordinates, Path, Map } from '../../interfaces/position'
-import { GameNotif, GameNotifType } from '../../interfaces/game'
+import { GameProcess, GameNotif, GameNotifType } from '../../interfaces/game'
 import { FishRodLevel } from '../../interfaces/evolution'
 import { Item } from '../../interfaces/items'
 import { GiFishingHook } from 'react-icons/all'
@@ -42,7 +41,7 @@ import { addInventoryEntryAction } from '../../store/actions/inventory'
 
 interface Props {
     process?: string,
-    setProcess?: Dispatch<SetStateAction<string>>,
+    setProcess?: Dispatch<SetStateAction<GameProcess>>,
     spendOneMinute?: any,
     isBGMEnabled?: boolean,
     setIsBGMEnabled?: Dispatch<SetStateAction<boolean>>,
@@ -285,10 +284,10 @@ const Game: React.FC<Props> = ({
         })
     }, [baitLakeCoords])
 
-    // Allow actions depending on game phase
+    // Enable events depending on game scene
     const currentProcess = useMemo(() => {
         switch(process) {
-            case gameProcesses.INITIAL:
+            case GameProcess.INITIAL:
                 return <Initial
                     setProcess={setProcess}
                     playerCoordinates={playerCoordinates}
@@ -303,7 +302,7 @@ const Game: React.FC<Props> = ({
                     setBaitType={setBaitType}
                  />
                 break
-            case gameProcesses.THROW_LINE:
+            case GameProcess.THROW_LINE:
                 return <ThrowLine
                     setProcess={setProcess}
                     scrollToBait={scrollToBait}
@@ -317,7 +316,6 @@ const Game: React.FC<Props> = ({
                     setBaitOffset={setBaitOffset}
                     baitOffsetLimit={baitOffsetLimit}
                     baitLakeCoords={baitLakeCoords}
-                    baitDistance={baitDistance}
                     rodLevel={rodLevel}
                     baitRef={baitRef}
                     setBaitType={setBaitType}
@@ -326,7 +324,7 @@ const Game: React.FC<Props> = ({
                     setIsBarometerVisible={setIsBarometerVisible}
                  />
                 break
-            case gameProcesses.WAIT_FISH:
+            case GameProcess.WAIT_FISH:
                 return <WaitFish
                     setProcess={setProcess}
                     scrollToPlayer={scrollToPlayer}
@@ -341,7 +339,7 @@ const Game: React.FC<Props> = ({
                     setIsBarometerVisible={setIsBarometerVisible}
                  />
                 break
-            case gameProcesses.BATTLE:
+            case GameProcess.BATTLE:
                 return <Battle
                     setProcess={setProcess}
                     scrollToPlayer={scrollToPlayer}
@@ -590,7 +588,7 @@ const mapStateToProps = state => ({
     gameNotification: gameNotificationSelector(state)
 })
 const mapDispatchToProps = dispatch => ({
-    setProcess: (newProcess: string) => dispatch(setGameProcessAction(newProcess)),
+    setProcess: (newProcess: GameProcess) => dispatch(setGameProcessAction(newProcess)),
     setRodLevel: (fishrodID: string) => dispatch(setRodLevelAction(fishrodID)),
     updateGlobalPositionState: (positionObject: any) => dispatch(updatePositionAction(positionObject)),
     spendOneMinute: () => dispatch({ type: SPEND_ONE_MINUTE }),

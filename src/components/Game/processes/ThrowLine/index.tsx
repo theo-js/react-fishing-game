@@ -1,6 +1,7 @@
-import React, { Dispatch, SetStateAction, ReactNode, useCallback, useRef, useEffect, useState, useMemo } from 'react'
-import gameProcesses from '../index.json'
+import { Dispatch, SetStateAction, ReactNode, useCallback, useRef, useEffect, useState, useMemo } from 'react'
 import ProgressCircle from '../../../ProgressCircle'
+import { LoadTutorial } from '../../tutorial/index'
+import { GameProcess, GameProcessComponent, TutorialEntry } from '../../../../interfaces/game'
 import { Coordinates, Path } from '../../../../interfaces/position'
 import { FishRodLevel } from '../../../../interfaces/evolution'
 import { getVectorLength, getNextCoordinatesOfPath } from '../../../../utils/position'
@@ -14,7 +15,7 @@ import { useDispatch } from 'react-redux'
 import { emitBaitFallEventAction } from '../../../../store/actions/fishing'
 
 interface Props {
-    setProcess: Dispatch<SetStateAction<string>>,
+    setProcess: Dispatch<SetStateAction<GameProcess>>,
     scrollToBait: (behavior?: 'smooth' | 'auto' | undefined) => void,
     scrollToPlayer: (behavior?: 'smooth' | 'auto' | undefined) => void,
     rodAngle: number,
@@ -23,7 +24,6 @@ interface Props {
     setRodOffset: Dispatch<SetStateAction<Coordinates>>,
     baitOffset: Coordinates,
     setBaitOffset: Dispatch<SetStateAction<Coordinates>>,
-    baitDistance: number,
     baitOffsetLimit: Path,
     baitLakeCoords: Coordinates,
     lakeRef: any,
@@ -35,10 +35,10 @@ interface Props {
     isBarometerVisible: boolean
 }
 
-const maxAngle: number = 70
-const minAngle: number = -70
+export const maxAngle: number = 70
+export const minAngle: number = -70
 
-export default (({
+const ThrowLineProcess = (({
     setProcess,
     scrollToBait,
     scrollToPlayer,
@@ -48,7 +48,6 @@ export default (({
     setRodOffset,
     baitOffset,
     setBaitOffset,
-    baitDistance,
     baitOffsetLimit,
     baitRef,
     baitLakeCoords,
@@ -66,6 +65,7 @@ export default (({
     const [isPreparingThrow, setIsPreparingThrow] = useState<boolean>(false)
     const [isThrowing, setIsThrowing] = useState<boolean>(false)
     const [hasThrown, setHasThrown] = useState<boolean>(false)
+    const [processFrozen, setProcessFrozen] = useState<boolean>(false)
 
     // Redux
     const dispatch = useDispatch()
@@ -87,13 +87,14 @@ export default (({
     // Go back to initial process
     const goBack = useCallback(
         (): void => {
+            if (processFrozen) return
             // Set fishing rod to initial position before
             setRodAngle(0)
             setRodOffset({ x: 0, y: -20 })
             setBaitOffset({ x: 0, y: -20, transition: '.2s ease all' })
             setBaitType('default')
-            setProcess(gameProcesses.INITIAL)
-        }, []
+            setProcess(GameProcess.INITIAL)
+        }, [processFrozen]
     )
 
     // Move fishing rod forward on process start
@@ -109,12 +110,13 @@ export default (({
     // Move fishing rod direction
     const changeRodDirection = useCallback(
         (angle: number) => {
+            if (processFrozen) return
             if (!isThrowing) {
                 setRodAngle(angle)
                 setRodOffset({ x: -angle/4, y: -Math.abs(angle)/2 })
                 setBaitOffset({x: -angle, y: -Math.abs(angle)/2 })
             }
-        }, [isThrowing]
+        }, [isThrowing, processFrozen]
     )
 
     // Throw bait at the right distance and direction
@@ -189,7 +191,7 @@ export default (({
                     baitRef.current && splashAnim(baitLakeCoords, lakeRef.current)
                     // Wait for fish
                     gaugeValueRef.current = 0
-                    setProcess(gameProcesses.WAIT_FISH)
+                    setProcess(GameProcess.WAIT_FISH)
                     return
                 }
             }
@@ -199,6 +201,7 @@ export default (({
 
     const confirmThrow = useCallback(
         (): void => {
+            if (processFrozen) return
             if (gaugeValueRef.current >= 5) {
                 const reach = Math.round(gaugeValueRef.current)/100 * rodLevel.maxLength
                 remainingDistanceRef.current = reach
@@ -209,24 +212,25 @@ export default (({
             }
             setIsPreparingThrow(false)
             setGaugeValue(0)
-        }, [rodLevel, rodAngle]
+        }, [rodLevel, rodAngle, processFrozen]
     )
 
     // Attach event listeners
     useEffect(() => {
         function handleKeyDown (e: KeyboardEvent): void {
-            const { keyCode } = e
-            switch (keyCode) {
-                case 8: // Backspace
-                case 46: // Delete
-                case 48: // 0
+            switch (e.key) {
+                case 'Backspace':
+                case 'Delete':
+                case '0':
                     e.preventDefault()
+                    if (processFrozen) break
                     if (!isThrowing) {
                         goBack()
                     }
                     break
-                case 37: // Left
+                case 'ArrowLeft':
                     e.preventDefault()
+                    if (processFrozen) break
                     if (!isThrowing) {
                         // Increase fishrod angle
                         const addOffset = 4
@@ -238,11 +242,12 @@ export default (({
                         }
                     }
                     break
-                case 38: // Top
+                case 'ArrowUp':
                     e.preventDefault()
                     break
-                case 39: // Right
+                case 'ArrowRight':
                     e.preventDefault()
+                    if (processFrozen) break
                     if (!isThrowing) {
                         // Decrease fishrod angle
                         const subOffset = 4
@@ -254,12 +259,13 @@ export default (({
                         }
                     }
                     break
-                case 40: // Bottom
+                case 'ArrowDown':
                     e.preventDefault()
                     break
-                case 32: // Space
-                case 13: // Enter
+                case ' ': // Space
+                case 'Enter': // Enter
                     e.preventDefault()
+                    if (processFrozen) break
                     if (!isThrowing) {
                         if (!spaceFired) { // Prevent mousedown event from firing multiple times
                             setSpaceFired(true)
@@ -272,11 +278,11 @@ export default (({
             }
         }
         function handleKeyUp (e: KeyboardEvent): void {
+            if (processFrozen) return
             if (!isThrowing) {
-                const { keyCode } = e
-                switch (keyCode) {
-                    case 32:
-                    case 13:
+                switch (e.key) {
+                    case ' ':
+                    case 'Enter':
                         setSpaceFired(false)
                         if (isPreparingThrow) {
                             confirmThrow()
@@ -286,6 +292,7 @@ export default (({
             }
         }
         function handleMouseDown (e: Event): void {
+            if (processFrozen) return
             if (!isThrowing) {
                 setSpaceFired(true)
                 if(!isPreparingThrow) {
@@ -295,12 +302,14 @@ export default (({
             }
         }
         function handleMouseUp (e: Event): void {
+            if (processFrozen) return
             setSpaceFired(false)
             if (isPreparingThrow) {
                 confirmThrow()
             }
         }
         function handleTouchMove (e: TouchEvent) {
+            if (processFrozen) return
             const currentTouchX = e.touches[0].clientX
             if (lastTouchX.current !== null && !isThrowing) {
                 e.stopPropagation()
@@ -360,12 +369,14 @@ export default (({
         rodAngle,
         rodOffset,
         confirmThrow,
-        isThrowing
+        isThrowing,
+        processFrozen
     ])
 
     // Add mousemove event
     useEffect(() => {
         function handleMouseMove (e: MouseEvent): void {
+            if (processFrozen) return
             // Follow mouse
             const { offsetX, pageY } = e
             const centerX: number = playerCoordinates.x + playerCoordinates.width/2
@@ -390,7 +401,7 @@ export default (({
         }
         
         return () => window.removeEventListener('mousemove', handleMouseMoveThrottle, false)
-    }, [playerCoordinates, changeRodDirection, isThrowing])
+    }, [playerCoordinates, changeRodDirection, isThrowing, processFrozen])
 
     // Prepare throw
     useEffect(() => {
@@ -450,5 +461,13 @@ export default (({
                 {gaugeMessage}
             </ProgressCircle>
         </div>
+        <LoadTutorial 
+            entry={TutorialEntry.THROW_LINE}
+            onLoad={() => !processFrozen && setProcessFrozen(true)}
+            afterComplete={() => setProcessFrozen(false)}
+         />
     </nav>
-}) as React.FC<Props>
+}) as GameProcessComponent<Props>
+ThrowLineProcess.GameProcess = GameProcess.THROW_LINE
+
+export default ThrowLineProcess

@@ -1,13 +1,15 @@
-import React, { FC, useState, useEffect, useMemo, useCallback, Dispatch, SetStateAction } from 'react'
-import gameProcesses from '../index.json'
+import { useState, useEffect, useCallback, Dispatch, SetStateAction } from 'react'
+import { LoadTutorial } from '../../tutorial/index'
+import { GameProcess, GameProcessComponent, TutorialEntry } from '../../../../interfaces/game'
 import { Coordinates } from '../../../../interfaces/position'
 import throttle from '../../../../utils/throttle'
 import useLazyAudio from '../../../../hooks/useLazyAudio'
 import { BsArrowRepeat } from 'react-icons/bs'
 import styles from './index.module.sass'
 
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { makeBaitAvailableAction } from '../../../../store/actions/fishing'
+import { isBaitAvailableSelector } from '../../../../store/selectors/fishing'
 
 interface Props {
     baitOffset: Coordinates,
@@ -15,7 +17,7 @@ interface Props {
     baitDistance: number,
     lineLength: number,
     setBaitType: Dispatch<SetStateAction<string>>,
-    setProcess: Dispatch<SetStateAction<string>>,
+    setProcess: Dispatch<SetStateAction<GameProcess>>,
     setRodAngle: Dispatch<SetStateAction<number>>,
     scrollToPlayer: (behavior?: 'smooth' | 'auto' | undefined) => void,
     scrollToBait: (behavior?: 'smooth' | 'auto' | undefined) => void,
@@ -23,7 +25,7 @@ interface Props {
     isBarometerVisible: boolean
 }
 
-const WaitFish: FC<Props> = ({
+const WaitFish: GameProcessComponent<Props> = ({
     baitOffset,
     setBaitOffset,
     baitDistance,
@@ -44,6 +46,7 @@ const WaitFish: FC<Props> = ({
     const makeBaitAvailable = useCallback(
         (bool: boolean) => dispatch(makeBaitAvailableAction(bool)), [dispatch]
     )
+    const isBaitAvailable = useSelector(isBaitAvailableSelector)
     // Fishes can only detect/interact with the bait during this process
     useEffect(() => {
         makeBaitAvailable(true)
@@ -53,18 +56,21 @@ const WaitFish: FC<Props> = ({
     // State
     const [isReeling, setIsReeling] = useState<boolean>(false)
     const [isMouseDown, setIsMouseDown] = useState<boolean | null>(null)
+    const [processFrozen, setProcessFrozen] = useState<boolean>(false)
 
     // Go back to previous process (retry throwing line)
     const goBack = useCallback(
         (): void => {
+            if (processFrozen) return
             setBaitType('default')
             scrollToPlayer('smooth')
-            setProcess(gameProcesses.THROW_LINE)
-        }, [scrollToPlayer, setProcess, setBaitType]
+            setProcess(GameProcess.THROW_LINE)
+        }, [scrollToPlayer, setProcess, setBaitType, processFrozen]
     )
 
     const reelIn = useCallback(
         ():void => {
+            if (processFrozen) return
             if (baitDistance > 0) {
                 // REEL IN
                 !isReeling && setIsReeling(true)
@@ -87,7 +93,7 @@ const WaitFish: FC<Props> = ({
                 setIsReeling(false)
                 goBack()
             }
-        }, [lineLength, isReeling, baitDistance, goBack]
+        }, [lineLength, isReeling, baitDistance, goBack, processFrozen]
     )
 
     // Show barometer if it's not visible
@@ -124,10 +130,10 @@ const WaitFish: FC<Props> = ({
     // Cancel event
     useEffect(() => {
         function handleBackSpace (e: KeyboardEvent): void {
-            switch(e.keyCode) {
-                case 8: // Backspace
-                case 46: // Delete
-                case 48: // 0
+            switch(e.key) {
+                case 'Backspace':
+                case 'Delete':
+                case '0':
                     e.preventDefault()
                     goBack()
                     break
@@ -139,9 +145,9 @@ const WaitFish: FC<Props> = ({
     // Space/Enter keys
     useEffect(() => {
         function handleSpace (e: KeyboardEvent): void {
-            switch(e.keyCode) {
-                case 32: // Space
-                case 13: // Enter
+            switch(e.key) {
+                case ' ':
+                case 'Enter':
                     e.preventDefault()
                     reelIn()
                     break
@@ -149,9 +155,9 @@ const WaitFish: FC<Props> = ({
         }
         const handleSpaceThrottle = throttle(handleSpace, 1000)
         function handleSpaceUp (e: KeyboardEvent): void {
-            switch (e.keyCode) {
-                case 32: // Space
-                case 13: // Enter
+            switch (e.key) {
+                case ' ':
+                case 'Enter':
                     // Stop reeling
                     setIsReeling(false)
                     break
@@ -168,23 +174,21 @@ const WaitFish: FC<Props> = ({
     // Mousedown/up
     useEffect(() => {
         function handleMouseDown (e: MouseEvent): void {
+            if (processFrozen) return
             setIsMouseDown(true)
         }
         function handleMouseUp (e: MouseEvent) : void {
+            if (processFrozen) return
             setIsMouseDown(false)
         }
-        document.body.addEventListener('mousedown', handleMouseDown, false)
-        document.body.addEventListener('mouseup', handleMouseUp, false)
-        document.body.addEventListener('touchstart', handleMouseDown, false)
-        document.body.addEventListener('touchend', handleMouseUp, false)
+        document.body.addEventListener('pointerdown', handleMouseDown, false)
+        document.body.addEventListener('pointerup', handleMouseUp, false)
 
         return () => {
-            document.body.removeEventListener('mousedown', handleMouseDown, false)
-            document.body.removeEventListener('mouseup', handleMouseUp, false)
-            document.body.removeEventListener('touchstart', handleMouseDown, false)
-            document.body.removeEventListener('touchend', handleMouseUp, false)
+            document.body.removeEventListener('pointerdown', handleMouseDown, false)
+            document.body.removeEventListener('pointerup', handleMouseUp, false)
         }
-    }, [])
+    }, [processFrozen])
     useEffect(() => {
         if (isMouseDown) {
             // Mouse down
@@ -200,11 +204,11 @@ const WaitFish: FC<Props> = ({
     // Disable other keys
     useEffect(() => {
         function disableKeys (e: KeyboardEvent): void {
-            switch(e.keyCode) {
-                case 37: // Left
-                case 38: // Top
-                case 39: // Right
-                case 40: // Bottom
+            switch(e.key) {
+                case 'ArrowLeft': // Left
+                case 'ArrowUp': // Top
+                case 'ArrowRight': // Right
+                case 'ArrowDown': // Bottom
                     e.preventDefault()
                     break
             }
@@ -220,7 +224,22 @@ const WaitFish: FC<Props> = ({
         >
             <BsArrowRepeat />
         </button>
+        <LoadTutorial
+            entry={TutorialEntry.THROWN}
+            onLoad={() => {
+                // Freeze WaitFish scene during tutorial
+                if (!processFrozen) setProcessFrozen(true)
+                if (isReeling) setIsReeling(false)
+                if (isMouseDown) setIsMouseDown(false)
+                if (isBaitAvailable) makeBaitAvailable(false)
+            }}
+            afterComplete={() => {
+                setProcessFrozen(false)
+                makeBaitAvailable(true)
+            }}
+         />
     </nav>
 }
+WaitFish.GameProcess = GameProcess.WAIT_FISH
 
 export default WaitFish

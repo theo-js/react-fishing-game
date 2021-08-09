@@ -1,8 +1,8 @@
 import React, { useMemo } from 'react'
 import TensionGauge from './TensionGauge'
 import { pxToM } from '../../../utils/position'
+import { GameProcess } from '../../../interfaces/game'
 import { FishRodLevel } from '../../../interfaces/evolution'
-import gameProcesses from '../processes/index.json'
 import styles from './index.module.sass'
 
 // Redux
@@ -13,7 +13,7 @@ interface Props {
     rodLevel: FishRodLevel,
     baitDistance: number,
     // Redux
-    gameProcess?: string
+    gameProcess?: GameProcess
 }
 
 interface StepMatch {
@@ -90,7 +90,7 @@ export const Barometer: React.FC<Props> = ({
                     </div>
                     {lineStepsJSX}
                 </div>
-                {gameProcess === gameProcesses.BATTLE && (
+                {gameProcess === GameProcess.BATTLE && (
                     // Line tension gauge
                     <TensionGauge />
                 )}

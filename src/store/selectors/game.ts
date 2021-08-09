@@ -1,12 +1,12 @@
 import { createSelector } from 'reselect'
 import { State } from '../reducers/game'
-import { GameNotif } from '../../interfaces/game'
+import { GameProcess, GameNotif, Tutorial, TutorialEntry } from '../../interfaces/game'
 import { GameStats, FishRodLevel } from '../../interfaces/evolution'
 
 
 export const processSelector = createSelector(
     (state: any): State => state.game,
-    (game: State): string => game.process
+    (game: State): GameProcess => game.process
 )
 
 export const isBGMEnabledSelector = createSelector(
@@ -50,3 +50,12 @@ export const gameNotificationSelector = createSelector(
     (state: any): State => state.game,
     (game: State): GameNotif => game.gameNotification
 )
+
+// Tutorial
+export const tutorialEntrySelectors = {}
+Object.values(TutorialEntry).forEach((entry: string) => {
+    tutorialEntrySelectors[entry] = createSelector(
+        (state: any): Tutorial => state.game.tutorial,
+        (tutorial: Tutorial): (boolean|undefined) => tutorial[entry]
+    )
+})

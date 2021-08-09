@@ -94,7 +94,7 @@ export const breakLineAction = (broke: boolean) => dispatch => {
         html: {
             header: `<h3>${broke ? 'Your line broke !' : 'Your line was too loose !'}</h3>`, 
             body: '<p>The fish got away with the bait</p>',
-            footer: isFirstTime ? broke ? '<p style="color: var(--darkred);"><strong>Advice:</strong> don\'t let the line tension exceed the max (line turns red)</p>' : '<p><strong>Advice:</strong> don\'t let the line tension go under the min (line turns blue)</p>' : null
+            footer: isFirstTime ? broke ? '<p style="color: var(--red);"><strong>Advice:</strong> don\'t let the line tension exceed the max (line turns red)</p>' : '<p style="color: var(--red);"><strong>Advice:</strong> don\'t let the line tension go under the min (line turns blue)</p>' : null
         },
         duration: isFirstTime ? 15 : 5
     }))

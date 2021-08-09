@@ -11,15 +11,20 @@
     align-items: center
     animation: fade-in .2s 1 ease-in
 
-    .modalWindow
-        background: var(--white)
-        padding: 1rem
-        border-radius: .25rem
-        margin: 1rem
-        min-width: 200px
-        max-width: 1200px !important
-        box-shadow: 0 .125rem 1rem 0 var(--broken-black)
+.modalWindow
+    background: var(--white)
+    padding: 1rem
+    border-radius: .25rem
+    margin: 1rem
+    min-width: 200px
+    max-width: 1200px
+    box-shadow: 0 .125rem 1rem 0 var(--broken-black)
+    &.noWrapper
+        position: fixed
+        z-index: 999999999
+        animation: fade-in .2s 1 ease-in
 
+.modalWrapper, .modalWindow
     &.closing
         opacity: 0
         // Reverse
@@ -27,6 +32,7 @@
         //transform: scale(1.25) translateY(1rem)
         filter: blur(2px)
         border-radius: 50%
+
 
 @keyframes fade-in
     from

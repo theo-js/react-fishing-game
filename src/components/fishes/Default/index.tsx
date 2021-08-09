@@ -1,5 +1,5 @@
 import React, { useCallback, ReactNode, useState, useMemo, useEffect, useLayoutEffect, useRef } from 'react'
-import { GameNotif, GameNotifType } from '../../../interfaces/game'
+import { GameNotif, GameNotifType, GameProcess } from '../../../interfaces/game'
 import { Coordinates, Path, Map } from '../../../interfaces/position'
 import { Item } from '../../../interfaces/items'
 import { Fish, FishData } from '../../../interfaces/fishes'
@@ -8,7 +8,6 @@ import { getNextCoordinatesOfPath, areCoordinatesInPath, getAngleFromVerticalAxi
 import { takeBaitAnim } from '../../Game/animations'
 import { FaHeart, FaTimes } from 'react-icons/fa'
 import styles from './index.module.sass'
-import gameProcesses from '../../Game/processes/index.json'
 import allCategories from '../../items/categories.json'
 
 // Redux
@@ -86,7 +85,7 @@ const DefaultFish: React.FC<Props> = ({
     const makeBaitAvailable = useCallback((bool: boolean): void => dispatch(makeBaitAvailableAction(bool)), [])
     const setHookedFish = useCallback((fish: FishData): void => dispatch(setHookedFishAction(fish)), [])
     const loseBait = useCallback((): void => dispatch(loseBaitAction()), [])
-    const setGameProcess = useCallback((newProcess: string): void => dispatch(setGameProcessAction(newProcess)), [])
+    const setGameProcess = useCallback((newProcess: GameProcess): void => dispatch(setGameProcessAction(newProcess)), [])
     const setGameNotification = useCallback((notif: GameNotif): void => dispatch(setGameNotificationAction(notif)), [])
     
     // REFS
@@ -212,7 +211,7 @@ const DefaultFish: React.FC<Props> = ({
                 loseBait()
 
                 // Go back to the shore automatically
-                setGameProcess(gameProcesses.INITIAL)
+                setGameProcess(GameProcess.INITIAL)
             }
         }, [isInScope, giveUpBait, hookedFish]
     )
@@ -325,7 +324,7 @@ const DefaultFish: React.FC<Props> = ({
                             roamingInterval
                         }
                     })
-                    setGameProcess(gameProcesses.BATTLE)
+                    setGameProcess(GameProcess.BATTLE)
 
                     // Cancel failure and reinitialize state
                     window.clearTimeout(hookFailTimerIDRef.current)                    

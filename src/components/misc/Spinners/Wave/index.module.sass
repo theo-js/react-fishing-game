@@ -1,0 +1,54 @@
+.spinner
+    position: relative
+    display: inline-block
+    width: 1em
+    height: 1em
+    vertical-align: middle
+    overflow: hidden
+    .wave
+        position: absolute
+        top: 0
+        left: 0
+        line-height: 66%
+        color: transparent
+        font-size: .5em
+        white-space: nowrap
+        animation: wave 1s linear infinite
+
+.screenCenter
+    z-index: 999999999
+    position: fixed
+    top: 0
+    left: 0
+    width: 100vw
+    height: 100vh
+    pointer-events: none
+    display: flex
+    justify-content: center
+    align-items: center
+    .wrapper
+        display: block
+        background: var(--lightblue)
+        border-radius: 99px
+        border: .5em solid #FFF
+        box-shadow: 0 0 1em 0 #DDD5
+        opacity: .9
+        animation: fade-blur .5s cubic-bezier(.25, 0, .5, 1)
+
+@keyframes wave
+    0%
+        transform: translate(O)
+    100%
+        transform: translate(calc(-1.75em))
+
+@keyframes fade-blur
+    0%
+        transform: scale(.25, .5) rotate(90deg)
+        filter: blur(1em) 
+        box-shadow: 0 0 5em 0 #DDDA
+        opacity: .5
+    100%
+        transform: scale(1) rotate(0)
+        filter: none
+        box-shadow: 0 0 1em 0 #DDD5
+        opacity: .9

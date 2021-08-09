@@ -1,7 +1,8 @@
-import React, { Dispatch, SetStateAction, useCallback, useRef, useEffect, useLayoutEffect, useState } from 'react'
+import { Dispatch, SetStateAction, useCallback, useRef, useEffect, useLayoutEffect, useState, Fragment } from 'react'
+import { LoadTutorial } from '../../tutorial/index'
 import { useDispatch, useSelector } from 'react-redux'
-import gameProcesses from '../index.json'
-import { Coordinates, Map } from '../../../../interfaces/position'
+import { GameProcess, GameProcessComponent, TutorialEntry } from '../../../../interfaces/game'
+import { Coordinates, Map, Direction } from '../../../../interfaces/position'
 import throttle from '../../../../utils/throttle'
 import { FaFish, IoClose, GiLightBackpack } from 'react-icons/all'
 import styles from './index.module.sass'
@@ -12,7 +13,7 @@ import { baitFoodSelector } from '../../../../store/selectors/fishing'
 import { openMainMenuAction, closeMainMenuAction } from '../../../../store/actions/game'
 
 interface Props {
-    setProcess: Dispatch<SetStateAction<string>>,
+    setProcess: Dispatch<SetStateAction<GameProcess>>,
     playerCoordinates: Coordinates,
     setPlayerCoordinates: Dispatch<SetStateAction<Coordinates>>,
     scrollToPlayer: (behavior?: 'smooth' | 'auto' | undefined) => void,
@@ -25,12 +26,7 @@ interface Props {
     setBaitType: Dispatch<SetStateAction<string>>
 }
 
-enum Direction {
-    LEFT = 'LEFT',
-    RIGHT = "RIGHT"
-}
-
-export default (({
+const InitialProcess = (({
     setProcess,
     playerCoordinates,
     setPlayerCoordinates,
@@ -43,13 +39,21 @@ export default (({
     setRodAngle,
     setBaitType
 }) => {
+    const [processFrozen, setProcessFrozen] = useState<boolean>(false)
+
     // REDUX
     const dispatch = useDispatch()
     const openMainMenu = useCallback(
-        (): void => dispatch(openMainMenuAction()), []
+        (): void => {
+            if (processFrozen) return
+            dispatch(openMainMenuAction())
+        }, [processFrozen]
     )
     const closeMainMenu = useCallback(
-        (): void => dispatch(closeMainMenuAction()), []
+        (): void => {
+            if (processFrozen) return
+            dispatch(closeMainMenuAction())
+        }, [processFrozen]
     )
     const isMainMenuOpen = useSelector(isMainMenuOpenSelector)
     const isMainMenuClosing = useSelector(isMainMenuClosingSelector)
@@ -61,6 +65,8 @@ export default (({
 
     const movePlayer = useCallback(
         (direction: Direction, value: number): void => {
+            if (processFrozen) return
+
             // Set isPlayerMoving if it's not already
             if (!isPlayerMoving)setIsPlayerMoving(true)
 
@@ -78,7 +84,7 @@ export default (({
                 setPlayerCoordinates({ ...playerCoordinates, x: playerCoordinates.x + value })
             }
             scrollToPlayer('auto')
-        }, [playerCoordinates]
+        }, [playerCoordinates, processFrozen]
     )
 
     // Initialize scroll position at player's position and bait at 0,0
@@ -98,33 +104,38 @@ export default (({
 
     const throwLine = useCallback(
         (): void => {
-            if (!isPlayerMoving && !isMainMenuOpen && baitFood) {
-                setProcess(gameProcesses.THROW_LINE)
+            if (
+                !isPlayerMoving && 
+                !isMainMenuOpen && 
+                baitFood && 
+                !processFrozen
+            ) {
+                setProcess(GameProcess.THROW_LINE)
             }
-        }, [isPlayerMoving, isMainMenuOpen, baitFood]
+        }, [isPlayerMoving, isMainMenuOpen, baitFood, processFrozen]
     )
 
     // Attach event listeners
     useEffect(() => {
         function handleKeyDown (e: KeyboardEvent): void {
-            const { keyCode } = e
-            switch (keyCode) {
-                case 37: // Left
+            if (processFrozen) return
+            switch (e.key) {
+                case 'ArrowLeft':
                     e.preventDefault()
                     movePlayer(Direction.LEFT, 40)
                     break
-                case 38: // Top
+                case 'ArrowUp':
                     e.preventDefault()
                     break
-                case 39: // Right
+                case 'ArrowRight':
                     e.preventDefault()
                     movePlayer(Direction.RIGHT, 40)
                     break
-                case 40: // Bottom
+                case 'ArrowDown':
                     e.preventDefault()
                     break
-                case 32: // Space
-                case 13: // Enter
+                case ' ': // Space
+                case 'Enter': // Enter
                     e.preventDefault()
                     throwLine()
                     break
@@ -132,26 +143,28 @@ export default (({
         }
         const handleKeyDownThrottle = throttle(handleKeyDown, 100)
         function preventVerticalScroll (e: KeyboardEvent): void {
-            const { keyCode } = e
-            switch (keyCode) {
-                case 38: // Top
+            switch (e.key) {
+                case 'ArrowUp': // Top
                     e.preventDefault()
                     break
-                case 40: // Bottom
+                case 'ArrowUp': // Bottom
                     e.preventDefault()
                     break
             }
         }
         function handleKeyUp (e: KeyboardEvent): void {
+            if (processFrozen) return
             setIsPlayerMoving(false)
         }
         function handleClick (e: any): void {
+            if (processFrozen) return
             const { layerX } = e
             const difference = layerX - playerCoordinates.x
             movePlayer(difference >= 0 ? Direction.RIGHT : Direction.LEFT, Math.abs(difference))
             setIsPlayerMoving(false)
         }
-        function handleTouchMove (e: TouchEvent) {
+        function handleTouchMove (e: TouchEvent): void {
+            if (processFrozen) return
             const currentTouchX = e.touches[0].clientX
             if (lastTouchX.current !== null) {
                 if (currentTouchX < lastTouchX.current) {
@@ -165,7 +178,8 @@ export default (({
             lastTouchX.current = currentTouchX
         }
         const handleTouchMoveThrottle = throttle(handleTouchMove, 100)
-        function handleTouchEnd (e: TouchEvent) {
+        function handleTouchEnd (e: TouchEvent): void {
+            if (processFrozen) return
             setIsPlayerMoving(false)
         }
 
@@ -190,26 +204,39 @@ export default (({
             document.removeEventListener('touchmove', handleTouchMoveThrottle, false)
             document.removeEventListener('touchend', handleTouchEnd, false)
         }
-    }, [playerCoordinates, isMainMenuOpen])
+    }, [playerCoordinates, isMainMenuOpen, processFrozen])
 
-    if (!isPlayerMoving) {
-        return <nav className={`menu ${styles.navigation} ${isMainMenuOpen && !isMainMenuClosing ? styles.open : ''}`}>
-            <button
-                className={`btn ${styles.openMainMenuBTN}`}
-                onClick={isMainMenuOpen ? closeMainMenu : openMainMenu}
-            >
-                {isMainMenuOpen ? <IoClose /> : <GiLightBackpack />}
-            </button>
-            {baitFood && (
-                <button 
-                    className={`btn btn-primary ${styles.fishBTN}`}
-                    onClick={throwLine}
+    return <nav className={`menu ${styles.navigation} ${isMainMenuOpen && !isMainMenuClosing ? styles.open : ''}`}>
+        {!isPlayerMoving && (
+            <>
+                <button
+                    className={`btn ${styles.openMainMenuBTN}`}
+                    onClick={isMainMenuOpen ? closeMainMenu : openMainMenu}
                 >
-                    Fish here ? <FaFish />
+                    {isMainMenuOpen ? <IoClose /> : <GiLightBackpack />}
                 </button>
-            )}
-        </nav>
-    }
+                {baitFood && (
+                    <button 
+                        className={`btn btn-primary ${styles.fishBTN}`}
+                        onClick={throwLine}
+                    >
+                        Fish here ? <FaFish />
+                    </button>
+                )}
+            </>
+        )}
+        <LoadTutorial 
+            entry={TutorialEntry.INITIAL}
+            onLoad={() => !processFrozen && setProcessFrozen(true)}
+            afterComplete={() => setProcessFrozen(false)}
+            />
+        <LoadTutorial 
+            entry={TutorialEntry.BAG}
+            dependencies={[TutorialEntry.INITIAL]}
+            fallback={null}
+        />
+    </nav>
+}) as GameProcessComponent<Props>
+InitialProcess.GameProcess = GameProcess.INITIAL
 
-    return null
-}) as React.FC<Props>
+export default InitialProcess

@@ -1,5 +1,5 @@
 import React, { Dispatch, SetStateAction, useRef, useEffect, useState, useCallback, useMemo } from 'react'
-import gameProcesses from '../index.json'
+import { GameProcess, GameProcessComponent } from '../../../../interfaces/game'
 import { FishData, UniqueFish } from '../../../../interfaces/fishes'
 import { FishRodLevel } from '../../../../interfaces/evolution'
 import { Coordinates, Path } from '../../../../interfaces/position'
@@ -46,14 +46,14 @@ interface Props {
     decrementLineTension?: Dispatch<SetStateAction<number>>,
     setIsFishPulling?: Dispatch<SetStateAction<boolean>>,
     fishRodLevel?: FishRodLevel,
-    setGameProcess?: Dispatch<SetStateAction<string>>,
+    setGameProcess?: Dispatch<SetStateAction<GameProcess>>,
     catchNewFish?: Dispatch<SetStateAction<UniqueFish>>,
     loseLineBreak?: () => void,
     loseLineLoose?: () => void
 }
 
 
-const BattleProcess: React.FC<Props> = ({
+const BattleProcess: GameProcessComponent<Props> = ({
     baitDistance,
     baitOffset,
     setBaitOffset,
@@ -277,7 +277,7 @@ const BattleProcess: React.FC<Props> = ({
         if (baitDistance <= 0.1) {
             catchNewFish(hookedFish.fish)
             goBack()
-            setGameProcess(gameProcesses.INITIAL)            
+            setGameProcess(GameProcess.INITIAL)            
         }
     }, [baitDistance])
 
@@ -286,7 +286,7 @@ const BattleProcess: React.FC<Props> = ({
         if (lineTension >= 100) {
             // Line broke
             goBack()
-            setGameProcess(gameProcesses.INITIAL)
+            setGameProcess(GameProcess.INITIAL)
             loseLineBreak() 
 
             // Play sound effect
@@ -298,7 +298,7 @@ const BattleProcess: React.FC<Props> = ({
         } else if (lineTension <= -100) {
             // Line was too loose
             goBack()
-            setGameProcess(gameProcesses.INITIAL)
+            setGameProcess(GameProcess.INITIAL)
             loseLineLoose()    
         }
     }, [lineTension])
@@ -307,7 +307,7 @@ const BattleProcess: React.FC<Props> = ({
     const goBack = useCallback(
         (): void => {
             setLineTension(0)
-            setGameProcess(gameProcesses.THROW_LINE)
+            setGameProcess(GameProcess.THROW_LINE)
             setHookedFish(null)
             reelingSE.pause()
         }, []
@@ -418,6 +418,7 @@ const BattleProcess: React.FC<Props> = ({
     </nav>
     </div>
 }
+BattleProcess.GameProcess = GameProcess.BATTLE
 
 
 // Connect to Redux
@@ -433,7 +434,7 @@ const mapDispatchToProps = dispatch => ({
     incrementLineTension: (step: number) => dispatch(incrementLineTensionAction(step)),
     decrementLineTension: (step: number) => dispatch(decrementLineTensionAction(step)),
     setIsFishPulling: (isPulling: boolean) => dispatch(setIsPullingAction(isPulling)),
-    setGameProcess: (nextProcess: string) => dispatch(setGameProcessAction(nextProcess)),
+    setGameProcess: (nextProcess: GameProcess) => dispatch(setGameProcessAction(nextProcess)),
     catchNewFish: (fish: UniqueFish) => dispatch(catchNewFishAction(fish)),
     loseLineBreak: () => dispatch(breakLineAction(true)),
     loseLineLoose: () => dispatch(breakLineAction(false))
