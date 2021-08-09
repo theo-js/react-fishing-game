@@ -27,7 +27,7 @@
             "Anchovy", "Alpha Anchovy", "Butterfly"
         ],
         "size": [30, 45],
-        "strength": [200, 300],
+        "strength": [50, 60],
         "roamingDistance": [30, 200]
     },
     "Angelfish": {
@@ -37,7 +37,7 @@
             "Clownfish", "Alpha Clown fish", "Dragonfly"
         ],
         "size": [40, 55],
-        "strength": [300, 400]
+        "strength": [70, 80]
     },
     "Anglerfish": {
         "_id": "Anglerfish",
@@ -46,7 +46,7 @@
             "Alpha Clown fish", "Angelfish", "Alpha Angelfish"
         ],
         "size": [50, 65],
-        "strength": [400, 450]
+        "strength": [90, 100]
     },
     "Sea monster": {
         "_id": "Sea monster",
@@ -55,7 +55,7 @@
             "Anglerfish", "Alpha Anglerfish"
         ],
         "size": [500, 1000],
-        "strength": [80, 90],
+        "strength": [150, 200],
         "isBoss": true
     }
 }

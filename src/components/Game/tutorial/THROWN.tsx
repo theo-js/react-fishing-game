@@ -128,7 +128,7 @@ const Thrown: TutorialEntryComponent<Props> = ({ afterComplete }) => {
                     {/* Page 3 */}
                     <div className={modalStyles.page} data-page={3}>
                         <header>
-                            <h3>Hooking</h3>
+                            <h3>8. Hooking</h3>
                         </header>
                         <main>
                             <p>

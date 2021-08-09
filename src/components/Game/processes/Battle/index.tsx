@@ -162,6 +162,13 @@ const BattleProcess: GameProcessComponent<Props> = ({
         }
         if (willRecover()) {
             recoverTensionIntervalRef.current = window.setInterval(() => {
+                const max: number = .5
+                if (lineTension < 0 && recoverTensionValue > max) {
+                    // Ceil max recovery value when tension is already negative
+                    decrementLineTension(max)
+                    return 
+                }
+
                 decrementLineTension(recoverTensionValue)
             }, 100)
         } else {

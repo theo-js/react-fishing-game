@@ -26,7 +26,7 @@ import { setGameProcessAction } from '../../../store/actions/game'
 // Notif text when player hooks too soon
 const fleePhrases: string[] = [
     'Fish goes away',
-    'Fish is afraid',
+    'You scared the fish !',
     'You gotta hook the fish when it\'s green'
 ]
 const getRandomFleePhrase = (): string => fleePhrases[randomIntFromInterval(0, fleePhrases.length - 1)]

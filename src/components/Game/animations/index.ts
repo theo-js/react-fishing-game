@@ -31,7 +31,6 @@ export const splashAnim = (
 // Plays when a fish takes the bait
 export const takeBaitAnim = async (fishPath: HTMLElement = document.body): Promise<any> => {
     try {
-        console.log('Try playing take bait anim')
         // Play sound effect
         const audio = new Audio()
         audio.src = require('../../../assets/audio/se/take-bait.mp3')

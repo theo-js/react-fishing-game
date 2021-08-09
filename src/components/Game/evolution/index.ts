@@ -15,42 +15,42 @@ export const rodLevels: FishRodLevel[] = [
         _id: 'Beginner',
         className: styles.fishrodBeginner,
         maxLength: mToPx(15),
-        resistance: 1.25,
-        strength: 30
+        resistance: 5,
+        strength: 35
     },
     {
         _id: 'Intermediate',
         className: styles.fishrodIntermediate,
         maxLength: mToPx(20),
-        resistance: 2,
-        strength: 50
+        resistance: 20,
+        strength: 65
     },
     {
         _id: 'Advanced',
         className: styles.fishrodAdvanced,
         maxLength: mToPx(25),
-        resistance: 35,
-        strength: 60
+        resistance: 40,
+        strength: 80
     },
     {
         _id: 'Expert',
         className: styles.fishrodExpert,
         maxLength: mToPx(30),
-        resistance: 7,
-        strength: 75
+        resistance: 50,
+        strength: 85
     },
     {
         _id: 'Sea king',
         className: styles.fishrodSeaKing,
         maxLength: mToPx(35),
-        resistance: 15,
+        resistance: 60,
         strength: 90
     },
     {
         _id: 'Abyssal',
         className: styles.fishrodAbyssal,
         maxLength: mToPx(70),
-        resistance: 40,
+        resistance: 70,
         strength: 99
     },
     {

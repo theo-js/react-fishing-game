@@ -20,7 +20,7 @@ These entries can be easily added using the **LoadTutorial** component.
 
 **To add a new tutorial entry**, add a new property to the interfaces/game.ts/TutorialEntry enum;
 `enum TutorialEntry { MY_NEW_TUTORIAL_ENTRY = 'MY_NEW_TUTORIAL_ENTRY }`
-Create a new TutorialEntryComponent in Game/tutorial/MY_NEW_TUTORIAL_ENTRY **(it is important to name the file the same way as the enum).
+Create a new TutorialEntryComponent in Game/tutorial/MY_NEW_TUTORIAL_ENTRY **(it is important to name the file the same way as the enum)**.
 In your new component, return a **<Tutorial />** component
 
 ### The Tutorial component
