@@ -71,9 +71,7 @@ const Modal = React.forwardRef<any, Props>(({
         document.body.addEventListener('mouseup', handler)
         document.body.addEventListener('touchstart', handler)
         document.body.addEventListener('touchend', handler)
-        document.body.addEventListener('touchmove', handler)
         document.body.addEventListener('pointerdown', handler)
-        document.body.addEventListener('pointermove', handler)
         document.body.addEventListener('pointerup', handler)
         return () => {
             window.removeEventListener('keydown', handler)
@@ -83,10 +81,8 @@ const Modal = React.forwardRef<any, Props>(({
             document.body.removeEventListener('mousedown', handler)
             document.body.removeEventListener('mouseup', handler)
             document.body.removeEventListener('touchstart', handler)
-            document.body.removeEventListener('touchmove', handler)
             document.body.removeEventListener('touchend', handler)
             document.body.removeEventListener('pointerdown', handler)
-            document.body.removeEventListener('pointermove', handler)
             document.body.removeEventListener('pointerup', handler)
         }
     }, [])

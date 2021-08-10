@@ -68,7 +68,7 @@ const Thrown: TutorialEntryComponent<Props> = ({ afterComplete }) => {
                                     <>{/* Instructions for mobile device users */}
                                         <strong>resting your finger against the screen</strong>.&nbsp;
                                         To cancel and throw the line again immediately, click on&nbsp;
-                                        <span className="btn btn-cancel" style={{ fontSize: '.875rem' }}>
+                                        <span className="btn btn-cancel" style={{ display: 'inline-flex', fontSize: '.875rem' }}>
                                             <BsArrowRepeat />
                                         </span>
                                     </>

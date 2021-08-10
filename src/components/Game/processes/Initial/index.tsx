@@ -164,6 +164,7 @@ const InitialProcess = (({
             setIsPlayerMoving(false)
         }
         function handleTouchMove (e: TouchEvent): void {
+            e.preventDefault()
             if (processFrozen) return
             const currentTouchX = e.touches[0].clientX
             if (lastTouchX.current !== null) {
