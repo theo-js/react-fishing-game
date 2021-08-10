@@ -29,7 +29,7 @@ const Thrown: TutorialEntryComponent<Props> = ({ afterComplete }) => {
         >
             <Slider
                 transition={.5} 
-                useKeyboard 
+                useKeyboard
                 lastPage={3}
                 render={(page, setPage) => {
                 return <>

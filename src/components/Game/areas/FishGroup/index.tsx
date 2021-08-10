@@ -24,7 +24,7 @@ const FishGroup = ({ groupID, path, render }) => {
         const options: any = {
             root: null,
             rootMargin: '0px',
-            threshold: 0.1
+            threshold: window.matchMedia('( max-device-width: 1000px )').matches ? 0 : 0.1
         }
         const observer: IntersectionObserver = new IntersectionObserver((entries, observer) => {
             const group = entries[0]

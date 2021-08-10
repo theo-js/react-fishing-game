@@ -33,13 +33,21 @@ const Slider: FC<Props> = ({
     const [page, setPage] = useState<number>(initialPage)
 
     const goToPreviousPage = useCallback(
-        (): void => {
-            if (page - 1 >= firstPage) setPage(page - 1)
+        (): boolean => {
+            if (page - 1 >= firstPage) {
+                setPage(page - 1)
+                return true
+            }
+            return false
         }, [page, firstPage, setPage]
     )
     const goToNextPage = useCallback(
-        (): void => {
-            if (page + 1 <= lastPage) setPage(page + 1)
+        (): boolean => {
+            if (page + 1 <= lastPage) {
+                setPage(page + 1)
+                return true
+            }
+            return false
         }, [page, lastPage, setPage]
     )
 
@@ -93,13 +101,13 @@ const Slider: FC<Props> = ({
 
             // Compare touchstart position with current position
             if ( touchPosition > (lastTouchStart.current + swipeDistance) ) {
-                goToPreviousPage()
+                if (goToPreviousPage()) {
+                    // If the page was changed, must emit a new touchstart event to change the page again
+                    lastTouchStart.current = null 
+                }
             } else if ( touchPosition < (lastTouchStart.current - swipeDistance) ) {
-                goToNextPage();
+                if (goToNextPage()) lastTouchStart.current = null 
             } else return
-
-            // If the page was changed, must emit a new touchstart event to change the page again
-            lastTouchStart.current = null 
         },
         // Reset touchstart position
         handleTouchEnd: (e): void => {
@@ -119,9 +127,10 @@ const Slider: FC<Props> = ({
                 transform: `translate${vertical ? 'Y' : 'X'}(-${page*100}%)`,
                 transition: `ease-out transform ${transition}s`
             }}
-            onTouchStart={useTouch ? touchNavigation.handleTouchStart : undefined}
-            onTouchMove={useTouch ? touchNavigation.handleTouchMove : undefined}
-            onTouchEnd={useTouch ? touchNavigation.handleTouchEnd : undefined}
+            onTouchStartCapture={useTouch ? touchNavigation.handleTouchStart : undefined}
+            onTouchMoveCapture={useTouch ? touchNavigation.handleTouchMove : undefined}
+            onTouchEndCapture={useTouch ? touchNavigation.handleTouchEnd : undefined}
+            onTouchMove={e => e.stopPropagation()}
         >
             {render(page, setPage)}
         </div>
