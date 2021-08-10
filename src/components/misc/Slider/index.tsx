@@ -10,7 +10,8 @@ interface Props {
     vertical?: boolean,
     useKeyboard?: boolean,
     useTouch?: boolean,
-    swipeDistance?: number // number of px that user needs to swipe in order to activate page change
+    swipeDistance?: number, // number of px that user needs to swipe in order to activate page change
+    onEnd?: () => any // function called after last page
 }
 
 type TouchNavigation = {
@@ -28,7 +29,8 @@ const Slider: FC<Props> = ({
     vertical = false,
     useKeyboard = false,
     useTouch = true,
-    swipeDistance = 30
+    swipeDistance = 30,
+    onEnd
 }) => {
     const [page, setPage] = useState<number>(initialPage)
 
@@ -47,8 +49,9 @@ const Slider: FC<Props> = ({
                 setPage(page + 1)
                 return true
             }
+            onEnd && onEnd()
             return false
-        }, [page, lastPage, setPage]
+        }, [page, lastPage, setPage, onEnd]
     )
 
     // Enable keyboard page navigation

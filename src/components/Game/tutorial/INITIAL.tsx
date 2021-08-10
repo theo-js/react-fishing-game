@@ -33,6 +33,7 @@ const Initial: TutorialEntryComponent<Props> = ({ afterComplete }) => {
                 useKeyboard 
                 transition={.5} 
                 lastPage={2}
+                onEnd={() => modalRef.current && modalRef.current.closeModal()}
                 render={(page, setPage) => {
                 return <>
                     {/* Page 0 */}

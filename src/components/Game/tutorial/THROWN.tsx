@@ -31,6 +31,7 @@ const Thrown: TutorialEntryComponent<Props> = ({ afterComplete }) => {
                 transition={.5} 
                 useKeyboard
                 lastPage={3}
+                onEnd={() => modalRef.current && modalRef.current.closeModal()}
                 render={(page, setPage) => {
                 return <>
                     {/* Page 0 */}
