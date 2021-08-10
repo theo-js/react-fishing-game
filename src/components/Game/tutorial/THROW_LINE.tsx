@@ -70,7 +70,7 @@ const ThrowLine: TutorialEntryComponent<Props> = ({ afterComplete }) => {
                                 If your player was positioned incorrectly, you can cancel this step and go back to the previous scene by
                                 {isMobileDevice ? (
                                     <>{/* Instructions for mobile device users */}
-                                        clicking on&nbsp;
+                                        &nbsp;clicking on&nbsp;
                                         <span className="btn btn-cancel" style={{ display: 'inline-flex', fontSize: '.75rem' }}>
                                             Cancel
                                         </span>

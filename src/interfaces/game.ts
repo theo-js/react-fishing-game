@@ -39,7 +39,8 @@ export enum TutorialEntry {
     INITIAL = 'INITIAL',
     BAG = 'BAG',
     THROW_LINE = 'THROW_LINE',
-    THROWN = 'THROWN'
+    THROWN = 'THROWN',
+    BATTLE = 'BATTLE'
 }
 
 export interface Tutorial {

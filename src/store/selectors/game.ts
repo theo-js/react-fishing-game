@@ -56,6 +56,10 @@ export const tutorialEntrySelectors = {}
 Object.values(TutorialEntry).forEach((entry: string) => {
     tutorialEntrySelectors[entry] = createSelector(
         (state: any): Tutorial => state.game.tutorial,
-        (tutorial: Tutorial): (boolean|undefined) => tutorial[entry]
+        (tutorial: Tutorial): (boolean|undefined) => {
+            const value = tutorial[entry]
+            if (typeof value !== 'boolean') return false // uncompleted yet
+            return value
+        }
     )
 })

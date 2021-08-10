@@ -12,6 +12,8 @@
     max-width: 700px !important
     box-shadow: 0 0 1rem 0 #FFFA !important
     animation: levitate 3s linear infinite
+    &.opaque
+        background: #FFFD !important
     &.bag
         font-size: .875rem
         left: -.5rem
@@ -116,6 +118,8 @@
             padding: 0
         .page > main
                 max-height: calc(100vw - 4rem) !important
+        .page > footer > button:last-child
+            margin-left: auto // make last btn stick to the right
         p, button
             font-size: .875rem !important
 

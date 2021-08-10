@@ -1,5 +1,6 @@
 import React, { Dispatch, SetStateAction, useRef, useEffect, useState, useCallback, useMemo } from 'react'
-import { GameProcess, GameProcessComponent } from '../../../../interfaces/game'
+import { LoadTutorial } from '../../tutorial'
+import { GameProcess, GameProcessComponent, TutorialEntry } from '../../../../interfaces/game'
 import { FishData, UniqueFish } from '../../../../interfaces/fishes'
 import { FishRodLevel } from '../../../../interfaces/evolution'
 import { Coordinates, Path } from '../../../../interfaces/position'
@@ -81,6 +82,7 @@ const BattleProcess: GameProcessComponent<Props> = ({
     const lineBreakSE = useLazyAudio({ src: 'se/line-snap.wav', volume: .5 })
 
     // State
+    const [processFrozen, setProcessFrozen] = useState<boolean>(false)
     const [isPlayerReeling, setIsPlayerReeling] = useState<boolean>(false)
 
     /*
@@ -160,7 +162,7 @@ const BattleProcess: GameProcessComponent<Props> = ({
             
             else return true 
         }
-        if (willRecover()) {
+        if (willRecover() && !processFrozen) {
             recoverTensionIntervalRef.current = window.setInterval(() => {
                 const max: number = .5
                 if (lineTension < 0 && recoverTensionValue > max) {
@@ -185,7 +187,8 @@ const BattleProcess: GameProcessComponent<Props> = ({
         isPlayerReeling,
         isFishPulling,
         recoverTensionValue,
-        strengthRatio
+        strengthRatio,
+        processFrozen
     ])
 
     // Reel in line with fish
@@ -313,16 +316,18 @@ const BattleProcess: GameProcessComponent<Props> = ({
     // Cancel catching fish
     const goBack = useCallback(
         (): void => {
+            if (processFrozen) return
             setLineTension(0)
             setGameProcess(GameProcess.THROW_LINE)
             setHookedFish(null)
             reelingSE.pause()
-        }, []
+        }, [processFrozen]
     )
 
     // Decide whether fish is pulling
     useEffect(() => {
         function pullHandler () {
+            if (processFrozen) return
             const willPull = probability(hookedFish.fish.pullChance)
             if (willPull) setIsFishPulling(true)
             else setIsFishPulling(false)
@@ -341,7 +346,7 @@ const BattleProcess: GameProcessComponent<Props> = ({
             const pullIntervalID = window.setInterval(pullHandler, roamingInterval/2)
             return () => window.clearInterval(pullIntervalID)
         }
-    }, [])
+    }, [processFrozen])
 
     // Player controls
     // Cancel event
@@ -362,10 +367,11 @@ const BattleProcess: GameProcessComponent<Props> = ({
     // Space/Enter keys
     useEffect(() => {
         function handleSpaceDown (e: KeyboardEvent): void {
-            switch(e.keyCode) {
-                case 32: // Space
-                case 13: // Enter
+            switch(e.key) {
+                case ' ':
+                case 'Enter':
                     e.preventDefault()
+                    if (processFrozen) return
                     if (!isPlayerReelingRef.current) {
                         setIsPlayerReeling(true)
                     }
@@ -373,9 +379,10 @@ const BattleProcess: GameProcessComponent<Props> = ({
             }
         }
         function handleSpaceUp (e: KeyboardEvent): void {
-            switch (e.keyCode) {
-                case 32: // Space
-                case 13: // Enter
+            if (processFrozen) return
+            switch (e.key) {
+                case ' ':
+                case 'Enter':
                     // Stop reeling
                     if (isPlayerReelingRef.current) {
                         setIsPlayerReeling(false)
@@ -390,13 +397,15 @@ const BattleProcess: GameProcessComponent<Props> = ({
             document.removeEventListener('keydown', handleSpaceDown, true)
             document.removeEventListener('keyup', handleSpaceUp, false)
         }
-    }, [])
+    }, [processFrozen])
     // Mousedown/up
     useEffect(() => {
         function handleMouseDown (e: MouseEvent): void {
+            if (processFrozen) return
             setIsPlayerReeling(true)
         }
         function handleMouseUp (e: MouseEvent) : void {
+            if (processFrozen) return
             setIsPlayerReeling(false)
         }
         document.body.addEventListener('mousedown', handleMouseDown, false)
@@ -410,7 +419,7 @@ const BattleProcess: GameProcessComponent<Props> = ({
             document.body.removeEventListener('touchstart', handleMouseDown, false)
             document.body.removeEventListener('touchend', handleMouseUp, false)
         }
-    }, [])
+    }, [processFrozen])
 
     return <nav className={styles.navigation}>
         <button
@@ -419,6 +428,15 @@ const BattleProcess: GameProcessComponent<Props> = ({
         >
             <BsArrowRepeat />
         </button>
+        <LoadTutorial
+            entry={TutorialEntry.BATTLE}
+            onLoad={() => {
+                !processFrozen && setProcessFrozen(true)
+                isPlayerReeling && setIsPlayerReeling(false)
+                isFishPulling && setIsFishPulling(false)
+            }}
+            afterComplete={() => setProcessFrozen(false)}
+         />
     </nav>
 }
 BattleProcess.GameProcess = GameProcess.BATTLE

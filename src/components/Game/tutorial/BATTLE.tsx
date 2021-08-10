@@ -1,58 +1,60 @@
-import { useRef, Fragment } from 'react'
+import { Fragment, useRef, useMemo } from 'react'
 import Tutorial, { EntryProps } from './index'
-import { TutorialEntry, TutorialEntryComponent} from '../../../interfaces/game'
+import { TutorialEntry, TutorialEntryComponent } from '../../../interfaces/game'
 import Modal from '../../misc/Modal'
 import Slider from '../../misc/Slider'
-import Wave from '../../misc/Spinners/Wave'
-import { FaChevronLeft, FaChevronRight, FaCheck, FaFish } from 'react-icons/fa'
+import { FaChevronLeft, FaChevronRight, FaCheck } from 'react-icons/fa'
+// Redux
+import { useSelector } from 'react-redux'
+import { hookedFishSelector } from '../../../store/selectors/fishing'
 
 interface Props {
     afterComplete?: () => any
 }
 
-const Initial: TutorialEntryComponent<Props> = ({ afterComplete }) => {
+const Battle: TutorialEntryComponent<Props> = ({ afterComplete }) => {
     const modalRef = useRef<any>()
+    const isMobileDevice = window.matchMedia('( max-device-width: 1000px )').matches
+    const hookedFish = useSelector(hookedFishSelector)
+    const fishName = useMemo((): string => {
+        let name
+        try {
+            name = hookedFish.fish._id.toLowerCase()
+        } catch (e) {
+            name = 'fish'
+        }
+        return name
+    }, [hookedFish])
 
-    return <Tutorial 
-        afterComplete={afterComplete} 
-        entry={TutorialEntry.INITIAL} 
-        render={({
-            onComplete, modalStyles
-        }: EntryProps) => {
-        return <Modal
+    return <Tutorial
+        afterComplete={afterComplete}
+        entry={TutorialEntry.BATTLE} 
+        render={({ onComplete, modalStyles }: EntryProps) => (
+        <Modal
             onClose={onComplete}
             isStatic
-            blur="4px"
             transition={1}
-            bgClassName={modalStyles.bg}
-            className={`${modalStyles.modal} ${modalStyles.opaque}`}
+            bgClassName={`${modalStyles.bg} ${modalStyles.transparent}`}
+            className={modalStyles.modal}
             style={{ padding: '0 !important' }}
             ref={modalRef}
         >
-            <Slider 
-                useKeyboard 
+            <Slider
                 transition={.5} 
+                useKeyboard
                 lastPage={2}
                 render={(page, setPage) => {
                 return <>
                     {/* Page 0 */}
                     <div className={modalStyles.page} data-page={0}>
                         <header>
-                            <h2 style={{ textAlign: 'center' }}>
-                                Welcome to Go fishing !
+                            <h2 style={{ textAlign: 'center', fontSize: window.matchMedia('( max-width: 407px )').matches ? '1.125rem' : '1.5rem' }}>
+                                A {fishName} is hooked !
                             </h2>
                         </header>
                         <main>
-                            <p style={{ textAlign: 'center' }}>
-                                Let's teach you how to fish !
-                                <span className={modalStyles.animatedFish}>
-                                    <FaFish className={modalStyles.fish} />
-                                    <Wave
-                                        className={modalStyles.wave} 
-                                        size={2} color="var(--lightblue)"
-                                        edgeBlur=".25em"
-                                     />
-                                </span>
+                            <p  style={{ textAlign: 'center' }}>
+                                We need to reel it back to the shore !
                             </p>
                         </main>
                         <footer style={{ textAlign: 'right' }}>
@@ -68,21 +70,20 @@ const Initial: TutorialEntryComponent<Props> = ({ afterComplete }) => {
                     {/* Page 1 */}
                     <div className={modalStyles.page} data-page={1}>
                         <header>
-                            <h3>1. Moving the player</h3>
+                            <h3>9. Line tension</h3>
                         </header>
                         <main>
-                            <p>You should first choose a place to settle down.&nbsp;
-                                {window.matchMedia('( max-device-width: 1000px )').matches ? (
-                                    <>{/* Instructions for mobile device users */}
-                                        <strong>Swipe your finger</strong> on the screen,&nbsp;
-                                        or just <strong>touch a place on the shore</strong> to move your player.
-                                    </>
-                                ) : (
-                                    <>{/* Not mobile */}
-                                        Use the <strong>directional arrows</strong> of your keyboard,&nbsp;
-                                        or just <strong>click somewhere on the shore</strong> to move your player.&nbsp;
-                                    </>
-                                )}
+                            <p>
+                                Your fishing line may be resistant, but it is not indestructible.&nbsp;
+                                As you try to force the fish in your direction, and as it struggles, the tension increases.
+                            </p>
+                            <p>
+                                A gauge that indicates the current tension level is at the bottom of your screen.&nbsp;
+                                If it's too high, <strong>your line will break</strong>.
+                            </p>
+                            <p>
+                                <strong style={{ textDecoration: 'underline' }}>NB:</strong>&nbsp;
+                                <strong>a too low tension level will result in the fish escaping</strong> as well.
                             </p>
                         </main>
                         <footer style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '.5rem 1rem' }}>
@@ -100,17 +101,19 @@ const Initial: TutorialEntryComponent<Props> = ({ afterComplete }) => {
                             </button>
                         </footer>
                     </div>
-                    {/* Page 2 */}
+                    {/* Page 3 */}
                     <div className={modalStyles.page} data-page={2}>
-                        <header>
-                            <h3>2. Settling down</h3>
+                        <header style={{ marginTop: 'auto' }}>
+                            <h3 style={{ textAlign: 'center', color: 'var(--green)' }}>Good luck !</h3>
                         </header>
                         <main>
-                            <p>Once your player is correctly positioned, use the <strong>enter/space</strong> key or <strong>click on&nbsp;
-                            <span style={{ fontSize: '1rem', display: 'inline-flex' }} className="btn btn-primary">
-                                Fish here ?<FaFish style={{ marginLeft: '.5em' }} />
-                            </span>
-                            </strong>&nbsp;to prepare your throw.</p>
+                            <p style={{ textAlign: 'center' }}>
+                                Catch the&nbsp;
+                                <strong style={{ color: 'var(--lightblue)' }}>
+                                    {fishName}
+                                </strong>
+                                .
+                            </p>
                         </main>
                         <footer style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '.5rem 1rem' }}>
                             <button
@@ -123,15 +126,15 @@ const Initial: TutorialEntryComponent<Props> = ({ afterComplete }) => {
                                 className="btn btn-primary"
                                 onClick={() => modalRef.current && modalRef.current.closeModal()}
                             >
-                                OK<FaCheck style={{ marginLeft: '.5em' }} />
+                                Let's do this<FaCheck style={{ marginLeft: '.5em' }} />
                             </button>
                         </footer>
                     </div>
                 </>
             }} />
         </Modal>
-    }} />
+    )} />
 }
-Initial.TutorialEntry = TutorialEntry.INITIAL
+Battle.TutorialEntry = TutorialEntry.BATTLE
 
-export default Initial
+export default Battle
