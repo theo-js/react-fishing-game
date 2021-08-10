@@ -412,10 +412,7 @@ const BattleProcess: GameProcessComponent<Props> = ({
         }
     }, [])
 
-    return <div>
-        <button onClick={() => setLineTension(lineTension - 10)} style={{position: 'fixed', top: '3rem', left: '1rem' }}>-</button>
-        <button onClick={() => setLineTension(lineTension + 10)} style={{position: 'fixed', top: '3rem', left: '2rem' }}>+</button>
-        <nav className={styles.navigation}>
+    return <nav className={styles.navigation}>
         <button
             className={`btn btn-cancel ${styles.repeatBTN}`}
             onClick={goBack}
@@ -423,7 +420,6 @@ const BattleProcess: GameProcessComponent<Props> = ({
             <BsArrowRepeat />
         </button>
     </nav>
-    </div>
 }
 BattleProcess.GameProcess = GameProcess.BATTLE
 

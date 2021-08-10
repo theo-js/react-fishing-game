@@ -30,7 +30,7 @@ const Thrown: TutorialEntryComponent<Props> = ({ afterComplete }) => {
             <Slider
                 transition={.5} 
                 useKeyboard 
-                lastPage={2}
+                lastPage={3}
                 render={(page, setPage) => {
                 return <>
                     {/* Page 0 */}
