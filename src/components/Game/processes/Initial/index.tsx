@@ -93,6 +93,7 @@ const InitialProcess = (({
         setBaitOffset({ x: 0, y: -20, transition: '.2 all ease' })
         setRodAngle(0)
         setBaitType('default')
+        console.log('reset fishing pole in initial process')
     }, [])
 
     // Hide barometer

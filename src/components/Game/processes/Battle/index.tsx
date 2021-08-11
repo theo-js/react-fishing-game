@@ -295,21 +295,26 @@ const BattleProcess: GameProcessComponent<Props> = ({
     useEffect(() => {
         if (lineTension >= 100) {
             // Line broke
-            goBack()
-            setGameProcess(GameProcess.INITIAL)
-            loseLineBreak() 
-
-            // Play sound effect
-            try {
-                lineBreakSE.play()
-            } catch (err) {
-                console.log('Failed to play \'line-snap.mp3\' sound effect')
-            }
+            (async () => {
+                function afterSE () {
+                    goBack()
+                    setGameProcess(GameProcess.INITIAL)
+                    loseLineBreak()
+                }
+                try {
+                    // Play sound effect
+                    await lineBreakSE.play()
+                    afterSE()
+                } catch (err) {
+                    console.log('Failed to play \'line-snap.mp3\' sound effect')
+                    afterSE()
+                }
+            })()
         } else if (lineTension <= -100) {
             // Line was too loose
             goBack()
             setGameProcess(GameProcess.INITIAL)
-            loseLineLoose()    
+            loseLineLoose()  
         }
     }, [lineTension])
 
