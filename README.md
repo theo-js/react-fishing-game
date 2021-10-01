@@ -1,5 +1,6 @@
 # Go fishing
 Fishing game made with **React.js**, Typescript and Redux.
+[https://go-fishing.netlify.app/](https://go-fishing.netlify.app/)
 
 ## Game scenes
 Game scenes are called processes.
